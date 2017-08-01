@@ -79,17 +79,6 @@ function startExperiment() {
 
 
 	//CONTROL FLOW
-
-	var allimages = [];
-
-	//for critical trials
-	var images = new Array();
-	for (i = 0; i<allimages.length; i++) {
-		images[i] = new Image();
-		images[i].src = "animalimages/" + allimages[i] + ".jpg";
-	}
-
-
 	//shuffle trials to randomize order, and construct correct answers in wordList
 	
 	shuffle(allTrials)
@@ -103,10 +92,32 @@ function startExperiment() {
 
 	console.log(wordList)
 
+	//order image names according to trial order
+	var allimages = [];
+
+	for(i=0; i<allTrials.length; i++) {
+		subImages = allTrials[i].slice();
+		 for(j=1; j<=3; j++) {
+		 	newImages = subImages.slice();
+		 	allimages.push(newImages[j]);
+		 }
+	};
+
+	//connect image names to source
+	// for critical trials
+	var images = new Array();
+	for (i = 0; i<allimages.length; i++) {
+		images[i] = new Image();
+		images[i].src = "animalimages/" + allimages[i] + ".jpg";
+	}
+
+	console.log(images)
+
 
 	showSlide("instructions");
 
 }
+
 
 
 // MAIN EXPERIMENT
