@@ -77,16 +77,31 @@ getCurrentTime = function() {
 
 function startExperiment() {
 
+
 	//CONTROL FLOW
 
 	var allimages = [];
 
-	//for critical trials and fillers
+	//for critical trials
 	var images = new Array();
 	for (i = 0; i<allimages.length; i++) {
 		images[i] = new Image();
 		images[i].src = "animalimages/" + allimages[i] + ".jpg";
 	}
+
+
+	//shuffle trials to randomize order, and construct correct answers in wordList
+	
+	shuffle(allTrials)
+
+	var wordList = []
+
+	for(i=0; i<allTrials.length; i++){
+		var word = allTrials[i][4]
+		wordList.push(word)
+	};
+
+	console.log(wordList)
 
 
 	showSlide("instructions");
@@ -250,7 +265,7 @@ var experiment = {
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			imageArray.splice(0, 2);
-			wordList.splice(0, 1);
+			wordList.splice(0);
 		});
 	},
 }
