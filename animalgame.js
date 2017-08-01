@@ -103,7 +103,7 @@ function startExperiment() {
 		 }
 	};
 
-	//connect image names to source
+	// connect image names to source
 	// for critical trials
 	var images = new Array();
 	for (i = 0; i<allimages.length; i++) {
@@ -111,13 +111,10 @@ function startExperiment() {
 		images[i].src = "animalimages/" + allimages[i] + ".jpg";
 	}
 
-	console.log(images)
-
 
 	showSlide("instructions");
 
 }
-
 
 
 // MAIN EXPERIMENT
@@ -198,15 +195,15 @@ var experiment = {
 		//objects_html = '<table class = "centered" ><tr><td id=word colspan="2">' + wordList[0] + '</td></tr><tr>';;
 	    
 	   	//HTML for the first object on the left
-		leftname = "animalimages/" + imageArray[0] + ".jpg";
+		leftname = "animalimages/" + allimages[0] + ".jpg";
 		objects_html += '<table align = "center" cellpadding="30"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
 
 		//HTML for the first object in the middle
-		middlename = "animalimages/" + imageArray[1] + ".jpg";
+		middlename = "animalimages/" + allimages[1] + ".jpg";
 		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
 	
 		//HTML for the first object on the right
-		rightname = "animalimages/" + imageArray[2] + ".jpg";
+		rightname = "animalimages/" + allimages[2] + ".jpg";
 	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
 		
     	objects_html += '</tr></table>';
@@ -231,9 +228,10 @@ var experiment = {
 	    	experiment.reactiontime = (new Date()).getTime() - startTime;
 
 	    	experiment.trialnum = counter;
-	    	experiment.pic1 = imageArray[0];
-	    	experiment.pic2 = imageArray[1];
-	    	experiment.pic3 = imageArray[2];
+	    	experiment.word = wordList[trialnum]
+	    	experiment.pic1 = allimages[0];
+	    	experiment.pic2 = allimages[1];
+	    	experiment.pic3 = allimages[2];
 
 	    	//get whether the left and right pictures were familiar or novel
 	    	
@@ -243,17 +241,16 @@ var experiment = {
 	    	switch(picID) {
 	    		case "leftPic":
 	    			experiment.side = "L";
-	    			experiment.chosenpic = imageArray[0];
+	    			experiment.chosenpic = allimages[0];
 	    			break;
 	    		case "middlePic":
 	    			experiment.side = "M";
-	    			experiment.chosenpic = imageArray[1];
+	    			experiment.chosenpic = allimages[1];
 	    			break;
 	    		default: // "rightPic"
 	    			experiment.side = "R"
-	    			experiment.chosenpic = imageArray[2];
+	    			experiment.chosenpic = allimages[2];
 	    	}
-
 
 	    	
 			
@@ -275,8 +272,8 @@ var experiment = {
 			$(document.getElementById(picID)).css('border', "solid 8px red");
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
-			imageArray.splice(0, 2);
-			wordList.splice(0);
+			imageArray.splice(0, 3);
+			wordList.splice(0, 1);
 		});
 	},
 }
