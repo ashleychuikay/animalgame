@@ -1,6 +1,23 @@
+
 //Read in local .csv file
 
-var trials: $.csv.toArrays("animalgame/trials.csv");
+var csv = "/trials.csv"
+
+var trials = $.csv.toArrays("high,dog,cat,mouse\nhigh,horse,lion,monkey\nlow,donkey,wolf,goose\nlow,turkey,deer,squirrel");
+
+
+allTrials = new Array
+
+for(i=0; i<trials.length; i++){
+	newArr = trials[i].slice();
+	for(j=1; j<=3; j++){
+		subArr = newArr.slice();
+		subArr.push(subArr[j]);
+		allTrials.push(subArr);
+	}
+};
+
+console.log(allTrials);
 
 
 
@@ -113,7 +130,7 @@ var experiment = {
   		experiment.subid = document.getElementById("subjectID").value;
 
 		//list
-		if (document.getElementById("order").value !== "1" && document.getElementById("order").value !== "2") { //|| document.getElementById("order").value !== "2") {
+		if (document.getElementById("order").value !== "1" && document.getElementById("order").value !== "2") { //|| document.getElementById("order").value !== "2"
 			$("#checkMessage").html('<font color="red">For list, you must choose either a 1 or 2</font>');
 			return;
 		}
@@ -188,7 +205,7 @@ var experiment = {
 
 	    	switch(picID) {
 	    		case "leftPic":
-	    			experiment.side "L";
+	    			experiment.side = "L";
 	    			experiment.chosenpic = imageArray[0];
 	    			break;
 	    		case "middlePic":
@@ -223,6 +240,8 @@ var experiment = {
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			imageArray.splice(0, 2);
 			wordList.splice(0, 1);
-
+		});
+	},
+}
 
 
