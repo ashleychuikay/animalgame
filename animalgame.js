@@ -1,24 +1,33 @@
 
-//Read in local .csv file
+//Read in .csv from server
+var xhr = new XMLHttpRequest(),
+    method = "GET",
+    url = "https://raw.githubusercontent.com/ashleychuikay/animalgame/master/trials.csv";
 
-var csv = "/trials.csv"
+xhr.open(method, url, true);
 
-var trials = $.csv.toArrays("high,dog,cat,mouse\nhigh,horse,lion,monkey\nlow,donkey,wolf,goose\nlow,turkey,deer,squirrel");
+xhr.onreadystatechange = function () {
+  if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
 
+    trials = $.csv.toArrays(xhr.responseText);
 
-allTrials = new Array
+    allTrials = new Array
 
-for(i=0; i<trials.length; i++){
-	newArr = trials[i].slice();
-	for(j=1; j<=3; j++){
-		subArr = newArr.slice();
-		subArr.push(subArr[j]);
-		allTrials.push(subArr);
-	}
+		for(i=0; i<trials.length; i++){
+			newArr = trials[i].slice();
+			for(j=1; j<=3; j++){
+				subArr = newArr.slice();
+				subArr.push(subArr[j]);
+				allTrials.push(subArr);
+			}
+		};
+
+		console.log(allTrials);
+
+		startExperiment(allTrials)
+  }
 };
-
-console.log(allTrials);
-
+xhr.send();
 
 
 // ---------------- PARAMETERS ------------------
@@ -33,7 +42,6 @@ var timeafterClick = 1000;
 
 //length of filler (every time fill2 comes up, add 1sec of time)
 var fillerpause = 5000;
-
 
 
 // ---------------- HELPER ------------------
@@ -67,20 +75,23 @@ getCurrentTime = function() {
 	return (hours + ":" + minutes);
 }
 
+function startExperiment() {
 
-//CONTROL FLOW
+	//CONTROL FLOW
 
-var allimages = [];
+	var allimages = [];
 
-//for critical trials and fillers
-var images = new Array();
-for (i = 0; i<allimages.length; i++) {
-	images[i] = new Image();
-	images[i].src = "animalimages/" + allimages[i] + ".jpg";
+	//for critical trials and fillers
+	var images = new Array();
+	for (i = 0; i<allimages.length; i++) {
+		images[i] = new Image();
+		images[i].src = "animalimages/" + allimages[i] + ".jpg";
+	}
+
+
+	showSlide("instructions");
+
 }
-
-
-showSlide("instructions");
 
 
 // MAIN EXPERIMENT
