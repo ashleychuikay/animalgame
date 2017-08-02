@@ -204,14 +204,14 @@ var experiment = {
 	
 		//HTML for the first object on the right
 		rightname = "animalimages/" + allimages[2] + ".jpg";
-	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
-		
-    	objects_html += '</tr></table>';
-	    $("#objects").html(objects_html); 
+   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
+	
+  	objects_html += '</tr></table>';
+    $("#objects").html(objects_html); 
 
-	    $("#stage").fadeIn();
+    $("#stage").fadeIn();
 
-	    var startTime = (new Date()).getTime();
+    var startTime = (new Date()).getTime();
 
 		var clickDisabled = true;
 		setTimeout(function() {clickDisabled = false;},  2000);
