@@ -90,6 +90,19 @@ function startExperiment() {
 	
 	shuffle(allTrials)
 
+	function checkTrials() {
+		shuffle(allTrials)
+		for(i=0; i<allTrials.length-1; i++) {
+			allTrials[i] = check1;
+			console.log(check1)
+			allTrials[i+1] = check2;
+			console.log(check2)
+			if(check2.contains(check1[0])) {
+				checktrials();
+			}
+		}
+	};
+
 
 
 	for(i=0; i<allTrials.length; i++){
@@ -112,11 +125,11 @@ function startExperiment() {
 
 	// connect image names to source
 	// for critical trials
-	// var images = new Array();
-	// for (i = 0; i<allImages.length; i++) {
-	// 	images[i] = new Image();
-	// 	images[i].src = "animalimages/" + allImages[i] + ".jpg";
-	// }
+	var images = new Array();
+	for (i = 0; i<allImages.length; i++) {
+		images[i] = new Image();
+		images[i].src = "animalimages/" + allImages[i] + ".jpg";
+	};
 
 
 	showSlide("instructions");
@@ -207,7 +220,7 @@ var experiment = {
 		//var imageArray = makeImageArray(experiment.order);
 
 		var objects_html = "";
-		var counter = 1;
+		var counter = 0;
 
 
 
@@ -285,7 +298,7 @@ var experiment = {
 			experiment.trialtype = allTrials[experiment.trialnum][0];
 
 
-			//Add one to the counter and process the data to be saved; the child completed another "round" of the experiment
+			//Add one to the counter and process the data to be saved; the child completed another "round" of the 
 			experiment.processOneRow();
 	    	counter++;
 
