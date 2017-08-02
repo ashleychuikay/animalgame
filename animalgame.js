@@ -22,8 +22,6 @@ xhr.onreadystatechange = function () {
 			}
 		};
 
-		console.log(allTrials);
-
 		startExperiment(allTrials)
   }
 };
@@ -75,6 +73,9 @@ getCurrentTime = function() {
 	return (hours + ":" + minutes);
 }
 
+var wordList = []
+var allImages = [];
+
 function startExperiment() {
 
 
@@ -83,33 +84,33 @@ function startExperiment() {
 	
 	shuffle(allTrials)
 
-	var wordList = []
+
 
 	for(i=0; i<allTrials.length; i++){
 		var word = allTrials[i][4]
 		wordList.push(word)
 	};
 
-	console.log(wordList)
 
 	//order image names according to trial order
-	var allimages = [];
+
 
 	for(i=0; i<allTrials.length; i++) {
 		subImages = allTrials[i].slice();
 		 for(j=1; j<=3; j++) {
 		 	newImages = subImages.slice();
-		 	allimages.push(newImages[j]);
+		 	allImages.push(newImages[j]);
 		 }
 	};
 
+
 	// connect image names to source
 	// for critical trials
-	var images = new Array();
-	for (i = 0; i<allimages.length; i++) {
-		images[i] = new Image();
-		images[i].src = "animalimages/" + allimages[i] + ".jpg";
-	}
+	// var images = new Array();
+	// for (i = 0; i<allImages.length; i++) {
+	// 	images[i] = new Image();
+	// 	images[i].src = "animalimages/" + allImages[i] + ".PCT";
+	// }
 
 
 	showSlide("instructions");
@@ -157,19 +158,21 @@ var experiment = {
 
 	checkInput: function() {
 		//subject ID
-  		if (document.getElementById("subjectID").value.length < 1) {
-			$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
-			return;
-		}
-  		experiment.subid = document.getElementById("subjectID").value;
+  		//if (document.getElementById("subjectID").value.length < 1) {
+			//$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+			//return;
+		//}
+  	//experiment.subid = document.getElementById("subjectID").value;
 
 		//list
-		if (document.getElementById("order").value !== "1" && document.getElementById("order").value !== "2") { //|| document.getElementById("order").value !== "2"
-			$("#checkMessage").html('<font color="red">For list, you must choose either a 1 or 2</font>');
-			return;
-		}
-		experiment.order = parseInt(document.getElementById("order").value);
-		experiment.training(0);
+		// if (document.getElementById("order").value !== "1" && document.getElementById("order").value !== "2") { //|| document.getElementById("order").value !== "2"
+		// 	$("#checkMessage").html('<font color="red">For list, you must choose either a 1 or 2</font>');
+		// 	return;
+		// }
+		//experiment.order = parseInt(document.getElementById("order").value);
+
+		showSlide("stage");
+		experiment.next();
 	},
 
 
@@ -191,19 +194,21 @@ var experiment = {
 		var objects_html = "";
 		var counter = 1;
 
+
+
 	// Create the object table (tr=table row; td= table data)
 		//objects_html = '<table class = "centered" ><tr><td id=word colspan="2">' + wordList[0] + '</td></tr><tr>';;
 	    
 	   	//HTML for the first object on the left
-		leftname = "animalimages/" + allimages[0] + ".jpg";
+		leftname = "animalimages/" + allImages[0] + ".PCT";
 		objects_html += '<table align = "center" cellpadding="30"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
 
 		//HTML for the first object in the middle
-		middlename = "animalimages/" + allimages[1] + ".jpg";
+		middlename = "animalimages/" + allImages[1] + ".PCT";
 		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
 	
 		//HTML for the first object on the right
-		rightname = "animalimages/" + allimages[2] + ".jpg";
+		rightname = "animalimages/" + allImages[2] + ".PCT";
    	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
 	
   	objects_html += '</tr></table>';
@@ -227,11 +232,11 @@ var experiment = {
 	    	//time the participant clicked - the time the trial began
 	    	experiment.reactiontime = (new Date()).getTime() - startTime;
 
-	    	experiment.trialnum = counter;
-	    	experiment.word = wordList[trialnum]
-	    	experiment.pic1 = allimages[0];
-	    	experiment.pic2 = allimages[1];
-	    	experiment.pic3 = allimages[2];
+	    	//experiment.trialnum = counter;
+	    	//experiment.word = wordList[trialnum]
+	    	experiment.pic1 = allImages[0];
+	    	experiment.pic2 = allImages[1];
+	    	experiment.pic3 = allImages[2];
 
 	    	//get whether the left and right pictures were familiar or novel
 	    	
@@ -241,15 +246,15 @@ var experiment = {
 	    	switch(picID) {
 	    		case "leftPic":
 	    			experiment.side = "L";
-	    			experiment.chosenpic = allimages[0];
+	    			experiment.chosenpic = allImages[0];
 	    			break;
 	    		case "middlePic":
 	    			experiment.side = "M";
-	    			experiment.chosenpic = allimages[1];
+	    			experiment.chosenpic = allImages[1];
 	    			break;
 	    		default: // "rightPic"
 	    			experiment.side = "R"
-	    			experiment.chosenpic = allimages[2];
+	    			experiment.chosenpic = allImages[2];
 	    	}
 
 	    	
@@ -262,18 +267,20 @@ var experiment = {
 			}
 
 			//what kind of trial was this?
-			experiment.trialtype = getTrialType(experiment.word, imageArray[0], imageArray[1]);
+			//experiment.trialtype = getTrialType(experiment.word, imageArray[0], imageArray[1]);
 
 			//Add one to the counter and process the data to be saved; the child completed another "round" of the experiment
-			experiment.processOneRow();
+			//experiment.processOneRow();
 	    	counter++;
 
-	    	$(document.getElementById(picID)).css('margin', "-8px");
+	    $(document.getElementById(picID)).css('margin', "-8px");
 			$(document.getElementById(picID)).css('border', "solid 8px red");
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
-			imageArray.splice(0, 3);
+			allImages.splice(0, 3);
 			wordList.splice(0, 1);
+
+			setTimeout(experiment.next, 1000)
 		});
 	},
 }
