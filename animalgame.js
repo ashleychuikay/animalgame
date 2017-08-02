@@ -14,13 +14,19 @@ xhr.onreadystatechange = function () {
     allTrials = new Array
 
 		for(i=0; i<trials.length; i++){
-			newArr = trials[i].slice();
+			newArr = trials[i].slice();	
+
 			for(j=1; j<=3; j++){
 				subArr = newArr.slice();
 				subArr.push(subArr[j]);
+				items = subArr.slice(1,4);
+				shuffle(items);
+				subArr.splice(1,3,items[0],items[1],items[2]);
 				allTrials.push(subArr);
 			}
 		};
+
+		console.log(allTrials)
 
 		startExperiment(allTrials)
   }
@@ -109,7 +115,7 @@ function startExperiment() {
 	// var images = new Array();
 	// for (i = 0; i<allImages.length; i++) {
 	// 	images[i] = new Image();
-	// 	images[i].src = "animalimages/" + allImages[i] + ".PCT";
+	// 	images[i].src = "animalimages/" + allImages[i] + ".jpg";
 	// }
 
 
@@ -162,14 +168,8 @@ var experiment = {
 			//$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
 			//return;
 		//}
-  	//experiment.subid = document.getElementById("subjectID").value;
+  	experiment.subid = document.getElementById("subjectID").value;
 
-		//list
-		// if (document.getElementById("order").value !== "1" && document.getElementById("order").value !== "2") { //|| document.getElementById("order").value !== "2"
-		// 	$("#checkMessage").html('<font color="red">For list, you must choose either a 1 or 2</font>');
-		// 	return;
-		// }
-		//experiment.order = parseInt(document.getElementById("order").value);
 
 		showSlide("stage");
 		experiment.next();
@@ -184,6 +184,21 @@ var experiment = {
     	showSlide("finish");
     	document.body.style.background = "black";
     },
+
+    //concatenates all experimental variables into a string which represents one "row" of data in the eventual csv, to live in the server
+	processOneRow: function () {
+		var dataforRound = experiment.subid; 
+		dataforRound += "," + experiment.trialnum + "," + experiment.word;
+		dataforRound += "," + experiment.pic1 + "," + experiment.pic2 + "," + experiment.pic3;
+		// experiment.pic1type + "," + experiment.pic2type;
+		dataforRound += "," + experiment.side + "," + experiment.chosenpic + "," + experiment.response + "," + experiment.trialtype;
+		dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.reactiontime + "\n";
+		$.post("http://", {postresult_string : dataforRound});	
+
+		console.log(dataforRound);
+		//TODO: add lab server
+	},
+
 
     // MAIN DISPLAY FUNCTION
   	next: function() {
@@ -200,15 +215,15 @@ var experiment = {
 		//objects_html = '<table class = "centered" ><tr><td id=word colspan="2">' + wordList[0] + '</td></tr><tr>';;
 	    
 	   	//HTML for the first object on the left
-		leftname = "animalimages/" + allImages[0] + ".PCT";
+		leftname = "animalimages/" + allImages[0] + ".jpg";
 		objects_html += '<table align = "center" cellpadding="30"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
 
 		//HTML for the first object in the middle
-		middlename = "animalimages/" + allImages[1] + ".PCT";
+		middlename = "animalimages/" + allImages[1] + ".jpg";
 		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
 	
 		//HTML for the first object on the right
-		rightname = "animalimages/" + allImages[2] + ".PCT";
+		rightname = "animalimages/" + allImages[2] + ".jpg";
    	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
 	
   	objects_html += '</tr></table>';
@@ -232,8 +247,8 @@ var experiment = {
 	    	//time the participant clicked - the time the trial began
 	    	experiment.reactiontime = (new Date()).getTime() - startTime;
 
-	    	//experiment.trialnum = counter;
-	    	//experiment.word = wordList[trialnum]
+	    	experiment.trialnum = counter;
+	    	experiment.word = wordList[experiment.trialnum]
 	    	experiment.pic1 = allImages[0];
 	    	experiment.pic2 = allImages[1];
 	    	experiment.pic3 = allImages[2];
@@ -267,14 +282,18 @@ var experiment = {
 			}
 
 			//what kind of trial was this?
-			//experiment.trialtype = getTrialType(experiment.word, imageArray[0], imageArray[1]);
+			experiment.trialtype = allTrials[experiment.trialnum][0];
+
 
 			//Add one to the counter and process the data to be saved; the child completed another "round" of the experiment
-			//experiment.processOneRow();
+			experiment.processOneRow();
 	    	counter++;
+
+
 
 	    $(document.getElementById(picID)).css('margin', "-8px");
 			$(document.getElementById(picID)).css('border', "solid 8px red");
+			$(document.getElementById(picID)).animate({'margin-top': '-80px'}, 'slow');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			allImages.splice(0, 3);

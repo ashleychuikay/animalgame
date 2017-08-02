@@ -27,7 +27,7 @@ body {
 input, select, button {font-family: Georgia, serif; font-size: 14px;}
 
 button {
-	background: url(images/button-gradient.png);
+	background: white;
 	border: 1px solid #999;
 	border-top: 1px solid #e0e0e0;
 	border-left: 1px solid #e0e0e0;
@@ -37,9 +37,9 @@ button {
 	height: 29px;
 	min-width: 70px;
 }
-
+/*
 button2 {
-	background: url(images/button-gradient.png);
+	background: white;
 	border: 1px solid #999;
 	border-top: 1px solid #e0e0e0;
 	border-left: 1px solid #e0e0e0;
@@ -48,7 +48,7 @@ button2 {
 	padding-right: 5px;
 	height: 29px;
 	min-width: 70px;
-}
+}*/
 button:active {
 	border-left: 1px solid #c9c9c9;
 	border-top: 1px solid #c9c9c9;
@@ -119,7 +119,3 @@ This stuff will vary by experiment.
 	height: auto;
 }
 
-/*#fillerPic {
-	width: 900px;
-	height: auto;
-}*/
