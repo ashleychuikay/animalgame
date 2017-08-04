@@ -35,7 +35,7 @@ xhr.send();
 
 // ---------------- PARAMETERS ------------------
 
-var numTrials = 28;
+var numTrials = 3;
 
 //amount of white space between trials
 var normalpause = 1500;
@@ -172,8 +172,6 @@ function startExperiment() {
 		wordList.push(word)
 	};
 
-	console.log(wordList);
-
 
 	//order image names according to trial order
 
@@ -233,7 +231,7 @@ var experiment = {
 
 
 	preStudy: function() {
-		document.body.style.background = "black";
+		document.body.style.background = "white";
 		$("#prestudy").hide();
 		setTimeout(function () {
 			experiment.next(0);
@@ -345,8 +343,6 @@ var experiment = {
 		//var imageArray = makeImageArray(experiment.order);
 
 		var objects_html = "";
-		console.log(counter)
-		// var counter = 0;
 
 
 
@@ -439,7 +435,15 @@ var experiment = {
 			wordList.splice(0, 1);
 
 
-			setTimeout(function() {counter++; experiment.next(counter)}, 1000)
+			setTimeout(function() {
+				counter++; 
+				if (counter === numTrials) {
+					setTimeout(function() {experiment.end()}, 1000)
+					return;
+				} else { 
+				setTimeout(function() {experiment.next(counter)}, 1000)
+				}
+			});
 		});
 	},
 }
