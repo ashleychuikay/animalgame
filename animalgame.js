@@ -26,7 +26,6 @@ xhr.onreadystatechange = function () {
 			}
 		};
 
-		console.log(allTrials)
 
 		startExperiment(allTrials)
   }
@@ -44,8 +43,8 @@ var normalpause = 1500;
 //pause after picture chosen, to display red border around picture selected
 var timeafterClick = 1000;
 
-//length of filler (every time fill2 comes up, add 1sec of time)
-var fillerpause = 5000;
+// //length of filler (every time fill2 comes up, add 1sec of time)
+// var fillerpause = 5000;
 
 
 // ---------------- HELPER ------------------
@@ -79,6 +78,60 @@ getCurrentTime = function() {
 	return (hours + ":" + minutes);
 }
 
+createDot = function(dotx, doty, i, tag) {
+	var dots;
+	if (tag === "smiley") {
+		dots = ["smiley1", "smiley2", "smiley3", "smiley4", "smiley5"];
+	} else {
+		dots = [1, 2, 3, 4, 5];
+	}
+
+	var dot = document.createElement("img");
+	dot.setAttribute("class", "dot");
+	dot.id = "dot_" + dots[i];
+	if (tag === "smiley") {
+		dot.src = "dots/dot_" + "smiley" + ".jpg";
+	} else {
+		dot.src = "dots/dot_" + dots[i] + ".jpg";
+	}
+
+    var x = Math.floor(Math.random()*950);
+    var y = Math.floor(Math.random()*540);
+
+    var invalid = "true";
+
+    //make sure dots do not overlap
+    while (true) {
+    	invalid = "true";
+	   	for (j = 0; j < dotx.length ; j++) {
+    		if (Math.abs(dotx[j] - x) + Math.abs(doty[j] - y) < 250) {
+    			var invalid = "false";
+    			break; 
+    		}
+		}
+		if (invalid === "true") {
+ 			dotx.push(x);
+  		  	doty.push(y);
+  		  	break;	
+  	 	}
+  	 	x = Math.floor(Math.random()*400);
+   		y = Math.floor(Math.random()*400);
+	}
+
+    dot.setAttribute("style","position:absolute;left:"+x+"px;top:"+y+"px;");
+   	training.appendChild(dot);
+}
+
+
+//for dot game
+var images = new Array();
+var dots = ["dot_1", "dot_2", "dot_3", "dot_4", "dot_5", "x", "dot_smiley"];
+for (i = 0; i<dots.length; i++) {
+	images[i] = new Image();
+	images[i].src = "dots/" + dots[i] + ".jpg";
+}
+
+
 var wordList = []
 var allImages = [];
 
@@ -86,29 +139,40 @@ function startExperiment() {
 
 
 	//CONTROL FLOW
-	//shuffle trials to randomize order, and construct correct answers in wordList
+	//shuffle trials to randomize order, check to make sure the same set of animals does not appear back to back
 	
 	shuffle(allTrials)
 
 	function checkTrials() {
 		shuffle(allTrials)
 		for(i=0; i<allTrials.length-1; i++) {
-			allTrials[i] = check1;
-			console.log(check1)
-			allTrials[i+1] = check2;
-			console.log(check2)
-			if(check2.contains(check1[0])) {
-				checktrials();
+			// var check1 = allTrials[i];
+			// var check2 = allTrials[i+1];
+			if(allTrials[i+1].includes(allTrials[i][0])) {
+				var temp = allTrials[i+1];
+				allTrials[i+1] = allTrials[i+2];
+				allTrials[i+2] = temp;
+
+				if(allTrials[i+2].includes(allTrials[i+1][0])) {
+				checkTrials(allTrials);
+				}
+			}
+			if(allTrials[allTrials.length-2].includes(allTrials[allTrials.length-1][0])) {
+				checkTrials(allTrials);
 			}
 		}
 	};
 
+	checkTrials(allTrials);
 
+	//construct wordList for correct answers
 
 	for(i=0; i<allTrials.length; i++){
 		var word = allTrials[i][4]
 		wordList.push(word)
 	};
+
+	console.log(wordList);
 
 
 	//order image names according to trial order
@@ -125,11 +189,11 @@ function startExperiment() {
 
 	// connect image names to source
 	// for critical trials
-	var images = new Array();
-	for (i = 0; i<allImages.length; i++) {
-		images[i] = new Image();
-		images[i].src = "animalimages/" + allImages[i] + ".jpg";
-	};
+	// var images = new Array();
+	// for (i = 0; i<allImages.length; i++) {
+	// 	images[i] = new Image();
+	// 	images[i].src = "animalimages/" + allImages[i] + ".jpg";
+	// };
 
 
 	showSlide("instructions");
@@ -167,25 +231,86 @@ var experiment = {
 	reactiontime: 0,
 		//time between start of trial and response 
 
+
 	preStudy: function() {
 		document.body.style.background = "black";
 		$("#prestudy").hide();
 		setTimeout(function () {
-			experiment.next();
+			experiment.next(0);
 		}, normalpause);
 	},
 
+	//sets up and allows participants to play "the dot game"
+	training: function(dotgame) {
+		var allDots = ["dot_1", "dot_2", "dot_3", "dot_4", "dot_5", 
+						"dot_smiley1", "dot_smiley2", "dot_smiley3", 
+						"dot_smiley4", "dot_smiley5"];
+		var xcounter = 0;
+		var dotCount = 5;
+
+		//preload sound
+		// if (dotgame === 0) {
+		// 	audioSprite.play();
+		// 	audioSprite.pause();
+		// }
+
+		var dotx = [];
+		var doty = [];
+
+		if (dotgame === 0) {
+			for (i = 0; i < dotCount; i++) {
+				createDot(dotx, doty, i, "");
+			}
+		} else {
+			for (i = 0; i < dotCount; i++) {
+				createDot(dotx, doty, i, "smiley");
+			}
+		}
+		showSlide("training");
+		$('.dot').bind('click touchstart', function(event) {
+	    	var dotID = $(event.currentTarget).attr('id');
+
+	    	//only count towards completion clicks on dots that have not yet been clicked
+	    	if (allDots.indexOf(dotID) === -1) {
+	    		return;
+	    	}
+	    	allDots.splice(allDots.indexOf(dotID), 1);
+	    	document.getElementById(dotID).src = "dots/x.jpg";
+	    	xcounter++
+	    	if (xcounter === dotCount) {
+	    		setTimeout(function () {
+	    			$("#training").hide();
+	    			if (dotgame === 0) {		
+	    				//hide old x marks before game begins again
+	    				var dotID;
+	    				for (i = 1; i <= dotCount; i++) {
+	    					dotID = "dot_" + i;
+	    					training.removeChild(document.getElementById(dotID));
+	    				}
+						experiment.training();
+						dotgame++; 
+					} else {
+						//document.body.style.background = "black";
+						setTimeout(function() {
+							showSlide("prestudy");
+						}, normalpause*2);
+					}
+				}, normalpause*2);
+			}
+	    });	   
+	},
+
 	checkInput: function() {
-		//subject ID
-  		//if (document.getElementById("subjectID").value.length < 1) {
-			//$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
-			//return;
-		//}
+		// subject ID
+  		if (document.getElementById("subjectID").value.length < 1) {
+			$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+			return;
+		}
   	experiment.subid = document.getElementById("subjectID").value;
 
 
 		showSlide("stage");
-		experiment.next();
+		experiment.training(0);
 	},
 
 
@@ -214,13 +339,14 @@ var experiment = {
 
 
     // MAIN DISPLAY FUNCTION
-  	next: function() {
+  	next: function(counter) {
 
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
 
 		var objects_html = "";
-		var counter = 0;
+		console.log(counter)
+		// var counter = 0;
 
 
 
@@ -261,7 +387,7 @@ var experiment = {
 	    	experiment.reactiontime = (new Date()).getTime() - startTime;
 
 	    	experiment.trialnum = counter;
-	    	experiment.word = wordList[experiment.trialnum]
+	    	experiment.word = wordList[0]
 	    	experiment.pic1 = allImages[0];
 	    	experiment.pic2 = allImages[1];
 	    	experiment.pic3 = allImages[2];
@@ -300,7 +426,7 @@ var experiment = {
 
 			//Add one to the counter and process the data to be saved; the child completed another "round" of the 
 			experiment.processOneRow();
-	    	counter++;
+	    	// counter++;
 
 
 
@@ -312,7 +438,8 @@ var experiment = {
 			allImages.splice(0, 3);
 			wordList.splice(0, 1);
 
-			setTimeout(experiment.next, 1000)
+
+			setTimeout(function() {counter++; experiment.next(counter)}, 1000)
 		});
 	},
 }

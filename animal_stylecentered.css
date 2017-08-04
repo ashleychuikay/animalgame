@@ -37,7 +37,7 @@ button {
 	height: 29px;
 	min-width: 70px;
 }
-/*
+
 button2 {
 	background: white;
 	border: 1px solid #999;
@@ -48,7 +48,8 @@ button2 {
 	padding-right: 5px;
 	height: 29px;
 	min-width: 70px;
-}*/
+}
+
 button:active {
 	border-left: 1px solid #c9c9c9;
 	border-top: 1px solid #c9c9c9;
