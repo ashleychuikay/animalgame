@@ -194,7 +194,11 @@ function startExperiment() {
 	// };
 
 
-	showSlide("instructions");
+	// to start at beginning
+	//showSlide("instructions");
+
+	//to jump around for de-buggingk
+	showSlide('prestudy')
 
 }
 
@@ -350,15 +354,15 @@ var experiment = {
 		//objects_html = '<table class = "centered" ><tr><td id=word colspan="2">' + wordList[0] + '</td></tr><tr>';;
 	    
 	   	//HTML for the first object on the left
-		leftname = "animalimages/" + allImages[0] + ".jpg";
+		leftname = "animalimages/" + allImages[0] + ".png";
 		objects_html += '<table align = "center" cellpadding="30"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
 
 		//HTML for the first object in the middle
-		middlename = "animalimages/" + allImages[1] + ".jpg";
+		middlename = "animalimages/" + allImages[1] + ".png";
 		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
 	
 		//HTML for the first object on the right
-		rightname = "animalimages/" + allImages[2] + ".jpg";
+		rightname = "animalimages/" + allImages[2] + ".png";
    	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
 	
   	objects_html += '</tr></table>';
@@ -424,10 +428,6 @@ var experiment = {
 			experiment.processOneRow();
 	    	// counter++;
 
-
-
-	    $(document.getElementById(picID)).css('margin', "-8px");
-			$(document.getElementById(picID)).css('border', "solid 8px red");
 			$(document.getElementById(picID)).animate({'margin-top': '-80px'}, 'slow');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
