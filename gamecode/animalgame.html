@@ -1,0 +1,93 @@
+<html>
+  <head>
+    <title>What does this mean?</title>
+    <link rel="stylesheet" href="animal_stylecentered.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+
+   <!-- Include some extra functional programming tools -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"> </script>
+
+    <!-- Notice the URL, this is handled by socket.io on the server automatically, via express -->
+    <script src="/socket.io/socket.io.js"></script>
+
+
+   <!-- Load the common game code. -->
+    <script  src="game.core.js"></script>
+    
+
+   <!-- Finally, Load the game client code. -->
+    <script src="clientBase.js"></script>    
+   <script  src="game.client.js"></script>
+
+ 
+    
+    <meta name="viewport" content="initial-scale=1.0" /> 
+     <!--<meta name="viewport" content="width=device-width">  -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+  </head>
+  <body>
+  
+    <div class="slide" id="instructions">
+    <img src="logo.rgb.maroon.jpg" alt="University of Chicago"> 
+        <p id='logo-text'>University of Chicago Communication and Learning Lab</p>
+   
+        <p class="block-text">Welcome to the animal game study. Enter relevant information below:</p>
+
+        <p class="block-text">
+          subject ID: <br>
+          <input type="text" id="subjectID" name="subjectID" size="30"> 
+        </p>
+
+<!--         <p class="block-text">
+          list number: <br>
+          <input type="text" id="order" name="order" size="30"> 
+        </p> -->
+
+        <button type="button" id="beforeStudy" onClick="this.blur(); experiment.checkInput()">Start</button>
+
+        <div id="checkMessage"> </div> <!--dynamically built in javascript-->
+    </div>
+
+  <div class="slide" id="parent">
+      <p>Waiting</p>
+  </div>
+ 
+  <div class="slide" id="training">
+  </div>
+
+  <div class="slide" id="child">
+      <p>Good Job!</p>
+  </div>    
+
+  <div class="slide" id="prestudy">
+        <br><br><br><br>
+        <center><button type="button" id="beginStudy" onClick="this.blur()">Begin</button></center>
+  </div>
+
+  <div class="slide" id="parentstudy"> 
+    <p>Please ask your child to click on the</p>
+    <p class="correctWord"></p>
+  </div>
+
+  <div class="slide" id="stage">
+    <div id="objects"> </div>
+  </div>
+    
+     <!--  <audio id="sound_player">
+        <source src="tablet_sprite_edited.mp3" type="audio/mp3">
+      </audio>   -->
+
+   </div>
+
+
+    <div class="slide" id="finish">
+      <p>This is the end of the study.</p>
+      <p>Thank you so much for participating!</p>
+    </div>
+
+    
+    <script src="animalgame.js"></script>
+    
+  </body>
+</html>
