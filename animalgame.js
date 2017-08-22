@@ -1,8 +1,10 @@
 
+// var webAudio= require("webAudio.js")
+
 //Read in .csv from server
 var xhr = new XMLHttpRequest(),
     method = "GET",
-    url = "https://raw.githubusercontent.com/ashleychuikay/animalgame/master/trials.csv";
+    url = "https://raw.githubusercontent.com/ashleychuikay/animalgame/master/gamecode/trials.csv";
 
 xhr.open(method, url, true);
 
@@ -35,7 +37,7 @@ xhr.send();
 
 // ---------------- PARAMETERS ------------------
 
-var numTrials = 3;
+var numTrials = 10;
 
 //amount of white space between trials
 var normalpause = 1500;
@@ -54,6 +56,7 @@ function showSlide(id) {
   $(".slide").hide(); //jquery - all elements with class of slide - hide
   $("#"+id).show(); //jquery - element with given id - show
 }
+
 
 //array shuffle function
 shuffle = function (o) { //v1.0
@@ -136,6 +139,7 @@ for (i = 0; i<dots.length; i++) {
 var wordList = []
 var allImages = [];
 
+
 function startExperiment() {
 
 
@@ -202,6 +206,8 @@ function startExperiment() {
 	// showSlide('prestudy')
 
 }
+
+
 
 
 // MAIN EXPERIMENT
@@ -383,9 +389,11 @@ var experiment = {
 		globalGame.clickDisabled = true;
 		clickDisabled = true;
 		setTimeout(function() {clickDisabled = false;},  2000);
+		
 
 
-		$('.pic').bind('click touchstart', function(event) {
+
+		$('.pic').on('click touchstart', function(event) {
 
 	    	if (clickDisabled) return;
 
@@ -402,8 +410,6 @@ var experiment = {
 	    	experiment.pic1 = allImages[0];
 	    	experiment.pic2 = allImages[1];
 	    	experiment.pic3 = allImages[2];
-
-	    	//get whether the left and right pictures were familiar or novel
 	    	
 	    	//Was the picture clicked on the right or the left?
 	    	var picID = $(event.currentTarget).attr('id');
@@ -422,7 +428,12 @@ var experiment = {
 	    			experiment.chosenpic = allImages[2];
 	    	}
 
-	    	
+	    	//Play animal sound according to chosen picture
+			var animalSound;
+			animalSound = new WebAudioAPISound("animalsounds/"+experiment.chosenpic);
+			console.log(animalSound)
+		    		setTimeout(function() {animalSound.play();}, 50)
+
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
 			if (experiment.chosenpic === experiment.word) {
