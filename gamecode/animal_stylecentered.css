@@ -111,10 +111,10 @@ This stuff will vary by experiment.
 /*adjust so pictures are centered on the screen*/
 .pic {
 	display: inline-block;
-	width: 350px;
-	height: 350px;
-	margin-left: 25px;
-	margin-right: 25px;
+	width: 295px;
+	height: 295px;
+/*	margin-left: 0 auto;
+	margin-right: 0 auto;*/
 	object-fit: contain;
 }
 
@@ -125,18 +125,18 @@ This stuff will vary by experiment.
 
 /*left pic, middle pic, right pic are large but fit comfortably in the ipad window*/
 #leftPic {
-	width: 350px;
-	max-height: 350px;
+	width: 295px;
+	max-height: 295px;
 }
 
 #middlePic {
-	width: 350px;
-	max-height: 350px;
+	width: 295px;
+	max-height: 295px;
 }
 
 #rightPic {
-	width: 350px;
-	max-height: 350px;
+	width: 295px;
+	max-height: 295px;
 }
 
 #stage {
