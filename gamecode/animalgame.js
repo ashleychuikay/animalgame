@@ -200,10 +200,10 @@ function startExperiment() {
 
 
 	// to start at beginning
-	showSlide("instructions");
+	// showSlide("instructions");
 
-	//to jump around for de-buggingk
-	// showSlide('prestudy')
+	//to jump around for de-bugging
+	experiment.preStudy();
 
 }
 
@@ -369,7 +369,7 @@ var experiment = {
 	    
 	   	//HTML for the first object on the left
 		leftname = "animalimages/" + allImages[0] + ".png";
-		objects_html += '<table align = "center" cellpadding="30"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
+		objects_html += '<table align = "center" cellpadding="25"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
 
 		//HTML for the first object in the middle
 		middlename = "animalimages/" + allImages[1] + ".png";
