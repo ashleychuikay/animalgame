@@ -200,10 +200,10 @@ function startExperiment() {
 
 
 	// to start at beginning
-	// showSlide("instructions");
+	 showSlide("instructions");
 
 	//to jump around for de-bugging
-	experiment.preStudy();
+	//experiment.preStudy();
 
 }
 
