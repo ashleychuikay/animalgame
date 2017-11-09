@@ -356,9 +356,6 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
-  		//show blank background without animals
-  		//showSlide("blank");
-
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
 
@@ -464,7 +461,7 @@ var experiment = {
 			wordList.splice(0, 1);
 
 
-
+			//hide animals and show only background for 2 seconds
 			setTimeout(function() {
 				$(".pic").delay().hide(2000);
 				counter++; 
