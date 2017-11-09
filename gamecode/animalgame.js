@@ -37,7 +37,7 @@ xhr.send();
 
 // ---------------- PARAMETERS ------------------
 
-var numTrials = 10;
+var numTrials = 36;
 
 //amount of white space between trials
 var normalpause = 1500;
@@ -200,10 +200,10 @@ function startExperiment() {
 
 
 	// to start at beginning
-	 showSlide("instructions");
+	showSlide("instructions");
 
 	//to jump around for de-bugging
-	//experiment.preStudy();
+	// experiment.preStudy();
 
 }
 
@@ -356,6 +356,8 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
+  		//show blank background without animals
+  		//showSlide("blank");
 
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
@@ -383,6 +385,7 @@ var experiment = {
     $("#objects").html(objects_html); 
 
     $("#stage").fadeIn();
+    
 
     var startTime = (new Date()).getTime();
 
@@ -454,20 +457,22 @@ var experiment = {
 
 	    // $(document.getElementById(picID)).css('margin', "-8px");
 			// document.getElementById(picID).style.border = "solid 8px red";
-			$(document.getElementById(picID)).animate({'margin-top': '-80px'}, 'slow');
+			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'slow');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			allImages.splice(0, 3);
 			wordList.splice(0, 1);
 
 
+
 			setTimeout(function() {
+				$(".pic").delay().hide(2000);
 				counter++; 
 				if (counter === numTrials) {
 					setTimeout(function() {experiment.end()}, 1000)
 					return;
-				} else { 
-				setTimeout(function() {experiment.next(counter)}, 1000)
+				} else {
+					setTimeout(function() {experiment.next(counter)}, 4000);
 				}
 			});
 		});
