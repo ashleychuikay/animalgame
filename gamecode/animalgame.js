@@ -347,10 +347,8 @@ var experiment = {
 		// experiment.pic1type + "," + experiment.pic2type;
 		dataforRound += "," + experiment.side + "," + experiment.chosenpic + "," + experiment.response + "," + experiment.trialtype;
 		dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.reactiontime + "\n";
-		$.post("animalgamesave.php", {postresult_string : dataforRound});	
+		$.post("http://callab.uchicago.edu/experiments/animalgame/gamecode/animalgamesave.php", {postresult_string : dataforRound});	
 
-		console.log(dataforRound);
-		//TODO: add lab server
 	},
 
 
@@ -454,7 +452,7 @@ var experiment = {
 
 	    // $(document.getElementById(picID)).css('margin', "-8px");
 			// document.getElementById(picID).style.border = "solid 8px red";
-			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'slow');
+			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'fast');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			allImages.splice(0, 3);
@@ -463,7 +461,7 @@ var experiment = {
 
 			//hide animals and show only background for 2 seconds
 			setTimeout(function() {
-				$(".pic").delay().hide(2000);
+				$(".pic").delay().fadeOut(2000);
 				counter++; 
 				if (counter === numTrials) {
 					setTimeout(function() {experiment.end()}, 1000)
