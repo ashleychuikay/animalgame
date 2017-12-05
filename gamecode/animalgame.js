@@ -259,6 +259,7 @@ var experiment = {
 
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
+		console.log('TRAINING STARTS')
 		var allDots = ["dot_1", "dot_2", "dot_3", "dot_4", "dot_5", 
 						"dot_smiley1", "dot_smiley2", "dot_smiley3", 
 						"dot_smiley4", "dot_smiley5"];
@@ -284,7 +285,7 @@ var experiment = {
 			}
 		}
 		showSlide("training");
-		$('.dot').bind('click touchstart', function(event) {
+		$('.dot').bind(' touchstart', function(event) {
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
