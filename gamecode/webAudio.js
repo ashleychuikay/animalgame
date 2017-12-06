@@ -20,6 +20,7 @@ try {
  */
 WebAudioAPISoundManager.prototype = {
      addSound: function (url) {
+        console.log('is addSound on?')
         // Load buffer asynchronously
         var request = new XMLHttpRequest();
         request.open("GET", url, true);
@@ -29,10 +30,12 @@ WebAudioAPISoundManager.prototype = {
 
         request.onload = function () {
             // Asynchronously decode the audio file data in request.response
+            console.log('adding buffer')
             self.context.decodeAudioData(
                 request.response,
 
                 function (buffer) {
+                    console.log('buffer data is ' + buffer)
                     if (!buffer) {
                         alert('error decoding file data: ' + url);
                         return;
@@ -82,6 +85,7 @@ WebAudioAPISoundManager.prototype = {
 WebAudioAPISound.prototype = {
     play: function () {
         var buffer = this.manager.bufferList[this.url];
+        console.log(buffer)
         //Only play if it's loaded yet
         if (typeof buffer !== "undefined") {
             var source = this.makeSource(buffer);
@@ -108,6 +112,7 @@ WebAudioAPISound.prototype = {
     },
     makeSource: function (buffer) {
         var source = this.manager.context.createBufferSource();
+        console.log('bufferSource is ' + source)
         var gainNode = this.manager.context.createGain();
         gainNode.gain.value = this.volume ? this.volume : 0.5;
         source.buffer = buffer;

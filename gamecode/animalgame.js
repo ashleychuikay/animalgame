@@ -200,13 +200,60 @@ function startExperiment() {
 
 
 	// to start at beginning
-	showSlide("instructions");
+	// showSlide("instructions");
 
 	//to jump around for de-bugging
-	// experiment.preStudy();
+	experiment.preStudy();
 
 }
 
+
+var isWebAudioUnlocked = false;
+var isHTMLAudioUnlocked = false;
+
+
+function unlock() {
+    if (isWebAudioUnlocked  && isHTMLAudioUnlocked) return;
+
+    // Unlock WebAudio - create short silent buffer and play it
+    // This will allow us to play web audio at any time in the app
+    console.log('pre-buffer')
+    var buffer = myContext.createBuffer(1, 1, 22050); // 1/10th of a second of silence
+    var source = myContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(myContext.destination);
+    console.log('post-buffer, pre unlock')
+    source.onended = function()
+    {
+        console.log("WebAudio unlocked!");
+        isWebAudioUnlocked = true;
+        if (isWebAudioUnlocked && isHTMLAudioUnlocked)
+        {
+            console.log("WebAudio unlocked and playable w/ mute toggled on!");
+        }
+    };
+    source.start();
+
+    // // Unlock HTML5 Audio - load a data url of short silence and play it
+    // // This will allow us to play web audio when the mute toggle is on
+    // var silenceDataURL:string = "data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+    // var tag:HTMLAudioElement = document.createElement("audio");
+    // tag.controls = false;
+    // tag.preload = "auto";
+    // tag.loop = false;
+    // tag.src = silenceDataURL;
+    // tag.onended = function()
+    // {
+    //     console.log("HTMLAudio unlocked!");
+    //     isHTMLAudioUnlocked = true;
+    //     if (isWebAudioUnlocked && isHTMLAudioUnlocked)
+    //     {
+    //         console.log("WebAudio unlocked and playable w/ mute toggled on!");
+    //         window.removeEventListener("mousedown", unlock);
+    //     }
+    // };
+    // tag.play();
+}
 
 
 
@@ -259,6 +306,15 @@ var experiment = {
 
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
+			console.log('webAudio attempt 2')
+	try {
+	    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	    window.audioContext = new window.AudioContext();
+	    console.log('2nd attempt: tried Web Audio API')
+	} catch (e) {
+	    console.log("2nd attempt failed: No Web Audio API support");
+	}
+
 		console.log('TRAINING STARTS')
 		var allDots = ["dot_1", "dot_2", "dot_3", "dot_4", "dot_5", 
 						"dot_smiley1", "dot_smiley2", "dot_smiley3", 
@@ -285,7 +341,7 @@ var experiment = {
 			}
 		}
 		showSlide("training");
-		$('.dot').bind(' touchstart', function(event) {
+		$('.dot').bind(' touchend', function(event) {
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -296,7 +352,14 @@ var experiment = {
 	    	document.getElementById(dotID).src = "dots/x.jpg";
 	    	xcounter++
 	    	if (xcounter === dotCount) {
-	    		if (dotgame != 0) {
+
+	    		// console.log('calling unlock')
+	    		// unlock()
+				// var animalSound;
+				// animalSound = new WebAudioAPISound("animalsounds/dog");
+				// console.log('unlocking hopefully ' + animalSound)
+		  //   	setTimeout(function() {animalSound.play();}, 100)	    		
+		    	if (dotgame != 0) {
 	    			globalGame.trainingOver = true;
 	    		}
 	    		setTimeout(function () {
@@ -324,7 +387,7 @@ var experiment = {
 			$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
 			return;
 		}
-  	experiment.subid = document.getElementById("subjectID").value;
+  		experiment.subid = document.getElementById("subjectID").value;
 
 
 		showSlide("parent");
@@ -355,6 +418,11 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
+  		var trialSounds = []
+  		for (i=0; i < 3; i++) {
+	    	animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
+	    	trialSounds.push(animalSound)
+	    }
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
 
@@ -392,7 +460,7 @@ var experiment = {
 
 
 
-		$('.pic').on('click touchstart', function(event) {
+		$('.pic').on('touchend', function(event) {
 
 	    	if (clickDisabled) return;
 
@@ -417,22 +485,24 @@ var experiment = {
 	    		case "leftPic":
 	    			experiment.side = "L";
 	    			experiment.chosenpic = allImages[0];
+	    			winningSound= trialSounds[0]
 	    			break;
 	    		case "middlePic":
 	    			experiment.side = "M";
 	    			experiment.chosenpic = allImages[1];
+	    			winningSound= trialSounds[1]
+
 	    			break;
 	    		default: // "rightPic"
 	    			experiment.side = "R"
 	    			experiment.chosenpic = allImages[2];
+	    			winningSound= trialSounds[2]
 	    	}
 
 	    	//Play animal sound according to chosen picture
-			var animalSound;
-			animalSound = new WebAudioAPISound("animalsounds/"+experiment.chosenpic);
-			console.log(animalSound)
-		    		setTimeout(function() {animalSound.play();}, 50)
-
+			// var animalSound;
+			console.log(trialSounds)
+		    setTimeout(function() {winningSound.play();}, 100)
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
 			if (experiment.chosenpic === experiment.word) {
