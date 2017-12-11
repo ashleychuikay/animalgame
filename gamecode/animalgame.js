@@ -198,12 +198,19 @@ function startExperiment() {
 	// 	images[i].src = "animalimages/" + allImages[i] + ".jpg";
 	// };
 
+	//load all animal sounds and arrange in trial order
+	var trialSounds = []
+  	for (i=0; i < allTrials.length; i++) {
+	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
+	    trialSounds.push(animalSound)
+	}
+
 
 	// to start at beginning
-	// showSlide("instructions");
+	showSlide("instructions");
 
 	//to jump around for de-bugging
-	experiment.preStudy();
+	// experiment.preStudy();
 
 }
 
@@ -297,7 +304,7 @@ var experiment = {
 	},
 
 	parentStudy: function(){
-		showSlide("parentstudy");
+		$("parentstudy").fadeIn;
 		var parentList = globalGame.correctList.split(',')
 		$(".correctWord").html(parentList[globalGame.trialnum]);
 		console.log(parentList);
@@ -389,9 +396,7 @@ var experiment = {
 		}
   		experiment.subid = document.getElementById("subjectID").value;
 
-
 		showSlide("parent");
-		// experiment.training(0);
 	},
 
 
@@ -418,11 +423,7 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
-  		var trialSounds = []
-  		for (i=0; i < 3; i++) {
-	    	animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
-	    	trialSounds.push(animalSound)
-	    }
+
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
 

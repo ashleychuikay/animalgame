@@ -151,6 +151,7 @@ var sharedSetup = function(game) {
   });
 
   game.socket.on('selected', function() {
+    $('#parentstudy').fadeOut();
     globalGame.trialnum++;
     if (globalGame.trialnum == numTrials) {
       experiment.end();
