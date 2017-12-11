@@ -104,8 +104,7 @@ var sharedSetup = function(game) {
  //  });
 
   // Tell server when parent clicks the start button
-  $('#beforeStudy').on(' touchstart', function(event){
-    console.log('changes')
+  $('#beforeStudy').on('click', function(event){
     game.socket.send('startButton')
   });
 
