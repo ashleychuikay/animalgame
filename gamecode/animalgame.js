@@ -138,6 +138,7 @@ for (i = 0; i<dots.length; i++) {
 
 var wordList = []
 var allImages = [];
+var trialSounds = []
 
 
 function startExperiment() {
@@ -199,12 +200,11 @@ function startExperiment() {
 	// };
 
 	//load all animal sounds and arrange in trial order
-	var trialSounds = []
   	for (i=0; i < allTrials.length; i++) {
 	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
 	    trialSounds.push(animalSound)
 	}
-
+	// console.log(trialSounds)
 
 	// to start at beginning
 	showSlide("instructions");
@@ -215,52 +215,6 @@ function startExperiment() {
 }
 
 
-var isWebAudioUnlocked = false;
-var isHTMLAudioUnlocked = false;
-
-
-function unlock() {
-    if (isWebAudioUnlocked  && isHTMLAudioUnlocked) return;
-
-    // Unlock WebAudio - create short silent buffer and play it
-    // This will allow us to play web audio at any time in the app
-    console.log('pre-buffer')
-    var buffer = myContext.createBuffer(1, 1, 22050); // 1/10th of a second of silence
-    var source = myContext.createBufferSource();
-    source.buffer = buffer;
-    source.connect(myContext.destination);
-    console.log('post-buffer, pre unlock')
-    source.onended = function()
-    {
-        console.log("WebAudio unlocked!");
-        isWebAudioUnlocked = true;
-        if (isWebAudioUnlocked && isHTMLAudioUnlocked)
-        {
-            console.log("WebAudio unlocked and playable w/ mute toggled on!");
-        }
-    };
-    source.start();
-
-    // // Unlock HTML5 Audio - load a data url of short silence and play it
-    // // This will allow us to play web audio when the mute toggle is on
-    // var silenceDataURL:string = "data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
-    // var tag:HTMLAudioElement = document.createElement("audio");
-    // tag.controls = false;
-    // tag.preload = "auto";
-    // tag.loop = false;
-    // tag.src = silenceDataURL;
-    // tag.onended = function()
-    // {
-    //     console.log("HTMLAudio unlocked!");
-    //     isHTMLAudioUnlocked = true;
-    //     if (isWebAudioUnlocked && isHTMLAudioUnlocked)
-    //     {
-    //         console.log("WebAudio unlocked and playable w/ mute toggled on!");
-    //         window.removeEventListener("mousedown", unlock);
-    //     }
-    // };
-    // tag.play();
-}
 
 
 
@@ -304,7 +258,8 @@ var experiment = {
 	},
 
 	parentStudy: function(){
-		$("parentstudy").fadeIn;
+		$('#prestudy').hide();
+		setTimeout(function() {$("#parentstudy").fadeIn(500);}, 1500)
 		var parentList = globalGame.correctList.split(',')
 		$(".correctWord").html(parentList[globalGame.trialnum]);
 		console.log(parentList);
@@ -348,7 +303,7 @@ var experiment = {
 			}
 		}
 		showSlide("training");
-		$('.dot').bind(' touchend', function(event) {
+		$('.dot').bind(' click', function(event) {
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -383,7 +338,7 @@ var experiment = {
 					} else {
 							showSlide("child");
 					}
-				}, normalpause*2);
+				}, normalpause);
 			}
 	    });	   
 	},
@@ -426,9 +381,9 @@ var experiment = {
 
   		//returns the list of all images to use in the study - list dependent
 		//var imageArray = makeImageArray(experiment.order);
-
+		// console.log(allImages)
 		var objects_html = "";
-
+		// console.log(trialSounds)
 
 
 	// Create the object table (tr=table row; td= table data)
@@ -461,7 +416,7 @@ var experiment = {
 
 
 
-		$('.pic').on('touchend', function(event) {
+		$('.pic').on('click touchend', function(event) {
 
 	    	if (clickDisabled) return;
 
@@ -478,7 +433,7 @@ var experiment = {
 	    	experiment.pic1 = allImages[0];
 	    	experiment.pic2 = allImages[1];
 	    	experiment.pic3 = allImages[2];
-	    	
+
 	    	//Was the picture clicked on the right or the left?
 	    	var picID = $(event.currentTarget).attr('id');
 
@@ -486,6 +441,7 @@ var experiment = {
 	    		case "leftPic":
 	    			experiment.side = "L";
 	    			experiment.chosenpic = allImages[0];
+	    			console.log(allImages)
 	    			winningSound= trialSounds[0]
 	    			break;
 	    		case "middlePic":
@@ -528,6 +484,7 @@ var experiment = {
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			allImages.splice(0, 3);
+			trialSounds.splice(0, 3);
 			wordList.splice(0, 1);
 
 
@@ -539,7 +496,9 @@ var experiment = {
 					setTimeout(function() {experiment.end()}, 1000)
 					return;
 				} else {
-					setTimeout(function() {experiment.next(counter)}, 4000);
+					setTimeout(function() {
+						experiment.next(counter)
+					}, 4000);
 				}
 			});
 		});

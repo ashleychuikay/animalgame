@@ -133,7 +133,7 @@ var sharedSetup = function(game) {
   });
 
   // Tell server when parent clicks the begin button
-  $('#beginStudy').on('click touchstart', function(event){
+  $('#beginStudy').on('click ', function(event){
         game.socket.send('beginButton');
         experiment.parentStudy();
   });
@@ -150,13 +150,13 @@ var sharedSetup = function(game) {
   });
 
   game.socket.on('selected', function() {
-    $('#parentstudy').fadeOut();
+        $('#parentstudy').hide();
     globalGame.trialnum++;
     if (globalGame.trialnum == numTrials) {
       experiment.end();
     } else {
-    experiment.parentStudy();
-  }
+      experiment.parentStudy();
+    }
   });
 
   // Tell server when experiment is finished
