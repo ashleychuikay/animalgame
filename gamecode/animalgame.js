@@ -204,7 +204,6 @@ function startExperiment() {
 	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
 	    trialSounds.push(animalSound)
 	}
-	// console.log(trialSounds)
 
 	// to start at beginning
 	showSlide("instructions");
@@ -262,8 +261,6 @@ var experiment = {
 		setTimeout(function() {$("#parentstudy").fadeIn(500);}, 1500)
 		var parentList = globalGame.correctList.split(',')
 		$(".correctWord").html(parentList[globalGame.trialnum]);
-		console.log(parentList);
-		console.log(globalGame.trialnum);
 	},
 
 	//sets up and allows participants to play "the dot game"
@@ -283,12 +280,6 @@ var experiment = {
 						"dot_smiley4", "dot_smiley5"];
 		var xcounter = 0;
 		var dotCount = 5;
-
-		//preload sound
-		// if (dotgame === 0) {
-		// 	audioSprite.play();
-		// 	audioSprite.pause();
-		// }
 
 		var dotx = [];
 		var doty = [];
@@ -314,13 +305,7 @@ var experiment = {
 	    	document.getElementById(dotID).src = "dots/x.jpg";
 	    	xcounter++
 	    	if (xcounter === dotCount) {
-
-	    		// console.log('calling unlock')
-	    		// unlock()
-				// var animalSound;
-				// animalSound = new WebAudioAPISound("animalsounds/dog");
-				// console.log('unlocking hopefully ' + animalSound)
-		  //   	setTimeout(function() {animalSound.play();}, 100)	    		
+   		
 		    	if (dotgame != 0) {
 	    			globalGame.trainingOver = true;
 	    		}
@@ -379,11 +364,7 @@ var experiment = {
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
 
-  		//returns the list of all images to use in the study - list dependent
-		//var imageArray = makeImageArray(experiment.order);
-		// console.log(allImages)
 		var objects_html = "";
-		// console.log(trialSounds)
 
 
 	// Create the object table (tr=table row; td= table data)
@@ -441,7 +422,6 @@ var experiment = {
 	    		case "leftPic":
 	    			experiment.side = "L";
 	    			experiment.chosenpic = allImages[0];
-	    			console.log(allImages)
 	    			winningSound= trialSounds[0]
 	    			break;
 	    		case "middlePic":
@@ -458,7 +438,6 @@ var experiment = {
 
 	    	//Play animal sound according to chosen picture
 			// var animalSound;
-			console.log(trialSounds)
 		    setTimeout(function() {winningSound.play();}, 100)
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.

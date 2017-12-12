@@ -76,32 +76,6 @@ var sharedSetup = function(game) {
       console.log("globalGame is being used here!");
     }
   });
-  
-  // Tell server when client types something in the chatbox
- //  $('form').submit(function(){
- //    var origMsg = $('#chatbox').val();
- //    var timeElapsed = Date.now() - globalGame.typingStartTime;
- //    var msg = ['chatMessage', origMsg.replace(/\./g, '~~~'), timeElapsed].join('.');
- //    if($('#chatbox').val() != '') {
- //      game.socket.send(msg);
- //      globalGame.sentTyping = false;
- //      $('#chatbox').val('');
- //    }
- //    return false;   
- //  });
-
- //  game.socket.on('playerTyping', function(data){
- //    if(data.typing == "true") {
- //      $('#messages')
-	// .append('<span class="typing-msg">Other player is typing...</span>')
-	// .stop(true,true)
-	// .animate({
-	//   scrollTop: $("#messages").prop("scrollHeight")
-	// }, 800);
- //    } else {
- //      $('.typing-msg').remove();
- //    }
- //  });
 
   // Tell server when parent clicks the start button
   $('#beforeStudy').on('click', function(event){
@@ -121,15 +95,12 @@ var sharedSetup = function(game) {
       }
   })
 
-  // $('#done').on('click touchstart', function(event){
-  //   var msg = ['done', wordList].join('.');
-  //   game.socket.send(msg)
-  // })
-
   game.socket.on('done', function(data){
      globalGame.correctList = data.msg;
      globalGame.trialnum = experiment.trialnum;
-    showSlide('prestudy');
+      setTimeout(function(){
+        showSlide('prestudy');
+      }, 2000);
   });
 
   // Tell server when parent clicks the begin button
@@ -170,25 +141,25 @@ var sharedSetup = function(game) {
 
 
   // Update messages log when other players send chat
-  game.socket.on('chatMessage', function(data){
+ //  game.socket.on('chatMessage', function(data){
 
-    var otherRole = (globalGame.my_role === game.playerRoleNames.role1 ?
-		     game.playerRoleNames.role2 : game.playerRoleNames.role1);
-    var source = data.user === globalGame.my_id ? "You" : otherRole;
-    // To bar responses until speaker has uttered at least one message
-    if(source !== "You"){
-      globalGame.messageSent = true;
-    }
-    var col = source === "You" ? "#363636" : "#707070";
-    $('.typing-msg').remove();
-    $('#messages')
-      .append($('<li style="padding: 5px 10px; background: ' + col + '">')
-    	      .text(source + ": " + data.msg))
-      .stop(true,true)
-      .animate({
-	scrollTop: $("#messages").prop("scrollHeight")
-      }, 800);
-  });
+ //    var otherRole = (globalGame.my_role === game.playerRoleNames.role1 ?
+	// 	     game.playerRoleNames.role2 : game.playerRoleNames.role1);
+ //    var source = data.user === globalGame.my_id ? "You" : otherRole;
+ //    // To bar responses until speaker has uttered at least one message
+ //    if(source !== "You"){
+ //      globalGame.messageSent = true;
+ //    }
+ //    var col = source === "You" ? "#363636" : "#707070";
+ //    $('.typing-msg').remove();
+ //    $('#messages')
+ //      .append($('<li style="padding: 5px 10px; background: ' + col + '">')
+ //    	      .text(source + ": " + data.msg))
+ //      .stop(true,true)
+ //      .animate({
+	// scrollTop: $("#messages").prop("scrollHeight")
+ //      }, 800);
+ //  });
 
   //so that we can measure the duration of the game
   game.startTime = Date.now();

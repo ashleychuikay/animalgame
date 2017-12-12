@@ -20,7 +20,6 @@ try {
  */
 WebAudioAPISoundManager.prototype = {
      addSound: function (url) {
-        console.log('is addSound on?')
         // Load buffer asynchronously
         var request = new XMLHttpRequest();
         request.open("GET", url, true);
