@@ -191,14 +191,6 @@ function startExperiment() {
 	};
 
 
-	// connect image names to source
-	// for critical trials
-	// var images = new Array();
-	// for (i = 0; i<allImages.length; i++) {
-	// 	images[i] = new Image();
-	// 	images[i].src = "animalimages/" + allImages[i] + ".jpg";
-	// };
-
 	//load all animal sounds and arrange in trial order
   	for (i=0; i < allTrials.length; i++) {
 	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
@@ -353,7 +345,6 @@ var experiment = {
 		var dataforRound = experiment.subid; 
 		dataforRound += "," + experiment.trialnum + "," + experiment.word;
 		dataforRound += "," + experiment.pic1 + "," + experiment.pic2 + "," + experiment.pic3;
-		// experiment.pic1type + "," + experiment.pic2type;
 		dataforRound += "," + experiment.side + "," + experiment.chosenpic + "," + experiment.response + "," + experiment.trialtype;
 		dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.reactiontime + "\n";
 		$.post("https://callab.uchicago.edu/experiments/animalgame/gamecode/animalgamesave.php", {postresult_string : dataforRound});	
@@ -368,7 +359,6 @@ var experiment = {
 
 
 	// Create the object table (tr=table row; td= table data)
-		//objects_html = '<table class = "centered" ><tr><td id=word colspan="2">' + wordList[0] + '</td></tr><tr>';;
 	    
 	   	//HTML for the first object on the left
 		leftname = "animalimages/" + allImages[0] + ".png";
@@ -437,7 +427,6 @@ var experiment = {
 	    	}
 
 	    	//Play animal sound according to chosen picture
-			// var animalSound;
 		    setTimeout(function() {winningSound.play();}, 100)
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
@@ -458,7 +447,6 @@ var experiment = {
 
 
 	    // $(document.getElementById(picID)).css('margin', "-8px");
-			// document.getElementById(picID).style.border = "solid 8px red";
 			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'fast');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used

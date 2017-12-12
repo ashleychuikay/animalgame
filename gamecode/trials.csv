@@ -4,9 +4,9 @@ high,cow,horse,pig
 high,dog,cat,bird
 high,duck,fish,elephant
 high,cow,horse,pig
-low,peacock,lobster,squirrel
-low,donkey,leopard,swan
-low,raccoon,rhinoceros,rooster
-low,peacock,lobster,squirrel
-low,donkey,leopard,swan
-low,raccoon,rhinoceros,rooster
+low,peacock,raccoon,squirrel
+low,rooster,leopard,swan
+low,lobster,rhinoceros,donkey
+low,peacock,raccoon,squirrel
+low,rooster,leopard,swan
+low,lobster,rhinoceros,donkey
