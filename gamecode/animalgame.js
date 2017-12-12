@@ -28,7 +28,6 @@ xhr.onreadystatechange = function () {
 			}
 		};
 
-
 		startExperiment(allTrials)
   }
 };
@@ -44,9 +43,6 @@ var normalpause = 1500;
 
 //pause after picture chosen, to display red border around picture selected
 var timeafterClick = 1000;
-
-// //length of filler (every time fill2 comes up, add 1sec of time)
-// var fillerpause = 5000;
 
 
 // ---------------- HELPER ------------------
@@ -170,6 +166,7 @@ function startExperiment() {
 	};
 
 	checkTrials(allTrials);
+	console.log(allTrials)
 
 	//construct wordList for correct answers
 
@@ -178,6 +175,7 @@ function startExperiment() {
 		wordList.push(word)
 	};
 
+	console.log(wordList)
 
 	//order image names according to trial order
 
@@ -190,12 +188,15 @@ function startExperiment() {
 		 }
 	};
 
+	console.log(allImages)
 
 	//load all animal sounds and arrange in trial order
-  	for (i=0; i < allTrials.length; i++) {
+  	for (i=0; i < 108; i++) {
 	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
 	    trialSounds.push(animalSound)
 	}
+
+	console.log(trialSounds)
 
 	// to start at beginning
 	showSlide("instructions");
