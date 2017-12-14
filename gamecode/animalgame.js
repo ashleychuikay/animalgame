@@ -195,6 +195,8 @@ function startExperiment() {
 	    trialSounds.push(animalSound)
 	}
 
+	console.log(globalGame.RoleNames)
+
 	// to start at beginning
 	showSlide("instructions");
 
