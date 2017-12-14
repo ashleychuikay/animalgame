@@ -94,7 +94,7 @@ createDot = function(dotx, doty, i, tag) {
 		dot.src = "dots/dot_" + dots[i] + ".jpg";
 	}
 
-    var x = Math.floor(Math.random()*950);
+    var x = Math.floor(Math.random()*650);
     var y = Math.floor(Math.random()*540);
 
     var invalid = "true";
@@ -194,8 +194,6 @@ function startExperiment() {
 	    animalSound = new WebAudioAPISound("animalsounds/"+animals[i]);
 	    trialSounds.push(animalSound)
 	}
-
-	console.log(trialSounds)
 
 	// to start at beginning
 	showSlide("instructions");

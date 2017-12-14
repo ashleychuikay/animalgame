@@ -64,24 +64,23 @@ var sharedSetup = function(game) {
   game.socket = io.connect({reconnection: false});
 
   // Tell other player if someone is typing...
-  $('#chatbox').on('input', function() {
-    console.log("inputting...");
-    if($('#chatbox').val() != "" && !globalGame.sentTyping) {
-      game.socket.send('playerTyping.true');
-      globalGame.typingStartTime = Date.now();
-      globalGame.sentTyping = true;
-    } else if($("#chatbox").val() == "") {
-      game.socket.send('playerTyping.false');
-      globalGame.sentTyping = false;
-      console.log("globalGame is being used here!");
-    }
-  });
+  // $('#chatbox').on('input', function() {
+  //   console.log("inputting...");
+  //   if($('#chatbox').val() != "" && !globalGame.sentTyping) {
+  //     game.socket.send('playerTyping.true');
+  //     globalGame.typingStartTime = Date.now();
+  //     globalGame.sentTyping = true;
+  //   } else if($("#chatbox").val() == "") {
+  //     game.socket.send('playerTyping.false');
+  //     globalGame.sentTyping = false;
+  //     console.log("globalGame is being used here!");
+  //   }
+  // });
 
   // Tell server when parent clicks the start button
   $('#beforeStudy').on('click', function(event){
     var msg = ['startButton', experiment.subid].join('.');
     game.socket.send(msg)
-    console.log(msg)
   });
 
   game.socket.on('startButton', function(data){
@@ -94,7 +93,6 @@ var sharedSetup = function(game) {
       if (globalGame.trainingOver){
         var msg = ['done', wordList].join('.');
         game.socket.send(msg);
-        console.log(msg);
       }
   })
 
@@ -210,42 +208,42 @@ window.onload = function(){
 
 // This gets called when someone selects something in the menu during the exit survey...
 // collects data from drop-down menus and submits using mmturkey
-function dropdownTip(data){
-  console.log(globalGame);
-  var commands = data.split('::');
-  switch(commands[0]) {
-  case 'human' :
-    $('#humanResult').show();
-    globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
-					     {'thinksHuman' : commands[1]}); break;
-  case 'language' :
-    globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
-					     {'nativeEnglish' : commands[1]}); break;
-  case 'partner' :
-    globalGame.data.subject_information = _.extend(globalGame.data.subject_information,
-						   {'ratePartner' : commands[1]}); break;
-  case 'confused' :
-    globalGame.data.subject_information = _.extend(globalGame.data.subject_information,
-						   {'confused' : commands[1]}); break;
-  case 'submit' :
-    globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
-						   {'comments' : $('#comments').val(),
-						    'strategy' : $('#strategy').val(),
-				    'role' : globalGame.my_role,
-				    'totalLength' : Date.now() - globalGame.startTime});
-    globalGame.submitted = true;
-    console.log("data is...");
-    console.log(globalGame.data);
-    if(_.size(globalGame.urlParams) == 4) {
-      window.opener.turk.submit(globalGame.data, true);
-      window.close(); 
-    } else {
-      console.log("would have submitted the following :")
-      console.log(globalGame.data);
-    }
-    break;
-  }
-}
+// function dropdownTip(data){
+//   console.log(globalGame);
+//   var commands = data.split('::');
+//   switch(commands[0]) {
+//   case 'human' :
+//     $('#humanResult').show();
+//     globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
+// 					     {'thinksHuman' : commands[1]}); break;
+//   case 'language' :
+//     globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
+// 					     {'nativeEnglish' : commands[1]}); break;
+//   case 'partner' :
+//     globalGame.data.subject_information = _.extend(globalGame.data.subject_information,
+// 						   {'ratePartner' : commands[1]}); break;
+//   case 'confused' :
+//     globalGame.data.subject_information = _.extend(globalGame.data.subject_information,
+// 						   {'confused' : commands[1]}); break;
+//   case 'submit' :
+//     globalGame.data.subject_information = _.extend(globalGame.data.subject_information, 
+// 						   {'comments' : $('#comments').val(),
+// 						    'strategy' : $('#strategy').val(),
+// 				    'role' : globalGame.my_role,
+// 				    'totalLength' : Date.now() - globalGame.startTime});
+//     globalGame.submitted = true;
+//     console.log("data is...");
+//     console.log(globalGame.data);
+//     if(_.size(globalGame.urlParams) == 4) {
+//       window.opener.turk.submit(globalGame.data, true);
+//       window.close(); 
+//     } else {
+//       console.log("would have submitted the following :")
+//       console.log(globalGame.data);
+//     }
+//     break;
+//   }
+// }
 
 window.onbeforeunload = function(e) {
   e = e || window.event;

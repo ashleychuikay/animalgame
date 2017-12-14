@@ -29,38 +29,38 @@ var onMessage = function(client,message) {
 
   switch(message_type) {
     
-  case 'clickedObj' :
-//    writeData(client, "clickedObj", message_parts);
-    others[0].player.instance.send('s.feedback.' + message_parts[1]);
-    target.instance.send('s.feedback.' + message_parts[1]);
-    setTimeout(function() {
-      _.forEach(all, function(p){
-	p.player.instance.emit( 'newRoundUpdate', {user: client.userid});
-      });
-      gc.newRound();
-    }, 3000);
-    break;
+//   case 'clickedObj' :
+// //    writeData(client, "clickedObj", message_parts);
+//     others[0].player.instance.send('s.feedback.' + message_parts[1]);
+//     target.instance.send('s.feedback.' + message_parts[1]);
+//     setTimeout(function() {
+//       _.forEach(all, function(p){
+// 	p.player.instance.emit( 'newRoundUpdate', {user: client.userid});
+//       });
+//       gc.newRound();
+//     }, 3000);
+//     break;
   
-  case 'playerTyping' :
-    _.map(others, function(p) {
-      p.player.instance.emit( 'playerTyping',
-			      {typing: message_parts[1]});
-    });
-    break;
+//   case 'playerTyping' :
+//     _.map(others, function(p) {
+//       p.player.instance.emit( 'playerTyping',
+// 			      {typing: message_parts[1]});
+//     });
+//     break;
   
-  case 'chatMessage' :
-    if(client.game.player_count == 2 && !gc.paused) {
-//      writeData(client, "message", message_parts);
-    }
-    // Update others
-    var msg = message_parts[1].replace(/~~~/g,'.');
-    _.map(all, function(p){
-      p.player.instance.emit( 'chatMessage', {user: client.userid, msg: msg});});
-    break;
+//   case 'chatMessage' :
+//     if(client.game.player_count == 2 && !gc.paused) {
+// //      writeData(client, "message", message_parts);
+//     }
+//     // Update others
+//     var msg = message_parts[1].replace(/~~~/g,'.');
+//     _.map(all, function(p){
+//       p.player.instance.emit( 'chatMessage', {user: client.userid, msg: msg});});
+//     break;
 
-  case 'h' : // Receive message when browser focus shifts
-    target.visible = message_parts[1];
-    break;
+//   case 'h' : // Receive message when browser focus shifts
+//     target.visible = message_parts[1];
+//     break;
   
   // start button
 
