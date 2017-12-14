@@ -132,10 +132,14 @@ for (i = 0; i<dots.length; i++) {
 }
 
 
-var wordList = []
+var animals = ["bird", "cat", "cow", "dog", "donkey", "duck", "elephant", "fish", "horse", "leopard", "lobster", "peacock", "pig", "raccoon", "rhinoceros", "rooster", "squirrel", "swan"]
+var wordList = [];
 var allImages = [];
-var trialSounds = []
+var trialSounds = [];
 
+function chosenAnimal(element){
+	return element == experiment.chosenpic
+}
 
 function startExperiment() {
 
@@ -166,7 +170,6 @@ function startExperiment() {
 	};
 
 	checkTrials(allTrials);
-	console.log(allTrials)
 
 	//construct wordList for correct answers
 
@@ -174,8 +177,6 @@ function startExperiment() {
 		var word = allTrials[i][4]
 		wordList.push(word)
 	};
-
-	console.log(wordList)
 
 	//order image names according to trial order
 
@@ -188,11 +189,9 @@ function startExperiment() {
 		 }
 	};
 
-	console.log(allImages)
-
 	//load all animal sounds and arrange in trial order
-  	for (i=0; i < 108; i++) {
-	    animalSound = new WebAudioAPISound("animalsounds/"+allImages[i]);
+  	for (i=0; i < animals.length; i++) {
+	    animalSound = new WebAudioAPISound("animalsounds/"+animals[i]);
 	    trialSounds.push(animalSound)
 	}
 
@@ -258,14 +257,6 @@ var experiment = {
 
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
-			console.log('webAudio attempt 2')
-	try {
-	    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	    window.audioContext = new window.AudioContext();
-	    console.log('2nd attempt: tried Web Audio API')
-	} catch (e) {
-	    console.log("2nd attempt failed: No Web Audio API support");
-	}
 
 		console.log('TRAINING STARTS')
 		var allDots = ["dot_1", "dot_2", "dot_3", "dot_4", "dot_5", 
@@ -356,6 +347,8 @@ var experiment = {
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
 
+  		experiment.subid = globalGame.subid;
+
 		var objects_html = "";
 
 
@@ -413,22 +406,25 @@ var experiment = {
 	    		case "leftPic":
 	    			experiment.side = "L";
 	    			experiment.chosenpic = allImages[0];
-	    			winningSound= trialSounds[0]
+	    			winningSound= trialSounds[animals.findIndex(chosenAnimal)]
 	    			break;
 	    		case "middlePic":
 	    			experiment.side = "M";
 	    			experiment.chosenpic = allImages[1];
-	    			winningSound= trialSounds[1]
+	    			winningSound= trialSounds[animals.findIndex(chosenAnimal)]
 
 	    			break;
 	    		default: // "rightPic"
 	    			experiment.side = "R"
 	    			experiment.chosenpic = allImages[2];
-	    			winningSound= trialSounds[2]
+	    			winningSound= trialSounds[animals.findIndex(chosenAnimal)]
 	    	}
 
 	    	//Play animal sound according to chosen picture
 		    setTimeout(function() {winningSound.play();}, 100)
+
+		    console.log(experiment.chosenpic)
+		    console.log(animals.findIndex(chosenAnimal))
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
 			if (experiment.chosenpic === experiment.word) {
@@ -443,7 +439,6 @@ var experiment = {
 
 			//Add one to the counter and process the data to be saved; the child completed another "round" of the 
 			experiment.processOneRow();
-	    	// counter++;
 
 
 
@@ -452,7 +447,6 @@ var experiment = {
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			allImages.splice(0, 3);
-			trialSounds.splice(0, 3);
 			wordList.splice(0, 1);
 
 
