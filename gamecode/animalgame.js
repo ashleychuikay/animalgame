@@ -198,7 +198,12 @@ function startExperiment() {
 	console.log(globalGame.RoleNames)
 
 	// to start at beginning
-	showSlide("instructions");
+	
+	setTimeout(function() {
+		console.log(globalGame.my_role)
+		showSlide("instructions");
+
+	}, 200)
 
 	//to jump around for de-bugging
 	// experiment.preStudy();
@@ -279,6 +284,7 @@ var experiment = {
 		}
 		showSlide("training");
 		$('.dot').bind(' click', function(event) {
+			console.log($(window).width())
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -319,7 +325,6 @@ var experiment = {
 			return;
 		}
   		experiment.subid = document.getElementById("subjectID").value;
-
 		showSlide("parent");
 	},
 
@@ -346,6 +351,7 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
+  		console.log(experiment.subid)
 
   		experiment.subid = globalGame.subid;
 
