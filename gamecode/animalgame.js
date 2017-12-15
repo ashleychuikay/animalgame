@@ -195,15 +195,13 @@ function startExperiment() {
 	    trialSounds.push(animalSound)
 	}
 
-	console.log(globalGame.RoleNames)
+	
 
 	// to start at beginning
-	
 	setTimeout(function() {
 		console.log(globalGame.my_role)
 		showSlide("instructions");
-
-	}, 200)
+		},200)
 
 	//to jump around for de-bugging
 	// experiment.preStudy();
@@ -255,10 +253,11 @@ var experiment = {
 
 	parentStudy: function(){
 		$('#prestudy').hide();
-		setTimeout(function() {$("#parentstudy").fadeIn(500);}, 1500)
-		var parentList = globalGame.correctList.split(',')
-		$(".correctWord").html(parentList[globalGame.trialnum]);
-	},
+		setTimeout(function() {
+			var parentList = globalGame.correctList.split(',');
+			$(".correctWord").html(parentList[globalGame.trialnum]);
+			$("#parentstudy").fadeIn(500);}, 2500)
+		},
 
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
@@ -284,7 +283,6 @@ var experiment = {
 		}
 		showSlide("training");
 		$('.dot').bind(' click', function(event) {
-			console.log($(window).width())
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -325,6 +323,7 @@ var experiment = {
 			return;
 		}
   		experiment.subid = document.getElementById("subjectID").value;
+
 		showSlide("parent");
 	},
 
@@ -333,6 +332,7 @@ var experiment = {
     end: function () {
     	setTimeout(function () {
     		$("#stage").fadeOut();
+    		$('#parentstudy').fadeOut();
     	}, normalpause);
     	showSlide("finish");
     },
@@ -351,7 +351,6 @@ var experiment = {
 
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
-  		console.log(experiment.subid)
 
   		experiment.subid = globalGame.subid;
 
@@ -382,7 +381,7 @@ var experiment = {
 
 		globalGame.clickDisabled = true;
 		clickDisabled = true;
-		setTimeout(function() {clickDisabled = false;},  2000);
+		setTimeout(function() {clickDisabled = false;},  1500);
 		
 
 
@@ -466,7 +465,7 @@ var experiment = {
 				} else {
 					setTimeout(function() {
 						experiment.next(counter)
-					}, 4000);
+					}, 3000);
 				}
 			});
 		});
