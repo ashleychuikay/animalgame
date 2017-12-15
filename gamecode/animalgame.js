@@ -256,8 +256,9 @@ var experiment = {
 		setTimeout(function() {
 			var parentList = globalGame.correctList.split(',');
 			$(".correctWord").html(parentList[globalGame.trialnum]);
-			$("#parentstudy").fadeIn(500);}, 2500)
-		},
+			$("#parentstudy").fadeIn(500);
+		}, 2500)
+	},
 
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
