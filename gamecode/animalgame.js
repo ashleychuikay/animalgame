@@ -199,9 +199,9 @@ function startExperiment() {
 
 	// to start at beginning
 	setTimeout(function() {
-		console.log(globalGame.my_role)
-		showSlide("instructions");
-		},200)
+		console.log(globalGame.my_role);
+		globalGame.my_role=="parent" ? showSlide("instructions") : showSlide("childinstructions");
+	},200)
 
 	//to jump around for de-bugging
 	// experiment.preStudy();
@@ -353,12 +353,12 @@ var experiment = {
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
 
-  		experiment.subid = globalGame.subid;
+  		$('#objects').css("opacity", .5)
 
+	  	experiment.subid = globalGame.subid;
 		var objects_html = "";
 
-
-	// Create the object table (tr=table row; td= table data)
+		// Create the object table (tr=table row; td= table data)
 	    
 	   	//HTML for the first object on the left
 		leftname = "animalimages/" + allImages[0] + ".png";
@@ -370,24 +370,24 @@ var experiment = {
 	
 		//HTML for the first object on the right
 		rightname = "animalimages/" + allImages[2] + ".png";
-   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
-	
-  	objects_html += '</tr></table>';
-    $("#objects").html(objects_html); 
+	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
+		
+	  	objects_html += '</tr></table>';
+	    $("#objects").html(objects_html); 
+		$("#stage").fadeIn();
+	    
 
-    $("#stage").fadeIn();
-    
-
-    var startTime = (new Date()).getTime();
+	    var startTime = (new Date()).getTime();
 
 		globalGame.clickDisabled = true;
 		clickDisabled = true;
-		setTimeout(function() {clickDisabled = false;},  1500);
+		setTimeout(function() {
+			clickDisabled = false;
+  			$('#objects').fadeTo(250, 1)
+		},  1500);
 		
 
-
-
-		$('.pic').on('click touchend', function(event) {
+		$('.pic').on('click', function(event) {
 
 	    	if (clickDisabled) return;
 
