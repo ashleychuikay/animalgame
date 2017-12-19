@@ -353,7 +353,7 @@ var experiment = {
     // MAIN DISPLAY FUNCTION
   	next: function(counter) {
 
-  		$('#objects').css("opacity", .5)
+  		// $('#objects').css("opacity", .5)
 
 	  	experiment.subid = globalGame.subid;
 		var objects_html = "";
@@ -383,7 +383,7 @@ var experiment = {
 		clickDisabled = true;
 		setTimeout(function() {
 			clickDisabled = false;
-  			$('#objects').fadeTo(250, 1)
+  			// $('#objects').fadeTo(250, 1)
 		},  1500);
 		
 
