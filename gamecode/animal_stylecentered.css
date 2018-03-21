@@ -171,11 +171,19 @@ This stuff will vary by experiment.
 	overflow: hidden;
 }
 
-#parentStudy {
+#parentpractice {
 	text-align: center;
 	margin: 0 auto;
 	margin-top: 40px;
-	font-size: 40px;
+	font-size: 60px;
+	overflow: hidden;
+}
+
+#parentstudy {
+	text-align: center;
+	margin: 0 auto;
+	margin-top: 40px;
+	font-size: 60px;
 	overflow: hidden;
 }
 

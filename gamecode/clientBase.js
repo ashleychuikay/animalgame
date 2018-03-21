@@ -91,6 +91,32 @@ var sharedSetup = function(game) {
   // Tell server when child is done with dots game
   $('#training').on('click touchstart', function(event){
       if (globalGame.trainingOver){
+        var msg = ['donetraining', practiceWords].join('.');
+        game.socket.send(msg);
+      }
+  });
+
+  game.socket.on('donetraining', function(data){
+     globalGame.practiceList = data.msg;
+     globalGame.trialnum = experiment.trialnum;
+      setTimeout(function(){
+        showSlide('prepractice');
+      }, 2000);
+  });
+
+  // Tell server when parent clicks the begin practice button
+  $('#beginPractice').on('click', function(event){
+        game.socket.send('beginPractice');
+        experiment.parentPractice();
+  });
+
+  game.socket.on('beginPractice', function(){
+    experiment.practice();
+  });
+
+  // Tell server when practice is over
+  $('#objects').on('click touchstart', function(event){
+      if (globalGame.practiceOver){
         var msg = ['done', wordList].join('.');
         game.socket.send(msg);
       }
@@ -103,6 +129,7 @@ var sharedSetup = function(game) {
         showSlide('prestudy');
       }, 2000);
   });
+
 
   // Tell server when parent clicks the begin button
   $('#beginStudy').on('click ', function(event){

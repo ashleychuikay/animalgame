@@ -131,11 +131,54 @@ for (i = 0; i<dots.length; i++) {
 	images[i].src = "dots/" + dots[i] + ".jpg";
 }
 
+//for practice
+var easyTrial = ["apple", "banana", "orange"];
+var hardTrial = ["asparagus", "artichoke", "onion"];
+var trialImages = [];
 
+//for trials
 var animals = ["bird", "cat", "cow", "dog", "donkey", "duck", "elephant", "fish", "horse", "leopard", "lobster", "peacock", "pig", "raccoon", "rhinoceros", "rooster", "squirrel", "swan"]
 var wordList = [];
 var allImages = [];
 var trialSounds = [];
+
+
+// shuffle practice trials
+practiceTrials = [];
+practiceWords = [];
+practiceImages = [];
+	
+for(i=0; i<=1; i++){
+	newTrial = easyTrial.slice();
+	shuffle(newTrial);
+	newTrial.push("apple");
+	practiceTrials.push(newTrial);
+	newTrial = hardTrial.slice();
+	shuffle(newTrial);
+	newTrial.push("artichoke");
+	practiceTrials.push(newTrial);
+};
+
+//construct word list for practice trials
+for(i=0; i<practiceTrials.length; i++){
+	var word = practiceTrials[i][3]
+	practiceWords.push(word)
+};
+
+//order practice trial images
+for(i=0; i<practiceTrials.length; i++) {
+	subImages = practiceTrials[i].slice();
+	 for(j=0; j<=2; j++) {
+	 	newImages = subImages.slice();
+	 	practiceImages.push(newImages[j]);
+	 }
+};
+
+console.log(practiceTrials)
+console.log(practiceImages)
+console.log(practiceWords)
+
+
 
 function chosenAnimal(element){
 	return element == experiment.chosenpic
@@ -143,8 +186,8 @@ function chosenAnimal(element){
 
 function startExperiment() {
 
-
 	//CONTROL FLOW
+
 	//shuffle trials to randomize order, check to make sure the same set of animals does not appear back to back
 	
 	shuffle(allTrials)
@@ -260,6 +303,15 @@ var experiment = {
 		}, 2500)
 	},
 
+	parentPractice: function(){
+		$('#prepractice').hide();
+		setTimeout(function() {
+			var parentList = globalGame.practiceList.split(',');
+			$(".practiceWord").html(parentList[globalGame.trialnum]);
+			$("#parentpractice").fadeIn(500);
+		})
+	},
+
 	//sets up and allows participants to play "the dot game"
 	training: function(dotgame) {
 
@@ -328,6 +380,127 @@ var experiment = {
 		showSlide("parent");
 	},
 
+	//practice trials using food items
+	practice: function() {
+
+		$("#child").hide();
+
+		var objects_html = "";
+
+		// Create the object table (tr=table row; td= table data)
+	    
+	   	//HTML for the first object on the left
+		leftname = "practiceimages/" + practiceImages[0] + ".png";
+		objects_html += '<table align = "center" cellpadding="25"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
+
+		//HTML for the first object in the middle
+		middlename = "practiceimages/" + practiceImages[1] + ".png";
+		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
+	
+		//HTML for the first object on the right
+		rightname = "practiceimages/" + practiceImages[2] + ".png";
+	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
+		
+	  	objects_html += '</tr></table>';
+	    $("#objects").html(objects_html); 
+		$("#practicestage").fadeIn();
+
+		 var startTime = (new Date()).getTime();
+
+		globalGame.clickDisabled = true;
+		clickDisabled = true;
+		setTimeout(function() {
+			clickDisabled = false;
+  			// $('#objects').fadeTo(250, 1)
+		},  1500);
+		
+
+		$('.pic').on('click', function(event) {
+
+	    	if (clickDisabled) return;
+
+	    	globalGame.clickDisabled = false;
+	    	
+	    	//disable subsequent clicks once the participant has made their choice
+			clickDisabled = true; 
+
+	    	//time the participant clicked - the time the trial began
+	    	experiment.reactiontime = (new Date()).getTime() - startTime;
+
+	    	experiment.trialnum = counter;
+	    	experiment.word = practiceWords[0]
+	    	experiment.pic1 = practiceImages[0];
+	    	experiment.pic2 = practiceImages[1];
+	    	experiment.pic3 = practiceImages[2];
+
+	    	//Was the picture clicked on the right or the left?
+	    	var picID = $(event.currentTarget).attr('id');
+
+	    	switch(picID) {
+	    		case "leftPic":
+	    			experiment.side = "L";
+	    			experiment.chosenpic = practiceImages[0];
+	    			// 'winningSound= trialSounds[animals.findIndex(chosenAnimal)]
+	    			break;
+	    		case "middlePic":
+	    			experiment.side = "M";
+	    			experiment.chosenpic = practiceImages[1];
+	    			// winningSound= trialSounds[animals.findIndex(chosenAnimal)]
+	    			break;
+	    		default: // "rightPic"
+	    			experiment.side = "R"
+	    			experiment.chosenpic = practiceImages[2];
+	    			// winningSound= trialSounds[animals.findIndex(chosenAnimal)]
+	    	}
+
+	    	//Play animal sound according to chosen picture
+		    // setTimeout(function() {winningSound.play();}, 100)
+
+		    console.log(experiment.chosenpic)
+		    // console.log(animals.findIndex(chosenAnimal))
+			
+			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
+			if (experiment.chosenpic === experiment.word) {
+				experiment.response = "Y";
+			} else {
+				experiment.response = "N"
+			}
+
+			//what kind of trial was this?
+			experiment.trialtype = "practice";
+
+
+			//Add one to the counter and process the data to be saved; the child completed another "round" of the 
+			experiment.processOneRow();
+
+
+
+	    // $(document.getElementById(picID)).css('margin', "-8px");
+			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'fast');
+
+			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
+			practiceImages.splice(0, 3);
+			practiceWords.splice(0, 1);
+
+
+			//hide animals and show only background for 2 seconds
+			setTimeout(function() {
+				$(".pic").delay().fadeOut(2000);
+				counter++; 
+				if (counter === 4) {
+					globalGame.practiceOver = true
+						setTimeout(function() {
+							experiment.next()}, 1000)
+					return;
+				} else {
+					setTimeout(function() {
+						experiment.practice(counter)
+					}, 3000);
+				}
+			});
+		});
+	},
+	
 
 	//the end of the experiment, where the background becomes completely black
     end: function () {

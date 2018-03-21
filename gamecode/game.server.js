@@ -71,7 +71,25 @@ var onMessage = function(client,message) {
   });
   break; 
 
-  // good job button
+  
+  // done training
+
+  case 'donetraining':
+   _.map(others, function(p) {
+    var msg= message_parts[1]
+    p.player.instance.emit('donetraining', {msg: msg})
+   });
+   break;
+
+  // begin practice
+
+  case 'beginPractice':
+   _.map(others, function(p) {
+    p.player.instance.emit('beginPractice')
+   });
+   break;
+
+  // done practice
 
   case 'done':
    _.map(others, function(p) {
@@ -79,6 +97,7 @@ var onMessage = function(client,message) {
     p.player.instance.emit('done', {msg: msg})
    });
    break;
+
 
   // begin button
 
