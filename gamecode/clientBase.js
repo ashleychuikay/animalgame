@@ -111,42 +111,53 @@ var sharedSetup = function(game) {
   });
 
   game.socket.on('beginPractice', function(){
-    experiment.practice();
+    experiment.practice(0);
   });
 
   // Tell server when child selects a picture during practice
   $('#practiceobjects').on('click touchstart', function(event){
     if(globalGame.clickDisabled) return;
+    console.log(globalGame.practiceOver)
+    if (globalGame.practiceOver){
+      console.log('over!')
+        var msg = ['done', wordList].join('.');
+        game.socket.send(msg);
+    } else {
     game.socket.send('practiceselected');
-    globalGame.clickDisabled = true;
+    globalGame.clickDisabled = true};
   });
 
   game.socket.on('practiceselected', function() {
-    $('#parentpractice').hide();
     globalGame.trialnum++
-    if(globalGame.trialnum === 4) {
-      experiment.next(0);
-    } else {
-      experiment.parentPractice();
-    }
+    console.log(globalGame.trialnum)
+    experiment.parentPractice();
   });
-
-
-  // Tell server when practice is over
-  $('#objects').on('click touchstart', function(event){
-      if (globalGame.practiceOver){
-        var msg = ['done', wordList].join('.');
-        game.socket.send(msg);
-      }
-  })
 
   game.socket.on('done', function(data){
      globalGame.correctList = data.msg;
-     globalGame.trialnum = experiment.trialnum;
+     console.log('moving on!')
+     globalGame.trialnum = 0;
       setTimeout(function(){
         showSlide('prestudy');
       }, 2000);
   });
+
+
+  // Tell server when practice is over
+  // $('#practiceobjects').on('click touchstart', function(event){
+  //     if (globalGame.practiceOver){
+  //       var msg = ['done', wordList].join('.');
+  //       game.socket.send(msg);
+  //     }
+  // })
+
+  // game.socket.on('done', function(data){
+  //    globalGame.correctList = data.msg;
+  //    globalGame.trialnum = experiment.trialnum;
+  //     setTimeout(function(){
+  //       showSlide('prestudy');
+  //     }, 2000);
+  // });
 
 
   // Tell server when parent clicks the begin button

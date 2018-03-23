@@ -244,7 +244,7 @@ function startExperiment() {
 	setTimeout(function() {
 		console.log(globalGame.my_role);
 		globalGame.my_role=="parent" ? showSlide("instructions") : showSlide("childinstructions");
-	},200)
+	},900)
 
 	//to jump around for de-bugging
 	// experiment.preStudy();
@@ -309,7 +309,7 @@ var experiment = {
 			var parentList = globalGame.practiceList.split(',');
 			$(".practiceWord").html(parentList[globalGame.trialnum]);
 			$("#parentpractice").fadeIn(500);
-		})
+		}, 1500)
 	},
 
 	//sets up and allows participants to play "the dot game"
@@ -383,6 +383,8 @@ var experiment = {
 	//practice trials using food items
 	practice: function(counter) {
 
+		var numTrials = 4
+
 		experiment.subid = globalGame.subid;
 		$("#child").hide();
 
@@ -417,7 +419,6 @@ var experiment = {
 		
 
 		$('.pic').on('click', function(event) {
-
 	    	if (clickDisabled) return;
 
 	    	globalGame.clickDisabled = false;
@@ -425,10 +426,20 @@ var experiment = {
 	    	//disable subsequent clicks once the participant has made their choice
 			clickDisabled = true; 
 
+			
 	    	//time the participant clicked - the time the trial began
 	    	experiment.reactiontime = (new Date()).getTime() - startTime;
 
-	    	experiment.trialnum = counter;
+			experiment.trialnum = counter;
+			counter++;
+			console.log(counter); 
+				if(counter === numTrials){
+					globalGame.practiceOver = true
+					console.log(globalGame.practiceOver)
+				}
+
+
+
 	    	experiment.word = practiceWords[0]
 	    	experiment.pic1 = practiceImages[0];
 	    	experiment.pic2 = practiceImages[1];
@@ -458,7 +469,7 @@ var experiment = {
 		    // setTimeout(function() {winningSound.play();}, 100)
 
 		    console.log(experiment.chosenpic)
-		    // console.log(animals.findIndex(chosenAnimal))
+		    
 			
 			//If the child picked the picture that matched with the word, then they were correct. If they did not, they were not correct.
 			if (experiment.chosenpic === experiment.word) {
@@ -484,22 +495,20 @@ var experiment = {
 			practiceWords.splice(0, 1);
 
 
-			//hide animals and show only background for 2 seconds
+			//hide objects and show only background for 2 seconds
 			setTimeout(function() {
 				$(".pic").delay().fadeOut(2000);
-				counter++; 
-				if (counter === 4) {
-					globalGame.practiceOver = true
-						setTimeout(function() {
-							counter === 0;
-							experiment.next()}, 1000)
-					return;
-				} else {
-					setTimeout(function() {
-						experiment.practice(counter)
-					}, 3000);
-				}
-			});
+
+				setTimeout(function() {
+					if(counter === numTrials){
+			
+						showSlide('child')
+				 } else {
+				 	globalGame.practiceOver = false
+					experiment.practice(counter)
+					};
+				}, 3000);
+			}, 1);
 		});
 	},
 	

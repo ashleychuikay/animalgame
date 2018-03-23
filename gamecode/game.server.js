@@ -90,10 +90,12 @@ var onMessage = function(client,message) {
    break;
   
   // go to next practice trial
-  case 'practiceselected'
+
+  case 'practiceselected':
    _.map(others, function(p) {
     p.player.instance.emit('practiceselected')
    });
+   break;
 
   // done practice
 
