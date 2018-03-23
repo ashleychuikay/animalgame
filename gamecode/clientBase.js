@@ -114,6 +114,24 @@ var sharedSetup = function(game) {
     experiment.practice();
   });
 
+  // Tell server when child selects a picture during practice
+  $('#practiceobjects').on('click touchstart', function(event){
+    if(globalGame.clickDisabled) return;
+    game.socket.send('practiceselected');
+    globalGame.clickDisabled = true;
+  });
+
+  game.socket.on('practiceselected', function() {
+    $('#parentpractice').hide();
+    globalGame.trialnum++
+    if(globalGame.trialnum === 4) {
+      experiment.next(0);
+    } else {
+      experiment.parentPractice();
+    }
+  });
+
+
   // Tell server when practice is over
   $('#objects').on('click touchstart', function(event){
       if (globalGame.practiceOver){
@@ -140,6 +158,7 @@ var sharedSetup = function(game) {
   game.socket.on('beginButton', function(){
     experiment.preStudy();
   });
+
 
   // Tell server when child selects a picture
   $('#objects').on('click touchstart', function(event){

@@ -88,6 +88,12 @@ var onMessage = function(client,message) {
     p.player.instance.emit('beginPractice')
    });
    break;
+  
+  // go to next practice trial
+  case 'practiceselected'
+   _.map(others, function(p) {
+    p.player.instance.emit('practiceselected')
+   });
 
   // done practice
 
@@ -106,6 +112,7 @@ var onMessage = function(client,message) {
     p.player.instance.emit('beginButton')
   });
    break;
+
 
   // go to next trial
   case 'selected':

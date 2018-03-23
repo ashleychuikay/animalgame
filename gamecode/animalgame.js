@@ -381,8 +381,9 @@ var experiment = {
 	},
 
 	//practice trials using food items
-	practice: function() {
+	practice: function(counter) {
 
+		experiment.subid = globalGame.subid;
 		$("#child").hide();
 
 		var objects_html = "";
@@ -402,7 +403,7 @@ var experiment = {
 	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
 		
 	  	objects_html += '</tr></table>';
-	    $("#objects").html(objects_html); 
+	    $("#practiceobjects").html(objects_html); 
 		$("#practicestage").fadeIn();
 
 		 var startTime = (new Date()).getTime();
@@ -490,6 +491,7 @@ var experiment = {
 				if (counter === 4) {
 					globalGame.practiceOver = true
 						setTimeout(function() {
+							counter === 0;
 							experiment.next()}, 1000)
 					return;
 				} else {
