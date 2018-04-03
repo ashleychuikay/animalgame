@@ -394,15 +394,15 @@ var experiment = {
 	    
 	   	//HTML for the first object on the left
 		leftname = "practiceimages/" + practiceImages[0] + ".png";
-		objects_html += '<table align = "center" cellpadding="25"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic"/></td>';
+		objects_html += '<table align = "center" cellpadding="25"><tr></tr><tr><td align="center"><img class="pic" src="' + leftname +  '"alt="' + leftname + '" id= "leftPic1"/></td>';
 
 		//HTML for the first object in the middle
 		middlename = "practiceimages/" + practiceImages[1] + ".png";
-		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic"/></td>';
+		objects_html += '<td align = "center"><img class = "pic" src="' + middlename + '"alt="' + middlename + '" id = "middlePic1"/></td>';
 	
 		//HTML for the first object on the right
 		rightname = "practiceimages/" + practiceImages[2] + ".png";
-	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic"/></td>';
+	   	objects_html += '<td align="center"><img class="pic" src="' + rightname +  '"alt="' + rightname + '" id= "rightPic1"/></td>';
 		
 	  	objects_html += '</tr></table>';
 	    $("#practiceobjects").html(objects_html); 
@@ -414,7 +414,6 @@ var experiment = {
 		clickDisabled = true;
 		setTimeout(function() {
 			clickDisabled = false;
-  			// $('#objects').fadeTo(250, 1)
 		},  1500);
 		
 
@@ -449,12 +448,12 @@ var experiment = {
 	    	var picID = $(event.currentTarget).attr('id');
 
 	    	switch(picID) {
-	    		case "leftPic":
+	    		case "leftPic1":
 	    			experiment.side = "L";
 	    			experiment.chosenpic = practiceImages[0];
 	    			// 'winningSound= trialSounds[animals.findIndex(chosenAnimal)]
 	    			break;
-	    		case "middlePic":
+	    		case "middlePic1":
 	    			experiment.side = "M";
 	    			experiment.chosenpic = practiceImages[1];
 	    			// winningSound= trialSounds[animals.findIndex(chosenAnimal)]
@@ -632,7 +631,8 @@ var experiment = {
 
 
 
-	    // $(document.getElementById(picID)).css('margin', "-8px");
+	    //$(document.getElementById(picID)).css('margin', "-8px");
+	    console.log(picID)
 			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'fast');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
