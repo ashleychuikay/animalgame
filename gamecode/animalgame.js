@@ -34,6 +34,12 @@ xhr.onreadystatechange = function () {
 xhr.send();
 
 
+// disables all scrolling functionality to fix a slide in place on the ipad
+document.ontouchmove = function(event){
+    event.preventDefault();
+}
+
+
 // ---------------- PARAMETERS ------------------
 
 var numTrials = 36;
@@ -335,7 +341,7 @@ var experiment = {
 			}
 		}
 		showSlide("training");
-		$('.dot').bind(' click', function(event) {
+		$('.dot').bind(' touchstart', function(event) {
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -417,7 +423,7 @@ var experiment = {
 		},  1500);
 		
 
-		$('.pic').on('click', function(event) {
+		$('.pic').on('touchstart', function(event) {
 	    	if (clickDisabled) return;
 
 	    	globalGame.clickDisabled = false;
@@ -527,6 +533,7 @@ var experiment = {
 		dataforRound += "," + experiment.pic1 + "," + experiment.pic2 + "," + experiment.pic3;
 		dataforRound += "," + experiment.side + "," + experiment.chosenpic + "," + experiment.response + "," + experiment.trialtype;
 		dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.reactiontime + "\n";
+		console.log(dataforRound)
 		$.post("https://callab.uchicago.edu/experiments/animalgame/gamecode/animalgamesave.php", {postresult_string : dataforRound});	
 
 	},
@@ -569,7 +576,7 @@ var experiment = {
 		},  1500);
 		
 
-		$('.pic').on('click', function(event) {
+		$('.pic').on('touchstart', function(event) {
 
 	    	if (clickDisabled) return;
 

@@ -126,13 +126,24 @@ This stuff will vary by experiment.
 }
 
 #practiceobjects {
-	margin-top: 10%;
+	margin-top: 15%;
 	overflow: hidden;
+	/* prevents grey highlighting from flashing on ipad when using on touchstart */
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+
 }
 
 #objects {
-	margin-top: 10%;
+	margin-top: 15%;
 	overflow: hidden;
+		/* prevents grey highlighting from flashing on ipad when using on touchstart */
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+
+}
+
+#training {
+	/* prevents grey highlighting from flashing on ipad when using on touchstart */
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 /*left pic, middle pic, right pic are large but fit comfortably in the ipad window*/
