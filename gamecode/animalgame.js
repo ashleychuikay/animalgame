@@ -487,7 +487,7 @@ var experiment = {
 
 
 	    // $(document.getElementById(picID)).css('margin', "-8px");
-			$(document.getElementById(picID)).animate({'margin-top': '-60px'}, 'fast');
+			$(document.getElementById(picID)).animate({'margin-top': '-70px'}, 'fast');
 
 			//remove the pictures from the image array that have been used, and the word from the wordList that has been used
 			practiceImages.splice(0, 3);
@@ -500,7 +500,6 @@ var experiment = {
 
 				setTimeout(function() {
 					if(counter === numTrials){
-			
 						showSlide('child')
 				 } else {
 				 	globalGame.practiceOver = false

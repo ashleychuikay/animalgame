@@ -125,6 +125,11 @@ This stuff will vary by experiment.
 	object-fit: contain;
 }
 
+#practiceobjects {
+	margin-top: 10%;
+	overflow: hidden;
+}
+
 #objects {
 	margin-top: 10%;
 	overflow: hidden;
@@ -142,6 +147,21 @@ This stuff will vary by experiment.
 }
 
 #rightPic {
+	width: 295px;
+	max-height: 295px;
+}
+
+#leftPic1 {
+	width: 295px;
+	max-height: 295px;
+}
+
+#middlePic1 {
+	width: 295px;
+	max-height: 295px;
+}
+
+#rightPic1 {
 	width: 295px;
 	max-height: 295px;
 }
@@ -166,7 +186,7 @@ This stuff will vary by experiment.
 
 #child {
 	text-align: center;
-	margin-top: 40px;
+	margin-top: 10%;
 	font-size: 40px;
 	overflow: hidden;
 }
@@ -174,7 +194,7 @@ This stuff will vary by experiment.
 #parentpractice {
 	text-align: center;
 	margin: 0 auto;
-	margin-top: 40px;
+	margin-top: 10%;
 	font-size: 60px;
 	overflow: hidden;
 }
@@ -182,7 +202,7 @@ This stuff will vary by experiment.
 #parentstudy {
 	text-align: center;
 	margin: 0 auto;
-	margin-top: 40px;
+	margin-top: 10%;
 	font-size: 60px;
 	overflow: hidden;
 }
