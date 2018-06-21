@@ -1,2 +1,4 @@
 .DS_Store
 package-lock.json
+video/*
+raw_data/*
