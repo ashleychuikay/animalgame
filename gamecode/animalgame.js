@@ -39,6 +39,10 @@ document.ontouchmove = function(event){
     event.preventDefault();
 }
 
+document.body.addEventListener('touchmove', 
+	function(e) { e.preventDefault(); }, 
+	{passive: false}, false);
+
 
 // ---------------- PARAMETERS ------------------
 
