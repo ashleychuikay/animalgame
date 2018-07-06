@@ -128,6 +128,7 @@ var sharedSetup = function(game) {
   });
 
   game.socket.on('practiceselected', function() {
+    $('#parentpractice').hide();
     globalGame.trialnum++
     console.log(globalGame.trialnum)
     experiment.parentPractice();
