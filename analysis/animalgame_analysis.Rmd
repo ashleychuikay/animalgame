@@ -14,17 +14,30 @@ output:
 library(tidyverse)
 library(forcats)
 library(knitr)
+library(tidytext)
+
 theme_set(theme_classic(base_size = 14))
 ```
 
 Read in data
 
 ```{r read_data, message=F}
-data <- read_csv("../raw_data/9261.csv")
+exp_data <- read_csv("../raw_data/10130.csv")
+vocab_data <- read_csv("../raw_data/Vocab Data Jul18.csv") %>%
+  filter(email == "test@test.com")
 ```
 
-Munge data 
+Munge vocab data
+```{r munge_vocab}
+tidy_vocab <- vocab_data %>%
+  slice(3:nrow(.)) %>%
+  select(RecordedDate, ResponseId, Q1) %>%
+  unnest_tokens(word, Q1) %>% 
+  mutate(produces = T) %>%
+  complete(nesting(RecordedDate,ResponseId), word, fill = list(produces = F))
+```
 
+Munge data exp
 ```{r munge}
 # Pull out either parent or child's data
 pull_data <- function(person) {
@@ -51,13 +64,53 @@ practice_targets <- c("artichoke", "apple")
 
 The unique targets were: `r targets`
 
+```{r word_difficulty}
+word_difficulty <- tidy_vocab %>%
+  group_by(word) %>%
+  summarise(produces = mean(produces)) %>%
+  arrange(desc(produces)) %>%
+  filter(word %in% targets)
+```
+
+
 ```{r make_target_df}
-target_data <- tidy_data %>%
+trials <- tidy_data %>%
+  filter(target %in% targets) %>%
+  mutate(new_trial = target != lag(target),
+         new_trial = if_else(is.na(new_trial), TRUE, new_trial),
+         trial = cumsum(new_trial)) %>%
+  select(-new_trial)
+
+parent_data <- tidy_data %>%
+  filter(person == "Parent") %>%
+  left_join(trials) %>%
+  fill(trial) %>%
+  group_by(trial) %>%
+  mutate(selection = which(str_detect(selection, "selects")),
+         phase = case_when(row_number() < selection ~ "pre",
+                           row_number() == selection ~ "during",
+                           T ~ "post"),
+         phase = factor(phase, levels = c("pre", "during", "post"))) %>%
+  group_by(target) %>%
+  mutate(appearance = factor(trial > mean(trial),
+                             labels = c("first", "second")))
+
+
+target_data <- parent_data %>%
   filter(target %in% targets) %>%
   mutate(length = str_count(utterance, " ") + 1) %>%
-  group_by(target) %>%
-  mutate(n = 1:n()) 
+  left_join(word_difficulty, by = c("target" = "word")) %>%
+  group_by(phase, produces, appearance, target) %>%
+  summarise(length = sum(length))
 ```
+
+```{r plot lengths}
+ggplot(target_data, aes(x = produces, y = log(length), color = phase)) + 
+  facet_wrap(~ appearance) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F)
+```
+
 
 ```{r show_lobster}
 target_data %>%
