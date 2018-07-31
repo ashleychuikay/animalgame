@@ -15,48 +15,85 @@ library(tidyverse)
 library(forcats)
 library(knitr)
 library(tidytext)
+library(readxl)
+library(tidyboot)
 
-theme_set(theme_classic(base_size = 14))
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+               error = FALSE, cache = TRUE, tidy = FALSE)
+
+
+theme_set(theme_classic(base_size = 16))
 ```
 
-Read in data
+Read in vocab data
 
 ```{r read_data, message=F}
-exp_data <- read_csv("../raw_data/10130.csv")
-vocab_data <- read_csv("../raw_data/Vocab Data Jul18.csv") %>%
-  filter(email == "test@test.com")
+vocab_measure1 <- read_csv("../raw_data/Vocab measure Jul30.csv") %>%
+  filter(!is.na(`Response ID`)) %>%
+  select(`Response ID`, Link)
+
+vocab_measure2 <- read_csv("../raw_data/Vocab Data Jul18.csv") %>%
+  slice(3:nrow(.))
+
+vocab_measure <- vocab_measure1 %>%
+  left_join(vocab_measure2, by = c(`Response ID` = "ResponseId")) %>%
+  select(`Response ID`, Link, Q1)
+
+
+vocab_data <- left_join(vocab_measure,
+                        read_xlsx("../raw_data/qualtrics cdi links.csv.xlsx"),
+                        by = "Link") %>%
+  select(`Response ID.y`, Q1) %>%
+  rename(ResponseId = `Response ID.y`) %>%
+  mutate(ResponseId = as.integer(ResponseId))
 ```
 
 Munge vocab data
 ```{r munge_vocab}
 tidy_vocab <- vocab_data %>%
-  slice(3:nrow(.)) %>%
-  select(RecordedDate, ResponseId, Q1) %>%
   unnest_tokens(word, Q1) %>% 
-  mutate(produces = T) %>%
-  complete(nesting(RecordedDate,ResponseId), word, fill = list(produces = F))
+  mutate(understands = T) %>%
+  complete(ResponseId, word, fill = list(understands = F)) %>%
+  mutate(ResponseId = as.character(ResponseId))
 ```
 
-Munge data exp
+Read in transcript data
 ```{r munge}
-# Pull out either parent or child's data
-pull_data <- function(person) {
-  data %>%
-    select(starts_with(person)) %>%
-    select_all(~gsub(person, "", .x)) %>%
-    select_all(~gsub("Utterance\\.", "", .x)) %>%
-    mutate(person = person)
+transcripts <- list.files("../raw_data/coded", "*.csv", full.names = T)
 
+
+read_transcript <- function(file) {
+
+  transcript <- read_csv(file) %>%
+    mutate(id = str_split(file, "[//.]")[[1]][6])
+    
+    # Pull out either parent or child's data
+    pull_data <- function(person) {
+      transcript %>%
+        select(starts_with(person)) %>%
+        select_all(~gsub(person, "", .x)) %>%
+        select_all(~gsub("Utterance\\.", "", .x)) %>%
+        mutate(person = person) %>%
+        mutate(id = first(transcript$id))
+    
+    }
+  
+  # Tidy up
+  bind_rows(pull_data("Child"), pull_data("Parent")) %>%
+    mutate(target = gsub("\\.", "", target) %>% tolower) %>%
+    mutate(utterance = str_trim(utterance)) %>%
+    mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
+                              target == "ducj" ~ "duck",
+                              target == "co" ~ "cow",
+                              T ~ target)) 
 }
 
-# Tidy up
-tidy_data <- bind_rows(pull_data("Child"), pull_data("Parent")) %>%
-  mutate(target = gsub("\\.", "", target) %>% tolower) %>%
-  mutate(utterance = str_trim(utterance))
+tidy_data <- map(transcripts, read_transcript) %>%
+  bind_rows()
 
 targets <- tidy_data %>%
   distinct(target) %>%
-  filter(!is.na(target), target != "n/a") %>%
+  filter(!is.na(target), !target %in% c("n/a", "<target>")) %>%
   pull()
 
 practice_targets <- c("artichoke", "apple") 
@@ -66,54 +103,93 @@ The unique targets were: `r targets`
 
 ```{r word_difficulty}
 word_difficulty <- tidy_vocab %>%
+  filter(word %in% targets) %>%
   group_by(word) %>%
-  summarise(produces = mean(produces)) %>%
-  arrange(desc(produces)) %>%
-  filter(word %in% targets)
+  tidyboot_mean(understands) %>%
+  rename(understands = empirical_stat) %>%
+  arrange(desc(understands))
+
+plotting_words <- word_difficulty %>%
+  mutate(word = factor(word, levels = unique(word)))
+
+ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
+                            ymax = ci_upper)) +
+  geom_pointrange()
 ```
 
-
+Munge transcript data
 ```{r make_target_df}
 trials <- tidy_data %>%
+  group_by(id) %>%
+  arrange(onset) %>%
   filter(target %in% targets) %>%
   mutate(new_trial = target != lag(target),
          new_trial = if_else(is.na(new_trial), TRUE, new_trial),
          trial = cumsum(new_trial)) %>%
   select(-new_trial)
 
+
+trial_targets <- trials %>%
+  distinct(id, trial, target) %>%
+  rename(trial_target = target)
+
 parent_data <- tidy_data %>%
+  filter(id != "9261") %>%
   filter(person == "Parent") %>%
   left_join(trials) %>%
+  group_by(id) %>%
   fill(trial) %>%
-  group_by(trial) %>%
-  mutate(selection = which(str_detect(selection, "selects")),
-         phase = case_when(row_number() < selection ~ "pre",
+  filter(!is.na(trial)) %>%
+  group_by(id, trial) %>%
+  mutate(selection = max(0, which(str_detect(selection, "selects")),
+                             na.rm = T)) %>%
+  mutate(phase = case_when(row_number() < selection ~ "pre",
                            row_number() == selection ~ "during",
-                           T ~ "post"),
-         phase = factor(phase, levels = c("pre", "during", "post"))) %>%
-  group_by(target) %>%
-  mutate(appearance = factor(trial > mean(trial),
-                             labels = c("first", "second")))
+                           T ~ "post") %>%
+           factor(levels = c("pre", "during", "post"))) %>%
+  left_join(trial_targets) %>%
+ # filter(!is.na(target), !target %in% c("<target>", "n/a")) %>%
+  group_by(id, trial_target) %>%
+  mutate(appearance = factor(trial >= mean(trial))) %>%
+  ungroup() %>%
+  mutate(appearance = factor(appearance, labels = c("first", "second")),
+         id = as.character(id))
 
 
 target_data <- parent_data %>%
-  filter(target %in% targets) %>%
   mutate(length = str_count(utterance, " ") + 1) %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
-  group_by(phase, produces, appearance, target) %>%
+  rename(difficulty = understands) %>%
+  left_join(tidy_vocab, by = c("id" = "ResponseId", "trial_target" = "word")) %>%
+  filter(phase != "during") %>%
+  group_by(phase, difficulty, understands, appearance, trial_target, id) %>%
   summarise(length = sum(length))
 ```
 
-```{r plot lengths}
-ggplot(target_data, aes(x = produces, y = log(length), color = phase)) + 
+```{r plot_lengths_aggregate}
+ggplot(target_data, aes(x = difficulty, y = log(length), color = phase)) + 
   facet_wrap(~ appearance) +
   geom_point() +
-  geom_smooth(method = "lm", se = F)
+  geom_smooth(method = "loess", se = F)
+```
+
+```{r plot_lengths_personal}
+mean_data <- target_data %>%
+  group_by(phase, appearance, understands, id, trial_target) %>%
+  summarise(length = sum(length, na.rm = T)) %>%
+  summarise(length = mean(log(length)), na.rm = T) %>%
+  tidyboot_mean(length)
+
+ggplot(filter(mean_data, !is.na(understands)),
+       aes(x = understands, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
+  facet_wrap(~ appearance) +
+  geom_pointrange(position = position_dodge(.5))
 ```
 
 
 ```{r show_lobster}
 target_data %>%
-  filter(target == "lobster") %>%
+  filter(trial_target == "lobster") %>%
   kable()
 ```
