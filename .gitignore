@@ -1,7 +1,6 @@
 .DS_Store
 package-lock.json
 video/*
-# raw_data/*
 
 # knitr and R markdown default cache directories
 /*_cache/
