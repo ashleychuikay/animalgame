@@ -1,0 +1,123 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,127050,0,xxx,0,31317,0,"Apple. No, pick the apple.",apple,
+1,156618,0,xxx that noise!,1,32901,0,, ,selects
+2,172623,0,The doggy,2,32901,0,"No, no, not yet",apple, 
+3,183381,0,xxx,3,33825,0,Artichoke. Where's the artichoke? Artichoke,artichoke,
+4,204105,0,Cat,4,38313,0,, ,selects
+5,206382,0,Cat,5,39270,0,Good girl!,n/a,
+6,231198,0,Weeee!,6,42273,0,Where's the apple? Apple.,apple, 
+7,241626,0,xxx,7,45012,0,, ,selects
+8,290334,0,xxx,8,45012,0,Good!,apple,
+9,295383,0,cocka-doodle-do!,9,47718,0,"Artichoke.  Nuh-uh, the artichoke.",artichoke,
+10,317361,0,watch the show,10,50919,0,,,selects
+11,349074,0,watch the show,11,50919,0,"Ok, good job",artichoke,
+12,377124,0,"peekaboo, I see you!",12,58410,0,"Raccoon, where's the raccoon? the Raccoon",raccoon,
+13,382734,0,I see you!,13,62238,0,, ,selects
+14,387288,0,I see you!,14,63921,0,"Yeah, that's good!",raccoon,
+15,392205,0,I see you!,15,65967,0,"Duck, Where's the duck?",duck, 
+16,395406,0,I see you!,16,68409,0,, ,selects
+17,399795,0,I see you!,17,68409,0,Good girl!,duck,
+18,435369,0,The pig? the pig? the pig? the pig.,18,71478,0,Squirrel.  Do you know the squirrel? ,squirrel, 
+,,,,19,75570,0,, ,selects
+,,,,20,77055,0,Good!,squirrel,
+,,,,21,79068,0,Fish. Fish. You know.,fish,
+,,,,22,83622,0,, ,selects
+,,,,23,83622,0,Good.,fish,
+,,,,24,87549,0,Where's the rhinocer--,rhinocerous, 
+,,,,25,87549,0,, ,selects
+,,,,26,89562,0,Good,rhinocerous, 
+,,,,27,91113,0,Where's the fish? Fish.,fish,
+,,,,28,94083,0,, ,selects
+,,,,29,94083,0,Uhoh,fish, 
+,,,,30,97548,0,Where's the lobster?,lobster,
+,,,,31,99957,0,, ,selects
+,,,,32,101343,0,"Yes, good!",lobster, 
+,,,,33,103686,0,Horse. Where's the horse? ,horse,
+,,,,34,105897,0,, ,selects
+,,,,35,106887,0,Good! ,horse,
+,,,,36,111045,0,"Wait, come back. Come here. Zoey. Come on. Let's finish the game, okay? Alright.",n/a,
+,,,,37,131175,0,Where's the leopard?,leopard,
+,,,,38,134805,0,, ,selects
+,,,,39,134805,0,Good,leopard,
+,,,,40,138798,0,Pig. Where's the pig?,pig,
+,,,,41,140217,0,, ,selects
+,,,,42,141339,0,Good!,pig, 
+,,,,43,144639,0,Ok where's the rhinoc--,rhinocerous,
+,,,,44,145959,0,, ,selects
+,,,,45,146751,0,Oh!,rhinocerous,
+,,,,46,149919,0,Where's the dog?,dog, 
+,,,,47,152361,0,, ,selects
+,,,,48,155430,0,Yes!,dog, 
+,,,,49,158631,0,"Let's finish playing the game, okay?",n/a,
+,,,,50,160677,0,Where's the squirrel? Squirrel,squirrel, 
+,,,,51,163779,0,, ,selects
+,,,,52,163779,0,Yes! Good!,squirrel,
+,,,,53,166980,0,"Oh, one more! Come on. Come on. Alright. Come on. Sit here, sit on mommy's lap, OK?",n/a,
+,,,,54,190641,0,Where's the dog?,dog, 
+,,,,55,192720,0,, ,selects
+,,,,56,192720,0,Good!,dog, 
+,,,,57,195228,0,Where's the leopard,leopard, 
+,,,,58,199980,0,, ,selects
+,,,,59,200046,0,Good,leopard,
+,,,,60,201564,0,Where's the bird? Where's the bird? That is a cat. Show me the bird.  Which one's the bird?,bird,
+,,,,61,210771,0,, ,selects
+,,,,62,215094,0,The raccoon,,
+,,,,63,218163,0,, ,selects
+,,,,64,218163,0,That's the raccoon!,raccoon, 
+,,,,65,221331,0,Duck. Press the duck.,duck,
+,,,,66,224004,0,, ,selects
+,,,,67,225027,0,Yes!,duck,
+,,,,68,227535,0,Swan,swan,
+,,,,69,230175,0,, ,selects
+,,,,70,230175,0,Yes!,swan,
+,,,,71,233706,0,"Where's the cow? Show me the cow. Come on, show me the cow.",cow,
+,,,,72,245355,0,, ,selects
+,,,,73,245355,0,Good,cow,
+,,,,74,248820,0,Show me the lobster,lobster,
+,,,,75,249183,0,, ,selects
+,,,,76,249183,0,Good!,lobster,
+,,,,77,251856,0,And Elephant!,elephant,
+,,,,78,254628,0,, ,selects
+,,,,79,256707,0,Good!,elephant,
+,,,,80,258390,0,"Donkey. Donkey. Come on, get up. Come on, girl. Show me the donkey.",donkey,
+,,,,81,280896,0,, ,selects
+,,,,82,282183,0,Good,donkey,
+,,,,83,284757,0,What about the cat? Where's the cat? Where's the kitty?,cat,
+,,,,84,288519,0,, ,selects
+,,,,85,288519,0,"Good,",cat,
+,,,,86,291093,0,And rooster ,rooster,
+,,,,87,292710,0,, ,selects
+,,,,88,295053,0,Good!,rooster,
+,,,,89,297561,0,Elephant,elephant,
+,,,,90,299937,0,, ,selects
+,,,,91,303534,0,"It's a peacock. I don't want you to bump your head. Come on. Come here Zoey, do you wanna watch your show? Alright, you gotta come up here and finish this game and then you can watch your show, okay? Come on, finish your game and you can watch your show.  Where's the peacock?",peacock,
+,,,,92,325776,0,, ,selects
+,,,,93,327855,0,alright,peacock,
+,,,,94,329340,0,Who's the cat?,cat, 
+,,,,95,331287,0,, ,selects
+,,,,96,331287,0,Good!,cat,
+,,,,97,333102,0,Where's the swan? Right here. Right here. Show me the swan.,swan,
+,,,,98,345312,0,, ,selects
+,,,,99,345312,0,"Oh, that's the wrong one.",swan, 
+,,,,100,351087,0,"Uh-uh, finish the game and then you can watch your show.",n/a, 
+,,,,101,353100,0,Show me the cow. The cow.,cow,
+,,,,102,356268,0,, ,selects
+,,,,103,357621,0,Good,cow,
+,,,,104,360492,0,What about the rooster? Where's the rooster?,rooster,
+,,,,105,362670,0,, ,selects
+,,,,106,364221,0,Ooh,rooster,
+,,,,107,366267,0,Horse. Where's the horse? Horse. What's the horse?,horse, 
+,,,,108,370128,0,, ,selects
+,,,,109,374946,0,"Peacock. Come here Zoey, come here. Come on. Wanna watch your show? Alright, come on. You can watch your show, let's finish the game.",n/a, 
+,,,,110,412269,0,"Alright, show me the peacock. Where's the peacock?",peacock,
+,,,,111,422367,0,, ,selects
+,,,,112,424050,0,Good!,peacock,
+,,,,113,427680,445995,"Where's the pig? Show me the pig. Let's find the pig. Show me the pig. Show me the pig. Show me the pig. That is pig, show me the picture of the pig.",pig,
+,,,,114,445995,0,, ,selects
+,,,,115,446952,0,"Yes, good girl, yeah yeah yeah!",pig,
+,,,,116,451704,0,Show me the donkey,donkey,
+,,,,117,456060,0,, ,selects
+,,,,118,456093,0,"yes! Good girl, good good girl!",donkey,
+,,,,119,460647,0,"Show me the bird, Where's the bird? Come on, show me the bird. Where is the bird?",bird,
+,,,,120,466818,0,, ,selects
+,,,,121,467973,0,Good girl!,bird,

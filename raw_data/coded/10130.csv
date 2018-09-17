@@ -1,0 +1,112 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,12474,0,Fruit!,0,11253,0,"What's on your screen there, Buddy?",apple,
+1,16104,0,Right there.,1,15147,0,Where's the apple? Can you tap the apple?,apple,
+2,26664,0,laughs,2,19107,0,,   ,selects
+3,29667,0,yes!,3,20031,0,Good job!,n/a,
+4,38478,0,There,4,23067,0,Ooh! How about the artichoke? Is that a funny word? That's a funny word? Do you know which one is the artichoke? Which one do you think is the artichoke? That one? What do you think that's called? Ok,artichoke,
+5,44550,0,artichoke!,5,41811,0,,   ,selects
+6,51117,0,There!,6,46464,0,What's next? That's a lot of fruit! Do you see the apple? Do you see the red  apple? Can you tap on the apple?,apple,
+7,58806,0,Fruit!,7,54450,0,,   ,selects
+8,65901,0,There!,8,55869,0,Yay!,n/a,
+9,72468,0,Nope!,9,60225,0,Yeah! does that look familiar for any of them? Do you see an artichoke? Is that the asparagus?,artichoke,
+10,85866,0,Cat!,10,70851,0,,   ,selects
+11,101442,0,Horse,11,75702,0,"OK, ready, Good job",n/a,
+12,116358,0,Duck,12,80718,0,"Here's some more. Let's see... meow. What says meow? That's right, the cat! Can you tap on the cat?",cat,
+13,128667,0,pig,13,89694,0,,,selects
+14,142098,0,fish,14,91476,0,He meowed at you!,n/a,
+15,160281,0,Yes!,15,94677,0,Look at all those animals. Ra-raccoon,raccoon,
+16,180213,0,Fish,16,95370,0,,,selects
+17,189750,0,Right there!,17,95766,0,"Ra-raccoon, Okay!",raccoon,
+18,196878,0,*yelled something*,18,96921,0,What says neigh?,horse,
+19,200805,0,doggie,19,101508,0,,   ,selects
+20,213345,0,the bird!,20,102267,0,That's right!,n/a,
+21,221166,0,Whoops!,21,106854,0,"Woah, do you see a rhinocerous?",rhinocerous,
+22,226050,0,Raccoon,22,109230,0,,   ,selects
+23,228987,0,Horse,23,112068,0,"Quack, quack, quack. What says quack quack quack? The duck!",Duck,
+24,240504,0,Right there!,24,116358,0,,   ,selects
+25,249645,0,Book!,25,119889,125565,Cocka-doodle-doo!,rooster,
+26,252054,0,Duck,26,121341,0,,   ,selects
+27,271029,0,Swan!,27,121506,0,"That's a rooster, right?",rooster,
+28,273405,0,Doggie!,28,125565,0,What says neigh?,horse,
+29,276540,0,Arf!,29,126951,0,,   ,selects
+30,288057,0,Doggie!,30,127941,0,A pig? Pigs say oink.,horse,
+31,289509,0,Woof!,31,131175,0,"Ooh, we saw some earlier today, squirrel.",squirrel,
+32,312774,0,Pig!,32,132825,0,,   ,selects
+33,328713,0,Yes!,33,133716,0,"Here, buddy, can you listen for me to tell you which one to pick?",squirrel,
+34,330627,0,Ooh! Right there!,34,138105,0,"Ooh, this swims in the water. What swims in the water? Fish! Where's the fish?",fish,
+35,342672,0,Kitty cat,35,144276,0,,   ,selects
+36,351615,0,Animals!,36,145002,148533,"Right there! Good job listening, buddy.",n/a,
+,,,,37,148533,0,"Ooh, this is a big cat, it's called a leopard",leopard,
+,,,,38,150777,0,,   ,selects
+,,,,39,151107,156420,Yeah! That was fast.,n/a,
+,,,,40,154176,0,Elephant,elephant,
+,,,,41,156024,0,,   ,selects
+,,,,42,156420,0,Yes!,n/a,
+,,,,43,160050,0,Can I hear you trumpet like an elephant?,n/a,
+,,,,44,160710,0,"Woah, that's so good.",n/a,
+,,,,45,160710,165330,"Oh, a lobster!",lobster,
+,,,,46,161667,0,,   ,selects
+,,,,47,163053,0,"Hey, please be patient and wait for me to tell you which one, okay?",lobster,
+,,,,48,165330,0,Elephant,elephant,
+,,,,49,166353,0,,   ,selects
+,,,,50,168795,0,"Wait for mommy to tell you which one, okay?",,
+,,,,51,169950,0,Lobster.Where do you see a lobster?,lobster,   
+,,,,52,171996,0,,   ,selects
+,,,,53,172986,0,See the big claws on the lobster?,lobster,   
+,,,,54,179091,0,"What says glub glub glub glub? Fish, can you tap on the fish?",fish,
+,,,,55,179322,0,,   ,selects
+,,,,56,181005,0,There it is!,n/a,
+,,,,57,183117,0,"Ooh, it's a big cat with spots on it, called a leopard. Do you se the leopard? Right there, that's right! Can you tap on it?",leopard,
+,,,,58,192423,0,,   ,selects
+,,,,59,194832,0,Rawr,n/a,
+,,,,60,197604,0,Oh my goodness. This one tweets. What tweets?,bird,
+,,,,61,198165,0,,   ,selects
+,,,,62,200045,0,The doggie? The doggie barks.,bird,   
+,,,,63,203907,0,"Ooh, rooster says cocka-doodle-doo!",rooster,
+,,,,64,205161,0,,   ,selects
+,,,,65,205986,0,There you are!,rooster,
+,,,,66,209187,0,"Tweet, tweet, tweet. Where's the - what tweets? The bird. Right there!",bird,
+,,,,67,214104,0,,,selects
+,,,,68,215853,0,tweet tweet tweet tweet,bird,   
+,,,,69,219714,0,"Oh, this is a raccoon. Whoops, here you go.  What's the raccoon?",raccoon,
+,,,,70,224466,0,,   ,selects
+,,,,71,226941,0,"Oh, Mooo. The cow.",cow,
+,,,,72,231660,0,,   ,selects
+,,,,73,233904,0,That was a horse.,cow,
+,,,,74,238293,0,"Oh, a peacock! Look at the beautiful feathers on the peacock like Limelight Larry. Right there! Can you tap on it?",peacock,
+,,,,75,242715,0,,   ,selects
+,,,,76,246873,0,"Hold on this one's-- the book, Limelight Larry?",n/a,
+,,,,77,250998,0,What about...quack quack quack. A duck!,duck,
+,,,,78,253077,0,,   ,selects
+,,,,79,255816,0,"Ooh, a swan, a very elegant swan with a long white neck. Do you see it? Which one has the long white neck? It's the swan!",swan,
+,,,,80,267762,0,,   ,selects
+,,,,81,272118,0,Woof woof woof! Doggie.,dog,
+,,,,82,273999,0,,   ,selects
+,,,,83,276639,0,Bark bark bark!,n/a,
+,,,,84,277992,0,Here's a squirrel. Squirrels collect nuts.,squirrel,
+,,,,85,280170,0,,   ,selects
+,,,,86,283767,0,"Ooh, what about the one that goes arf arf arf",dog,
+,,,,87,286836,0,,   ,selects
+,,,,88,288585,0,Doggie! It sounds just like mommy saying it. Woof!,dog,
+,,,,89,291192,0,"Ooh, rhinocerous. Where's the rhinocerous?",rhinocerous,
+,,,,90,295515,0,,   ,selects
+,,,,91,296538,0,Oink oink oink. They're big and pink. Pig!,pig,
+,,,,92,301191,0,,   ,selects
+,,,,93,304722,0,"Oh, here's Limelight Larry again! peacock.",peacock.,
+,,,,94,307263,0,,   ,selects
+,,,,95,309177,0,Beautiful feathers,peacock,
+,,,,96,311751,0,"Oh, moo.",cow,   
+,,,,97,312609,0,,   ,selects
+,,,,98,314292,0, Pigs say oink oink oink. Cows say moo.,cow,
+,,,,99,318021,320099,"Oh, swan, with the long white neck. Do you see the long white neck on the swan?",swan,
+,,,,100,322410,0,,   ,selects
+,,,,101,322641,0,There it is! Too tiny?,n/a,
+,,,,102,326832,0,What about a pink pig that says oink oink.,pig,
+,,,,103,330363,0,,   ,selects
+,,,,104,330627,0,Right there! You got it.,n/a,
+,,,,105,334224,0,"Oh, donkey. Have you ever seen a donkey before? It's kind of like a horse.",donkey,
+,,,,106,338580,0,,   ,selects
+,,,,107,341583,0,Meow. What says meow? The cat!,cat,
+,,,,108,345213,0,,   ,selects
+,,,,109,350130,0,What about the donkey?,donkey,
+,,,,110,353232,0,,   ,selects

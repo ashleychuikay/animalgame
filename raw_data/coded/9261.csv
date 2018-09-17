@@ -1,0 +1,112 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,133848,0,This?,0,123288,0,"Alright, hold on, wait a second, wait a second.",n/a,
+1,133848,0,This?,1,125862,0,"Alright, wait wait, let me tell you the name of something and I'll tell you what to press, okay?",n/a,
+2,138699,0,This?,2,133320,0,"It says artichoke, that's asparagus, Which one's the artichoke? That's an onion. You gotta press which one is the artichoke.",artichoke,
+3,167145,0,Fish!,3,142824,0,,,selects
+4,187077,0,Cat,4,145299,0,Now apple. Press the apple.,apple,
+5,202323,0,bird,5,146916,0,,,selects
+6,207141,0,This!,6,147444,150388,There you go.,apple,
+7,211167,0,Horse.,7,152229,0,"Now, artichoke.",artichoke,
+8,222453,0,Yeah! (more excited screams),8,152295,0,,,selects
+9,240438,0,Elephant,9,152625,0,"No, that's the onion.",artichoke,
+10,245190,0,Donkey!,10,156453,160149,"Okay, just wait wait wait wait until I tell you",n/a,
+11,250140,0,Cow,11,160182,0,Squirrel,squirrel,
+12,269478,0,Fish?,12,161898,0,,,selects
+13,291060,0,Bird,13,163284,0,Wait for me and I'll tell you.,n/a,
+14,296505,0,Cat!,14,163284,0,Fish!,fish,
+15,305085,0,Yes!,15,166947,0,,,selects
+16,308253,0,Dog,16,169059,0,Peacock. Do you know peacock?,peacock.,
+17,322476,0,Cat,17,171501,0,,,selects
+18,326271,0,Laughed,18,172392,0,That's a squirrel.,peacock,
+19,341913,0,Cat!,19,174141,0,Cat,cat,
+20,347523,0,Duck!,20,175825,0,,,selects
+21,366201,0,Dog?,21,176319,0,There you go.,n/a,
+22,371481,0,Mutter,22,179784,0,Rhinocerous. Do you know rhinocerous?,rhinocerous,
+23,392667,0,No no no no,23,181929,0,,,selects
+24,392667,0,Cat!,24,182061,0,"No, that's a lobster.",Rhinocerous,
+25,405735,0,Cat!,25,184437,0,Cat,cat,
+26,412236,0,Swan?,26,186186,0,,,selects
+,,,,27,186285,0,Squirrel. Squirrel. Squirrel. Press squirrel.,squirrel.,
+,,,,28,194700,0,,,selects
+,,,,29,195459,0,"No, that's a raccoon.",squirrel,
+,,,,30,198363,200871,Bird,bird,
+,,,,31,200277,0,,,selects
+,,,,32,200871,0,Yes,n/a,
+,,,,33,203940,0,Rooster.Where's the rooster?,rooster,
+,,,,34,205194,0,,,selects
+,,,,35,208329,0,There you go! You got that,n/a,
+,,,,36,209286,0,Horse. Horse.,horse,
+,,,,37,211827,0,,,selects
+,,,,38,211860,0,"Nope, what was that? That was a cow",n/a,
+,,,,39,216117,0,Lobster. Do you remember which one's a lobster? Lobster?,lobster,
+,,,,40,222123,0,,,selects
+,,,,41,224664,0,That's a rhinocerous!,lobster,
+,,,,42,227535,0,"Alright, fish.",fish,
+,,,,43,229878,0,,,selects
+,,,,44,230637,0,Leopard. Do you know leopard?,leopard,
+,,,,45,233343,0,,,selects
+,,,,46,233475,0,"No, that's a rooster.",leopard,
+,,,,47,236577,0,Listen to me to tell you the word.,n/a,
+,,,,48,237996,0,Elephant,elephant,
+,,,,49,239382,0,,,selects
+,,,,50,239646,0,There you go,n/a,
+,,,,51,242913,0,Donkey. Do you know which one's a donkey?,donkey,
+,,,,52,245388,0,,,selects
+,,,,53,246477,0,Ooooh! Good! Good Job!,n/a,
+,,,,54,249084,0,"Cow. Yeah, Cow.",cow,
+,,,,55,251031,0,,,selects
+,,,,56,252120,0,"No, that's a horse. You mixed them up, honey.",cow,
+,,,,57,254991,0,Lobster. Do you remember lobster?,lobster,
+,,,,58,259215,0,,,selects
+,,,,59,259776,0,Elephant. Elephant?,elephant,
+,,,,60,264198,0,,,selects
+,,,,61,264594,0,"No, that was the fish.",elephant,
+,,,,62,266673,0,"Raccoon. Do you know the raccoon? Which one is the raccoon? OK, no, raccoon. Here's the next one, raccoon.",raccoon,
+,,,,63,286539,0,,,selects
+,,,,64,286803,0,There you go.,n/a,
+,,,,65,289377,0,Bird,bird,
+,,,,66,291060,0,,,selects
+,,,,67,291456,0,Swan. Swan. Do you know swan? No not cat.  Swan. It's a type of bird. So which one do you think?,Swan,
+,,,,68,302841,0,,,selects
+,,,,69,304524,0,There you go! Good job.,n/a,
+,,,,70,307791,0,Dog?,dog,
+,,,,71,307791,0,,,selects
+,,,,72,309243,0,Peacock. It's a type of bird. Okay?,peacock,
+,,,,73,314028,0,,,selects
+,,,,74,314193,0,There you go,n/a,
+,,,,75,317460,0,"Pig. Pig this time, no, pig this time.",pig,
+,,,,76,320496,0,,,selects
+,,,,77,323004,0,"No, that was the cat.",pig,
+,,,,78,323994,0,Rhinocerous.,rhinocerous,
+,,,,79,324555,0,,,selects
+,,,,80,325479,0,"You got it right. Wait, stop.",n/a,
+,,,,81,330198,0,"Horse, Horse. Which one's the horse?",horse,
+,,,,82,332805,0,,,selects
+,,,,83,334125,0,"No, that's the cow.",horse,
+,,,,84,337326,0,Leopard. Leopard. Leopard this time.  A leopard is a type of cat.,leopard,
+,,,,85,341913,0,,,selects
+,,,,86,342111,0,Yes. Very good.,n/a,
+,,,,87,344817,0,Duck! Duck!,duck,
+,,,,88,346797,0,,,selects
+,,,,89,350955,0,"Donkey. Which one's the donkey? No, that's all it is, it's  just a word. You have to pick which one's the donkey. Do you remember donkey? No, that's a rhinocerous",donkey,
+,,,,90,361713,0,,,selects
+,,,,91,362538,0,"No, that's a rhinocerous",donkey,
+,,,,92,362736,0,Dog!,dog,
+,,,,93,365475,0,,,selects
+,,,,94,366201,0,Mhm!,n/a,
+,,,,95,369567,0,"Okay, stop and think for a second, I know, stop and think for a second.  Raccoon. Which one's the raccoon?",raccoon,
+,,,,96,375276,0,,,selects
+,,,,97,378807,0,"No, that was a type of bird, right?",raccoon,
+,,,,98,380457,0,Duck! Duck!  Duck.,duck,
+,,,,99,382602,0,,,selects
+,,,,100,391281,0,"You have to, you have to, wait wait wait. You have to press the animal that the word is. Swan is next.  Swan. Press the swan.",swan,
+,,,,101,393657,403266,,,selects
+,,,,102,397980,399564,Are you getting tired of the game?,n/a,
+,,,,103,399597,0,Cow. Press cow. Which one's the cow? ,cow,
+,,,,104,401610,0,,,selects
+,,,,105,404316,0,"No, you pressed the pig.",cow,
+,,,,106,408177,410360,Rooster this time. Can you press the rooster?,rooster,
+,,,,107,410850,0,"No, that's the swan.",rooster,
+,,,,108,412962,0,Pig! Which one's the pig? Pig?,pig,
+,,,,109,419034,0,,,selects
+,,,,110,419166,0,There you go.,n/a,

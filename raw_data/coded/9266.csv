@@ -1,0 +1,129 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,141542,0,apple,0,133790,0,"Apple. Look at your screen, touch the apple",apple,
+1,159494,0,www,1,143004,0,,,selects
+2,163472,0,right there,2,143786,0,Now which one is the artichoke? artichoke. Do you know which one is the artichoke? It's green. Push it!,artichoke,
+3,167110,0,i did it!,3,156842,0,,,selects
+4,170748,0,there,4,161446,0,you did!,n/a,
+5,177106,0,da,5,162078,0,"apple, which one is the apple?",apple,
+6,186048,0,here,6,164628,0,,,selects
+7,188802,0,woah!,7,167110,0,you did it!,n/a,
+8,192542,0,here,8,169082,0,"artichoke, where's the artichoke?",artichoke,
+9,194990,0,woah!,9,172613,0,"that's right, push it!",artichoke,
+10,200226,0,right there,10,173604,0,,,selects
+11,203184,0,woah!,11,179486,0,Good job!,n/a,
+12,208454,0,it's right there,12,183736,0,"Duck, wait, duck",duck,
+13,212976,0,www,13,187238,0,yup!,duck,
+14,216206,0,woah!,14,187714,0,,,selects
+15,221340,0,woah!,15,191386,0,which one is the rooster?,rooster,
+16,226474,0,tiger,16,193766,0,push it!,rooster,
+17,231336,0,www,17,194616,0,,,selects
+18,234226,0,woah!,18,196452,0,"alright, where's the duck?",duck,
+19,237694,0,"right there, right there",19,200294,0,push it!,duck,
+20,243474,0,woah!,20,201926,0,,,selects
+21,251022,0,there,21,207468,0,where's the squirrel?,squirrel,
+22,253878,0,woah,22,210256,0,"oh, that's not the squirrel, try a different one. that's the squirrel",squirrel,
+23,259692,0,right there,23,215186,0,,,selects
+24,262650,0,woah,24,219674,0,cat,cat,
+25,269518,0,here,25,220830,0,,,selects
+26,274176,0,right there,26,224842,0,rooster,rooster,
+27,281112,0,there,27,227664,0,"yeah, that's a tiger, but I want you to push the rooster.",rooster,
+28,284410,0,woah,28,232526,0,,,selects
+29,288796,0,www,29,234838,0,great job!,n/a,
+30,292162,0,woah,30,237422,0,"alright, um, dog",dog,
+31,297568,0,right there,31,241264,0,push it,dog,
+32,300968,0,here,32,242556,0,,,selects
+33,304130,0,woah!,33,249254,0,swan,swan,
+34,313106,0,www,34,251090,0,"alright, push it!",swan,
+35,316812,0,"here, right there",35,253776,251090,,,selects
+36,325142,0,right there,36,253980,0,"Pig, where's the pig?",pig,
+37,333608,0,right there,37,260066,0,that's right,n/a,
+38,338368,0,woah,38,262208,0,,,selects
+39,343910,0,www,39,266084,0,"lobster, Cori, we're not done yet, we're still playing!",n/a,
+40,346256,0,woah,40,271048,0,"yeah, we're still playing!",n/a,
+41,353770,0,water,41,273190,0,can you find the lobster for me? which one's the lobster?,lobster,
+42,363290,0,right there,42,275638,0,"OK, push it",lobster,
+43,371586,0,right there,43,280194,0,which one do you think is the lobster?,lobster,
+44,377740,0,moo,44,281588,0,that's right,"n/a
+",
+45,381582,0,right there,45,281588,0,,,selects
+46,383656,0,there,46,285022,0,Good job!,n/a,
+47,385016,0,www,47,287776,0,horse,horse,
+48,392190,0,this?,48,290292,0,that is the horse,horse,
+49,395454,0,www,49,290292,0,,,selects
+50,400588,0,"right there, right there",50,295358,0,"raccoon, where's the raccoon?",raccoon,
+51,405552,0,right there,51,298078,0,that's right,raccoon,
+52,414086,0,right there,52,302430,0,"No, you showed me the raccoon",raccoon,
+53,420750,0,www,53,303688,0,,,selects
+54,424559,0,right there,54,308856,0,cow,cow,
+55,431018,0,www,55,314738,0,which one is the cow?,cow,
+56,437172,0,"here, right here",56,318988,0,,,selects
+57,441184,0,why?,57,320110,0,"no, this one is the cow, that's the horse",cow,
+58,447916,0,here,58,323000,0,swan,swan,
+59,479706,0,www,59,327250,0,"No, which one is the swan? The swan is white",swan,
+60,492796,0,www,60,335648,0,"Yeah, that's right",n/a,
+61,506872,0,www,61,337722,0,,,selects
+62,519554,0,the pig,62,340646,0,Fish,fish,
+63,524877,0,www,63,344556,0,touch the fish,fish,
+64,526252,0,www,64,346086,0,,,selects
+65,551820,0,right there,65,350268,0,"leopard, can you come touch the leopard Cori?",leopard,
+66,559708,0,www,66,355640,0,"No, that's not water, that's a radiator, come over here, touch the leopard for me",leopard,
+67,565148,0,there,67,364276,0,that's right,leopard,
+,,,,68,365194,0,,,selects
+,,,,69,369648,0,"cow, where's the cow?",cow,
+,,,,70,372606,0,that's right,cow,
+,,,,71,374238,0,,,selects
+,,,,72,377400,0,what does the cow say?,cow,
+,,,,73,379440,0,peacock,peacock,
+,,,,74,383214,0,where's the peacock?,peacock,
+,,,,75,384948,0,"that's right, that's the peacock!",peacock,
+,,,,76,384948,0,,,selects
+,,,,77,389470,0,cat,cat,
+,,,,78,393380,0,that is a cat,cat,
+,,,,79,394128,0,,,selects
+,,,,80,399466,0,where's the peacock?,peacock,
+,,,,81,404124,0,that's not the peacock!,peacock,
+,,,,82,406334,0,"you got it, where's the--",peacock,
+,,,,83,407422,0,,,selects
+,,,,84,411910,0,dog,dog,
+,,,,85,416330,0,,,selects
+,,,,86,422246,0,"this is a different one. donkey, where's the donkey",donkey,
+,,,,87,424558,0,,,selects
+,,,,88,424660,0,that's a lobster,donkey,
+,,,,89,428332,0,"elephant, where's the elephant?",elephant,
+,,,,90,432174,0,,,selects
+,,,,91,435846,0,"donkey, do you see a donkey?",donkey,
+,,,,92,439246,0,"no, that's not the donkey",donkey,
+,,,,93,444448,0,"where's the donkey? the donkey is in the middle, which one is in the middle?",donkey,
+,,,,94,449276,0,"No, that's not the donkey",donkey,
+,,,,95,451860,0,,,selects
+,,,,96,451860,0,that's the donkey,donkey,
+,,,,97,455056,0,bird,bird,
+,,,,98,456484,0,,,selects
+,,,,99,460802,0,rhinocerous,rhinocerous,
+,,,,100,464236,0,,,selects
+,,,,101,468588,0,"horse, which one's the horse?",horse,
+,,,,102,474742,0,,,selects
+,,,,103,478244,0,lobster,,
+,,,,104,480930,0,"yeah, that's the lobster, touch it",lobster,
+,,,,105,483922,0,,,selects
+,,,,106,488376,0,elephant,elephant,
+,,,,107,493272,0,,,selects
+,,,,108,497386,0,rhinocerous,rhinocerous,
+,,,,109,499834,0,,,selects
+,,,,110,502520,0,are you paying attention to what you're touching?,n/a,
+,,,,111,505002,0,pig,pig,
+,,,,112,515134,0,"you don't want to play with the animals? well you don't have to play with them, we're just touching pictures of them right now.",n/a,
+,,,,113,518398,0,can you show me which one's the pig?,pig,
+,,,,114,520880,0,,,selects
+,,,,115,525742,0,raccoon,raccoon,
+,,,,116,527476,0,where's the raccoon? what does the raccoon say? touch the raccoon,raccoon,
+,,,,117,536486,0,,,selects
+,,,,118,540498,0,"bird, where's the bird?",bird,
+,,,,119,543320,0,,,selects
+,,,,120,549066,0,"xxx, squirrel, where's the squirrel?",squirrel,
+,,,,121,552228,0,that's the squirrel,squirrel,
+,,,,122,553928,0,,,selects
+,,,,123,557566,0,fish,fish,
+,,,,124,560388,0,,,selects
+,,,,125,564230,0,leopard,leopard,
+,,,,126,565658,0,,,selects

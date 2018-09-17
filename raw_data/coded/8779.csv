@@ -1,0 +1,129 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,105501,0,www,0,106524,0,"OK, wait, OK, artichoke",artichoke,
+1,113718,0,apple,1,110022,0,,,selects
+2,117579,0,awww,2,112068,0,apple? where's the apple?,apple,
+3,131175,0,right there,3,114939,0,"touch it, touch the apple",apple,
+4,133663,0,wow,4,115962,0,,,selects
+5,140547,0,da,5,118767,0,where's the artichoke? where's the artichoke?,artichoke,
+6,142880,0,dog dog,6,121968,0,,,selects
+7,154110,0,wow,7,123321,0,good job!,n/a,
+8,156763,0,horse,8,125598,0,"OK, ready? Here comes more, put it down.",n/a,
+9,158961,0,duck,9,129030,0,"Landon, where's the horse? Where's the horse?",horse,
+10,160571,0,duck,10,132033,0,,,selects
+11,163647,0,a duck!,11,132495,0,that was a cow,horse,
+12,178035,0,www,12,135432,0,where's the peacock? where's teh peacock,peacock,
+13,181896,0,pig,13,136521,0,,,selects
+14,185691,0,there,14,138732,0,there it is!,n/a,
+15,190311,0,cow,15,141174,0,where's the dog? Where's the dog?,dog,
+16,195294,0,ocerous,16,142626,0,,,selects
+17,200455,0,fish,17,144177,0,there it is!,n/a,
+18,203171,0,a duck!,18,145761,0,where's the rhinocerous? the rhinocerous,rhinocerous,
+19,209418,0,www,19,149160,0,,,selects
+20,212675,0,cat,20,152493,0,where's the cow?,cow,
+21,215754,0,www,21,154242,0,,,selects
+22,218559,0,donkey,22,155892,0,"oh, that was a horse",cow,
+23,223443,0,fish,23,157872,0,where's the leapord?,leopard,
+24,225489,0,duck,24,159192,0,where--,leopard,
+25,227337,0,a duck,25,159192,0,,,selects
+26,229878,0,this,26,160446,0,you gotta wait for mommy,n/a,
+27,235950,0,www,27,161238,0,wait for mommy,n/a,
+28,248701,0,tweet tweet,28,164406,0,Yeah that's was a duck,n/a,
+29,255717,0,leopard,29,165693,0,"Landon, where's the bird? Hey, where's the bird? Where's the bird? Touch the bird",bird,
+30,261558,0,www,30,170016,0,,,selects
+31,264396,0,lobster,31,171501,0,Good job!,n/a,
+32,268983,0,there,32,173844,0,where's the raccoon? raccoon,raccoon,
+33,275121,0,peacock,33,175296,0,,,selects
+34,284493,0,pig,34,176781,0,"oop, that was a squirrel.",raccoon,
+35,300257,0,rooster,35,178860,0,that was a squirrel,raccoon,
+36,328482,0,www,36,179883,0,where's the pig?,pig,
+37,333003,0,donkey,37,182193,0,,,selects
+38,339570,0,fish,38,182193,0,good job!,n/a,
+39,343028,0,www,39,184569,0,where's the raccoon?,raccoon,
+40,348150,0,a fishy,40,186450,0,there it is!,n/a,
+41,352275,0,www,41,189420,0,where's the cow?,cow,
+42,362990,0,,42,190905,0,,,selects
+43,365201,0,rooster,43,190905,0,good job!,n/a,
+44,368478,0,rooster,44,194502,0,where's the rhinocerous?,rhinocerous,
+45,374022,0,dog!,45,196449,0,,,selects
+46,376764,0,www,46,196449,0,"good job! you touched the donkey, I think.",n/a,
+47,383137,0,wow,47,200211,0,where's the fish?,fish,
+48,390852,0,leopard,48,201630,0,,,selects
+,,,,49,202521,0,good job,n/a,
+,,,,50,203478,0,"wait for mommy, wait for mommy. where's the squirrel? where's the squirrel?",squirrel,
+,,,,51,208197,0,,,selects
+,,,,52,209814,0,yeah!,n/a,
+,,,,53,211002,0,Where's the kitty cat? Where's the cat?,cat,
+,,,,54,213444,0,,,selects
+,,,,55,216645,0,where's the donkey? do you know what a donkey is?,donkey,
+,,,,56,218229,0,,,selects
+,,,,57,220737,0,"no, you don't know what a donkey is.",donkey,
+,,,,58,222453,0,where's the fish?,fish,
+,,,,59,224268,0,,,selects
+,,,,60,224268,0,good job,n/a,
+,,,,61,227568,0,yeah!,n/a,
+,,,,62,228162,0,where's the lobster? where's the loobster? ,lobster,
+,,,,63,230142,0,,,selects
+,,,,64,230868,0,good job!,n/a,
+,,,,65,233079,0,where's the elephant? touch the elephant,elephant,
+,,,,66,234300,0,,,selects
+,,,,67,235752,0,There!,n/a,
+,,,,68,238920,0,you're very good at this!,n/a,
+,,,,69,239613,0,where's the squirrel? touch the squirrel.,squirrel,
+,,,,70,241131,0,,,selects
+,,,,71,243639,0,i don't know what you touched,n/a,
+,,,,72,244959,0,where's the bird? touch the bird!,bird,
+,,,,73,246246,0,,,selects
+,,,,74,247335,0,nice!,n/a,
+,,,,75,249447,0,"where's the leopard? hey Landon, where's the leopard? the leopard.",leopard,
+,,,,76,254001,0,,,selects
+,,,,77,254001,0,there it is,n/a,
+,,,,78,257334,0,where's the doggie?,dog,
+,,,,79,258984,0,,,selects
+,,,,80,259677,0,nice!,n/a,
+,,,,81,262152,0,where's the lobster? where's the lobster?,lobster,
+,,,,82,265386,0,,,selects
+,,,,83,266112,0,there it is!,n/a,
+,,,,84,267993,0,where's the horse?,horse,
+,,,,85,269247,0,"right there, touch it, touch the horse!",horse,
+,,,,86,270920,0,,,selects
+,,,,87,271920,0,good job!,n/a,
+,,,,88,274197,0,where's the peacock?,peacock,
+,,,,89,276012,0,touch the peacock!,peacock,
+,,,,90,277959,0,,,selects
+,,,,91,278817,0,"No, that was the squirrel.",peacock,
+,,,,92,281490,0,"where's the pig? where's the pig, touch the pig",pig,
+,,,,93,285285,0,,,selects
+,,,,94,286209,0,nice!,n/a,
+,,,,95,287694,0,"Hold on, we're almost done, come here! Come back! Where's the rooster? Landon... Landon, come here! Where's the rooster? Cocka-doodle-doo!",n/a,
+,,,,96,300036,0,Can you touch the rooster?,rooster,
+,,,,97,301257,0,,,selects
+,,,,98,302742,0,there it is,n/a,
+,,,,99,304260,0,"Landon, come here. Landon, come here. Landon, where's the duck? Where's the duck? The duck.  Come here! Landon, come here, where's the duck? Come here!",n/a,
+,,,,100,322014,0,"Hey Landon, you know where the duck is. Where's the duck? Touch the duck, quack quack quack. Touch that duck. Touch him!",duck,
+,,,,101,326205,0,,,selects
+,,,,102,326205,0,there you go,n/a,
+,,,,103,329835,0,where's the donkey? where's the donkey?,donkey,
+,,,,104,333531,0,,,selects
+,,,,105,335016,0,yeah! that's a donkey.  good job!,donkey,
+,,,,106,337260,0,where's the duck? duck,duck,
+,,,,107,339603,0,that's a fish but touch the duck. touch the duck.,duck,
+,,,,108,342243,0,touch the duck,duck,
+,,,,109,345180,0,"ok, touch the duck!",duck,
+,,,,110,346028,0,,,selects
+,,,,111,347028,0,okay,n/a,
+,,,,112,350064,0,where's the swan?,swan,
+,,,,113,351549,0,,,selects
+,,,,114,352242,0,yeah!,n/a,
+,,,,115,355344,0,"OK, where's the elephant? Landon, touch the elephant! Touch the elephant!",elephant,
+,,,,116,360228,0,,,selects
+,,,,117,361350,0,that's a fish!,elephant,
+,,,,118,363990,0,where's the rooster?,rooster,
+,,,,119,366168,0,,,selects
+,,,,120,369633,0,"That wasn't the rooster, that was the swan.",rooster,
+,,,,121,371019,0,Where's the kitty cat? Touch the kitty cat!,cat,
+,,,,122,374121,0,,,selects
+,,,,123,379137,0,"Hey Landon, where's the swan? Landon, come here. Let's finish -- Landon",n/a,
+,,,,124,385671,0,Let's finish and then we can go play,n/a,
+,,,,125,387024,0,Where's the swan? Can you touch the swan?,swan,
+,,,,126,389730,0,,,selects
+,,,,127,389730,0,That was a leopard,swan,

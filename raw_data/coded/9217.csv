@@ -1,0 +1,127 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,20658,0,okay,0,3564,0,Where's the artichoke?,artichoke,
+1,120021,0,www,1,5940,0,,,selects
+2,150777,0,in the zoo,2,6303,0,Where's the artichoke?,artichoke,
+3,158763,0,ahh!,3,7854,0,Where's the apple?,apple,
+4,159357,0,go in here!,4,11286,0,,,selects
+5,171105,0,fish!,5,12243,0,There it is.,apple,
+6,172557,0,elephant!,6,14784,0,"OK, touch the artichoke.",artichoke,
+7,209814,0,go in there,7,15840,0,,,selects
+8,214896,0,that's like our kitty,8,16599,0,Yeah!,n/a,
+9,229581,0,tweet tweet tweet,9,19371,0,Okay,n/a,
+,,,,10,21483,0,Okay,n/a,
+,,,,11,24123,0,"Hey, where's the raccoon?",raccoon,
+,,,,12,25674,0,,,selects
+,,,,13,26763,0,Oop! That was the squirrel!,raccoon,
+,,,,14,30393,0,Can you find the fish?,fish,
+,,,,15,31482,0,,,selects
+,,,,16,32406,0,Yeah!,n/a,
+,,,,17,34947,0,How 'bout the donkey? Where's the donkey?,donkey,
+,,,,18,37521,0,,,selects
+,,,,19,38445,0,That's a rhinocerous.,donkey,
+,,,,20,40920,0,"Where's the cat, like Audrey? Where's the cat?",cat,
+,,,,21,42834,0,,,selects
+,,,,22,44682,0,"There's the cat, there you go!",cat,
+,,,,23,46662,0,"OK, can you find the raccoon? Wait, touch the raccoon.",raccoon,
+,,,,24,52239,0,,,selects
+,,,,25,52899,0,Good job. OK,n/a,
+,,,,26,56529,0,Where's the pig?,pig,
+,,,,27,57651,0,,,selects
+,,,,28,58608,0,"(snorts) like a pig, yeah!",pig,
+,,,,29,61314,0,where's the rooster? rooster.,rooster,
+,,,,30,64350,0,,,selects
+,,,,31,65901,0,Cocka-doodle-doo!,rooster,
+,,,,32,68574,0,"OK, can you find, now wait, can you find the dog?",dog,
+,,,,33,71808,0,,,selects
+,,,,34,72798,0,Yeah! Like Lucy!,dog,
+,,,,35,75471,0,"OK, how 'bout the swan",swan,
+,,,,36,77616,0,,,selects
+,,,,37,78573,0,"Very good! So pretty, pretty bird",swan,
+,,,,38,81543,0,Where's the horse? Where's the horse?,horse,
+,,,,39,83556,0,,,selects
+,,,,40,85107,0,Uh-huh!,n/a,
+,,,,41,87813,0,Give me the squirrel.,squirrel,
+,,,,42,88770,0,,,selects
+,,,,43,89925,0,"Yeah, like in our back yard! Yup!",squirrel,
+,,,,44,92664,0,How 'bout the duck?,duck,
+,,,,45,94050,0,,,selects
+,,,,46,95205,0,"quack quack quack, Okay",n/a,
+,,,,47,97779,0,Can you find the squirrel?,squirrel,
+,,,,48,98868,0,,,selects
+,,,,49,99660,0,Very good!,n/a,
+,,,,50,101706,0,Where's the bird?,bird,
+,,,,51,103356,0,,,selects
+,,,,52,104412,0,Very good! You know your animals.,n/a,
+,,,,53,106953,0,"OK, how 'bout the lobster. Do you know what a lobster is?",lobster,
+,,,,54,110154,0,,,selects
+,,,,55,110154,0,Yeah! They're in the ocean,lobster,
+,,,,56,114081,0,"Ok, oop, how 'bout the horse?",horse,
+,,,,57,117381,0,,,selects
+,,,,58,118536,0,Yeah!,n/a,
+,,,,59,121077,0,Yeah!,n/a,
+,,,,60,121770,0,How 'bout the rhinocerous,rhinocerous,
+,,,,61,124014,0,,,selects
+,,,,62,125367,0,Yeah!,n/a,
+,,,,63,126588,0,"OK, then, where's the dog?",dog,
+,,,,64,129921,0,,,selects
+,,,,65,130878,0,Uh-huh! Good.,n/a,
+,,,,66,134178,0,"OK, can you find the leopard? Where's the leopard?",leopard,
+,,,,67,137907,0,,,selects
+,,,,68,138402,0,There,n/a,
+,,,,69,140646,0,"OK, where's the cow?",cow,
+,,,,70,142164,0,,,selects
+,,,,71,143385,0,"There's the cow, mhm",n/a,
+,,,,72,147246,0,How 'bout the peacock?,peacock,
+,,,,73,148368,0,,,selects
+,,,,74,149358,0,Yeah! Very good!,n/a,
+,,,,75,152592,0,"Yeah, like in the zoo! Right? We saw a peacock in the zoo.",peacock,
+,,,,76,155958,0,Can you find the duck?,duck,
+,,,,77,157740,0,,n/a,selects
+,,,,78,158829,0,there it is!,,
+,,,,79,161271,0,"No, we're going to finish this game.",n/a,
+,,,,80,163581,0,How 'bout the lobster? Where's the red lobster?,yeah!,
+,,,,81,164505,0,,,selects
+,,,,82,166551,0,yeah!,,
+,,,,83,169521,0,"OK, how about the...",elephant,
+,,,,84,171534,0,elephant,elephant,
+,,,,85,172887,0,,,selects
+,,,,86,173481,0,Yeah! Very good!,n/a,
+,,,,87,176748,0,"OK, can you find the rhinocerous?",rhinocerous,
+,,,,88,179190,0,,,selects
+,,,,89,179850,0,There it is! Good job.,n/a,
+,,,,90,182391,0,how 'bout the pig.,pig,
+,,,,91,184503,0,,,selects
+,,,,92,185988,0,What does a pig say? (snorts) yup!,pig,
+,,,,93,190377,0,How 'bout the peacock?,peacock,
+,,,,94,191565,0,,,selects
+,,,,95,192489,0,"Yeah! Very good, you're doing such a good job!",n/a,
+,,,,96,196185,0,Can you find the cow?,cow,
+,,,,97,197274,0,,,selects
+,,,,98,198165,0,"Oop, that's a horse. It looks like a cow, but that's a horse.",cow,
+,,,,99,201861,0,How about the swan?,swan,
+,,,,100,204534,0,,,selects
+,,,,101,205722,0,"Very good, Buddy!",,
+,,,,102,211167,0,We're gonna play this game.,n/a,
+,,,,103,211959,0,Where's the kitty cat?,cat,
+,,,,104,213774,0,,,selects
+,,,,105,216249,0,"That's like Audrey, our kitty cat!",cat,
+,,,,106,220119,0,,,selects
+,,,,107,220407,0,Can you find the donkey?,donkey,
+,,,,108,221760,0,,,selects
+,,,,109,223410,0,Good job!,n/a,
+,,,,110,226578,0,"OK, how about the bird?",bird,
+,,,,111,227436,0,,,selects
+,,,,112,228426,0,Tweet tweet tweet tweet!,bird,
+,,,,113,229878,0,You sound just like the bird,bird,
+,,,,114,233343,0,Can you find the leopard? Where's the leopard?,leopard,
+,,,,115,235356,0,,,selects
+,,,,116,236973,0,"Woaaaah it's a big kitty cat, huh?",leopard,
+,,,,117,240273,0,How about the elephant? Can you find an elephant?,elephant,
+,,,,118,241989,0,,,selects
+,,,,119,242946,0,"Good boy, you did it, you found it!",n/a,
+,,,,120,246642,0,Where is the rooster? Where's the rooster? Which one is the rooster?,rooster,
+,,,,121,254100,0,,,selects
+,,,,122,255585,0,That's a leopard!,rooster,
+,,,,123,258291,0,Where is the fish?,fish,
+,,,,124,259908,0,,,selects
+,,,,125,261789,0,Yeah! We're all done,n/a,

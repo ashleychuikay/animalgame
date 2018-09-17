@@ -1,0 +1,122 @@
+ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance.utterance,ParentUtterance.ordinal,ParentUtterance.onset,ParentUtterance.offset,ParentUtterance.utterance,ParentUtterance.target,ParentUtterance.selection
+0,8428,0,daddy,0,17127,0,"OK, don't push anything for a sec, OK?",n/a,
+1,15465,0,yellow,1,19404,0,,,selects
+2,45134,0,button,2,20856,0,"Jude, wait wait, Jude you have to wait, ok?",n/a,
+3,51414,0,dad!,3,24981,0,can you push the artichoke? the green one.,artichoke,
+4,55275,0,OK,4,26895,0,,,selects
+5,78408,0,www,5,27720,0,"Good job. OK, don't push anything",n/a,
+6,84381,0,ruff!,6,29073,0,can you push the apple? which one's the apple?,apple,
+7,104643,0,www,7,31284,0,,,selects
+8,118361,0,neigh,8,31911,0,"good job! ok hold on, don't touch anything!",n/a,
+9,148896,0,www,9,35475,0,the green -- can you push the green one Jude? No--,artichoke,
+10,174441,0,doggie?,10,38379,0,,,selects
+11,179652,0,hee haw,11,41052,0,"OK, Jude, you ready?",n/a,
+12,183150,0,daddy www,12,45969,0,"That's a button, yeah, OK. We're going to try again, we're going to try and pick the right one's, okay? Wait. Yeah, we're gonna do it again, okay?",n/a,
+13,242893,0,www,13,56397,0,Alright.  Don't push anything yet.  Can you push on the birdy? The bird? The swan?,swan,
+14,269897,0,ruff,14,61644,0,,,selects
+15,274791,0,rawr,15,62205,0,"Good job! OK, don't push anything yet.",n/a,
+16,280005,0,more?,16,66099,0,hit the bird again. which one's the bird?,bird,
+,,,,17,67386,0,,,selects
+,,,,18,69267,0,Good job!,n/a,
+,,,,19,71643,0,"Now the rhino, the one with the horns",rhinocerous,
+,,,,20,75108,0,,,selects
+,,,,21,75900,0,"that's the donkey, but good try! it's the same color",rhinocerous,
+,,,,22,78936,0,where's the doggie? where's the doggie?,dog,
+,,,,23,80982,0,,,selects
+,,,,24,82038,0,good job!,n/a,
+,,,,25,85041,0,ruff,dog,
+,,,,26,86691,0,which one's the kitty cat? it looks kind of like a cat that's got spots,leopard,
+,,,,27,89925,0,,,selects
+,,,,28,90486,0,"ohhh, that's the rooster! that was close.",leopard,
+,,,,29,94215,0,"oh, elephant!",elephant,
+,,,,30,95139,0,,,selects
+,,,,31,96030,0,"yeah! you know elephant, good job.",n/a,
+,,,,32,98076,0,"wait wait wait, wait wait. oh yeah, push on the birdie again.",swan,
+,,,,33,101376,0,,,selects
+,,,,34,102399,0,"good job, that's the swan.",swan,
+,,,,35,106326,0,where's the duckie?,duck,
+,,,,36,107085,0,,,selects
+,,,,37,107844,0,that's the fish.,duck,
+,,,,38,109593,0,"hold on, don't touch anything yet!",n/a,
+,,,,39,111474,0,push on the l---,unknown,
+,,,,40,112431,0,,,selects
+,,,,41,113817,0,"okay, you need to, you already pushed one",n/a,
+,,,,42,115401,0,where's the horsie?,horse,
+,,,,43,117315,0,,,selects
+,,,,44,119163,0,neigh!,horse,
+,,,,45,120417,0,"where's the birdie? it's the peacock, where's the peacock?",peacock,
+,,,,46,124080,0,,,selects
+,,,,47,125004,0,"good job! alright, don't push anything yet!",n/a,
+,,,,48,128073,0,where's the cat? the kitty cat? where's the kitty cat?,cat,
+,,,,49,132099,0,,,selects
+,,,,50,138072,0,can you push the red one? where's the red one?,lobster,
+,,,,51,140349,0,,,selects
+,,,,52,141537,0,"that's the donkey, that was gray!",lobster,
+,,,,53,145101,0,can you hit the birdie again?,bird,
+,,,,54,145959,0,,,selects
+,,,,55,147312,0,good job,n/a,
+,,,,56,150546,0,can you hit the red one? where's the red one?,lobster,
+,,,,57,153153,0,"good job, that's the lobster! good job!",n/a,
+,,,,58,157146,0,where's the horsie?,horse,
+,,,,59,158631,0,,,selects
+,,,,60,159555,0,good work!,n/a,
+,,,,61,163581,0,"and, where's the squirrel? do you know which one's the squirrel?",squirrel,
+,,,,62,165528,0,,,selects
+,,,,63,165528,0,"oh, good job! i didn't know if you knew that one!",squirrel,
+,,,,64,169818,0,"and then, where's the kitty cat?",cat,
+,,,,65,170412,0,,,selects
+,,,,66,171963,0,did you get the kitty cat before I told you?,n/a,
+,,,,67,173778,0,"hold on, we're... ok, can you push the donkey?",donkey,
+,,,,68,174570,0,,,
+,,,,69,177540,0,,,selects
+,,,,70,178134,0,"there you go, good job!",n/a,
+,,,,71,180345,0,hee haw!,donkey,
+,,,,72,183975,0,daddy's trying too! where's the piggy? what's the pig say? oink,pig,
+,,,,73,186648,0,,,selects
+,,,,74,187803,0,good job!,n/a,
+,,,,75,191994,0,"can you push the, the blue bird? the peacock, the blue---",peacock,
+,,,,76,193776,0,,,selects
+,,,,77,194733,0,good job!,n/a,
+,,,,78,198528,0,"and then, we gotta do the piggy again. where's the piggy?",pig,
+,,,,79,200904,0,,,selects
+,,,,80,202224,0,awesome!,n/a,
+,,,,81,205722,0,where's the raccoon? do you know which one the raccoon is?,raccoon,
+,,,,82,206844,0,,,selects
+,,,,83,207537,0,"oh, that was the peacock!",raccoon,
+,,,,84,210012,0,where's the fishy?,fish,
+,,,,85,211002,0,,,selects
+,,,,86,212157,0,"good job! you're really good at this, bud!",n/a,
+,,,,87,215556,0,where's the donkey? hee-haw. hee-haw,donkey,
+,,,,88,217239,0,,,selects
+,,,,89,218559,0,oh no! that's the lobster! you got it afterwards?,donkey,
+,,,,90,222123,0,where's the cow?,cow,
+,,,,91,224367,0,,,selects
+,,,,92,225159,0,"that was a horsie, bud! what does the cow say?",cow,
+,,,,93,228756,0,where's the squirrel?,squirrel,
+,,,,94,229449,0,,,selects
+,,,,95,232716,0,lost it? where's the cow?,cow,
+,,,,96,234366,0,,,selects
+,,,,97,235059,0,there it is! good job.,n/a,
+,,,,98,238722,0,where's that rooster where it made the loud noise again?,rooster,
+,,,,99,240669,0,,,selects
+,,,,100,241692,0,"oh, that was the leopard! that was the cat",leopard,
+,,,,101,243969,0,where's the duckie?,duck,
+,,,,102,245388,0,,,selects
+,,,,103,248688,0,"no no, don't push it, where's the raccoon?",raccoon,
+,,,,104,251691,0,,,selects
+,,,,105,254298,0,"that was the raccoon, the second one, yeah!",raccoon,
+,,,,106,255354,0,where's the elephant?,elephant,
+,,,,107,255354,0,,,selects
+,,,,108,259908,0,and where's the rooster?,rooster,
+,,,,109,261657,0,,,selects
+,,,,110,262812,0,good job!,n/a,
+,,,,111,265023,0,where's the doggie?,dog,
+,,,,112,267069,0,,,selects
+,,,,113,270336,0,ruff!,dog,
+,,,,114,271359,0,where's the leopard? that spotted one.,leopard,
+,,,,115,272646,0,,,selects
+,,,,116,274626,0,good job! now you know which one the leopard is!,leopard,
+,,,,117,276078,0,the fishy?,fish,
+,,,,118,277332,0,,,selects
+,,,,119,279246,0,perfect!,n/a,
+,,,,120,280632,0,more?,n/a,
