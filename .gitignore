@@ -2,3 +2,16 @@
 package-lock.json
 video/*
 raw_data/*
+
+# knitr and R markdown default cache directories
+/*_cache/
+
+# knitr and R markdown default files directories
+/*_files/
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
