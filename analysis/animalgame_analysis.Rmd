@@ -17,6 +17,7 @@ library(knitr)
 library(tidytext)
 library(readxl)
 library(tidyboot)
+library(stringr)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
@@ -28,11 +29,14 @@ theme_set(theme_classic(base_size = 16))
 Read in vocab data
 
 ```{r read_data, message=F}
-vocab_measure1 <- read_csv("../raw_data/Vocab measure Jul30.csv") %>%
+survey1 <- read_csv("../raw_data/Vocabulary_Measure-Distribution_History.csv")
+survey2 <- read_csv("../raw_data/Vocabulary_Measure-Distribution_History (1).csv")
+
+vocab_measure1 <- rbind(survey1,survey2) %>%
   filter(!is.na(`Response ID`)) %>%
   select(`Response ID`, Link)
 
-vocab_measure2 <- read_csv("../raw_data/Vocab Data Jul18.csv") %>%
+vocab_measure2 <- read_csv("../raw_data/Vocabulary Measure_September 12, 2018_12.36.csv") %>%
   slice(3:nrow(.))
 
 vocab_measure <- vocab_measure1 %>%
@@ -43,7 +47,7 @@ vocab_measure <- vocab_measure1 %>%
 vocab_data <- left_join(vocab_measure,
                         read_xlsx("../raw_data/qualtrics cdi links.csv.xlsx"),
                         by = "Link") %>%
-  select(`Response ID.y`, Q1) %>%
+  select(`Response ID.y`, Q1, '#') %>%
   rename(ResponseId = `Response ID.y`) %>%
   mutate(ResponseId = as.integer(ResponseId))
 ```
@@ -55,6 +59,14 @@ tidy_vocab <- vocab_data %>%
   mutate(understands = T) %>%
   complete(ResponseId, word, fill = list(understands = F)) %>%
   mutate(ResponseId = as.character(ResponseId))
+```
+Read in response data
+```{r read_data}
+child_response <- read_csv("../raw_data/animalgame_results.csv")
+
+response_data <- left_join(vocab_data,
+                           child_response,
+                           by = c(`#` = "SubID"))
 ```
 
 Read in transcript data
