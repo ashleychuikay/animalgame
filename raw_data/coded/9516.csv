@@ -20,7 +20,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,18,870944,0,Now the cat. Where's the kitty cat?,cat,
 ,,,,19,874786,0,,,selects
 ,,,,20,876214,0,Okay!,,
-,,,,21,877506,0,Oh! Rhino. Where's the rhino? Do you know? Yeah!,rhinocerous,
+,,,,21,877506,0,Oh! Rhino. Where's the rhino? Do you know? Yeah!,rhinoceros,
 ,,,,22,880702,0,,,
 ,,,,23,881484,0,Good job. Very Good.,,
 ,,,,24,885156,0,Where's the pig? Where's the pig?,pig,
@@ -32,7 +32,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,30,902768,0,"OK, a fish, is that a fish? ",fish,
 ,,,,31,905556,0,,,selects
 ,,,,32,907358,0,"Very good, xxx! You're doing so good!",na,
-,,,,33,909738,0,"Ok, ooh, the rhino again. Can you find teh rhino? Do you remember which one?",rhinocerous,
+,,,,33,909738,0,"Ok, ooh, the rhino again. Can you find teh rhino? Do you remember which one?",rhinoceros,
 ,,,,34,914668,0,,,selects
 ,,,,35,916300,0,"Very good, sweetie!",n/a,
 ,,,,36,918238,0,"OK, the pig. Let's find the pig again.",pig,

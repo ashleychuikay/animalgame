@@ -17,7 +17,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 15,190311,0,cow,15,141174,0,where's the dog? Where's the dog?,dog,
 16,195294,0,ocerous,16,142626,0,,,selects
 17,200455,0,fish,17,144177,0,there it is!,n/a,
-18,203171,0,a duck!,18,145761,0,where's the rhinocerous? the rhinocerous,rhinocerous,
+18,203171,0,a duck!,18,145761,0,where's the rhinoceros? the rhinoceros,rhinoceros,
 19,209418,0,www,19,149160,0,,,selects
 20,212675,0,cat,20,152493,0,where's the cow?,cow,
 21,215754,0,www,21,154242,0,,,selects
@@ -43,7 +43,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 41,352275,0,www,41,189420,0,where's the cow?,cow,
 42,362990,0,,42,190905,0,,,selects
 43,365201,0,rooster,43,190905,0,good job!,n/a,
-44,368478,0,rooster,44,194502,0,where's the rhinocerous?,rhinocerous,
+44,368478,0,rooster,44,194502,0,where's the rhinoceros?,rhinoceros,
 45,374022,0,dog!,45,196449,0,,,selects
 46,376764,0,www,46,196449,0,"good job! you touched the donkey, I think.",n/a,
 47,383137,0,wow,47,200211,0,where's the fish?,fish,

@@ -99,7 +99,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,96,451860,0,that's the donkey,donkey,
 ,,,,97,455056,0,bird,bird,
 ,,,,98,456484,0,,,selects
-,,,,99,460802,0,rhinocerous,rhinocerous,
+,,,,99,460802,0,rhinoceros,rhinoceros,
 ,,,,100,464236,0,,,selects
 ,,,,101,468588,0,"horse, which one's the horse?",horse,
 ,,,,102,474742,0,,,selects
@@ -108,7 +108,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,105,483922,0,,,selects
 ,,,,106,488376,0,elephant,elephant,
 ,,,,107,493272,0,,,selects
-,,,,108,497386,0,rhinocerous,rhinocerous,
+,,,,108,497386,0,rhinoceros,rhinoceros,
 ,,,,109,499834,0,,,selects
 ,,,,110,502520,0,are you paying attention to what you're touching?,n/a,
 ,,,,111,505002,0,pig,pig,

@@ -21,9 +21,9 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 19,341913,0,Cat!,19,174141,0,Cat,cat,
 20,347523,0,Duck!,20,175825,0,,,selects
 21,366201,0,Dog?,21,176319,0,There you go.,n/a,
-22,371481,0,Mutter,22,179784,0,Rhinocerous. Do you know rhinocerous?,rhinocerous,
+22,371481,0,Mutter,22,179784,0,Rhinoceros. Do you know rhinoceros?,rhinoceros,
 23,392667,0,No no no no,23,181929,0,,,selects
-24,392667,0,Cat!,24,182061,0,"No, that's a lobster.",Rhinocerous,
+24,392667,0,Cat!,24,182061,0,"No, that's a lobster.",rhinoceros,
 25,405735,0,Cat!,25,184437,0,Cat,cat,
 26,412236,0,Swan?,26,186186,0,,,selects
 ,,,,27,186285,0,Squirrel. Squirrel. Squirrel. Press squirrel.,squirrel.,
@@ -40,7 +40,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,38,211860,0,"Nope, what was that? That was a cow",n/a,
 ,,,,39,216117,0,Lobster. Do you remember which one's a lobster? Lobster?,lobster,
 ,,,,40,222123,0,,,selects
-,,,,41,224664,0,That's a rhinocerous!,lobster,
+,,,,41,224664,0,That's a rhinoceros!,lobster,
 ,,,,42,227535,0,"Alright, fish.",fish,
 ,,,,43,229878,0,,,selects
 ,,,,44,230637,0,Leopard. Do you know leopard?,leopard,
@@ -66,7 +66,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,64,286803,0,There you go.,n/a,
 ,,,,65,289377,0,Bird,bird,
 ,,,,66,291060,0,,,selects
-,,,,67,291456,0,Swan. Swan. Do you know swan? No not cat.  Swan. It's a type of bird. So which one do you think?,Swan,
+,,,,67,291456,0,Swan. Swan. Do you know swan? No not cat.  Swan. It's a type of bird. So which one do you think?,swan,
 ,,,,68,302841,0,,,selects
 ,,,,69,304524,0,There you go! Good job.,n/a,
 ,,,,70,307791,0,Dog?,dog,
@@ -77,7 +77,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,75,317460,0,"Pig. Pig this time, no, pig this time.",pig,
 ,,,,76,320496,0,,,selects
 ,,,,77,323004,0,"No, that was the cat.",pig,
-,,,,78,323994,0,Rhinocerous.,rhinocerous,
+,,,,78,323994,0,Rhinoceros.,rhinoceros,
 ,,,,79,324555,0,,,selects
 ,,,,80,325479,0,"You got it right. Wait, stop.",n/a,
 ,,,,81,330198,0,"Horse, Horse. Which one's the horse?",horse,
@@ -88,9 +88,9 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,86,342111,0,Yes. Very good.,n/a,
 ,,,,87,344817,0,Duck! Duck!,duck,
 ,,,,88,346797,0,,,selects
-,,,,89,350955,0,"Donkey. Which one's the donkey? No, that's all it is, it's  just a word. You have to pick which one's the donkey. Do you remember donkey? No, that's a rhinocerous",donkey,
+,,,,89,350955,0,"Donkey. Which one's the donkey? No, that's all it is, it's  just a word. You have to pick which one's the donkey. Do you remember donkey? No, that's a rhinoceros",donkey,
 ,,,,90,361713,0,,,selects
-,,,,91,362538,0,"No, that's a rhinocerous",donkey,
+,,,,91,362538,0,"No, that's a rhinoceros",donkey,
 ,,,,92,362736,0,Dog!,dog,
 ,,,,93,365475,0,,,selects
 ,,,,94,366201,0,Mhm!,n/a,

@@ -40,7 +40,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,38,230175,0,Do you know where the raccoon is? Raccoon. Where's the raccoon?,raccoon,
 ,,,,39,235851,0,,,selects
 ,,,,40,239745,0,Raccoon is like this...,n/a,
-,,,,41,243540,0,How about the cow?,co,  
+,,,,41,243540,0,How about the cow?,cow,  
 ,,,,42,243837,0,,,selects
 ,,,,43,246939,0,The swan? The swan.,swan,
 ,,,,44,248193,0,,  ,selects
@@ -66,7 +66,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,64,294690,0,,  ,selects
 ,,,,65,299904,0,Cow.,cow,
 ,,,,66,302907,0,,  ,selects
-,,,,67,303765,0,Rhinocerous. Rhino! Where's the rhino!,rhinocerous,
+,,,,67,303765,0,Rhinoceros. Rhino! Where's the rhino!,rhinoceros,
 ,,,,68,310101,0,,  ,selects
 ,,,,69,314028,0,Elephant. Elephant.,elephant,
 ,,,,70,317262,0,,  ,selects
@@ -76,7 +76,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,74,324918,0,The duck! The duck.,duck,  
 ,,,,75,329241,0,,  ,selects
 ,,,,76,331089,0,"That's not a duck. Wait for momma, OK?",duck,
-,,,,77,334224,0,Where's the rhino? Yeah.,rhinocerous,
+,,,,77,334224,0,Where's the rhino? Yeah.,rhinoceros,
 ,,,,78,339108,0,,  ,selects
 ,,,,79,343431,0,Dog. Dog.,dog,
 ,,,,80,346500,0,,  ,selects

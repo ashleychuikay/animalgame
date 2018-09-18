@@ -59,7 +59,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,57,117381,0,,,selects
 ,,,,58,118536,0,Yeah!,n/a,
 ,,,,59,121077,0,Yeah!,n/a,
-,,,,60,121770,0,How 'bout the rhinocerous,rhinocerous,
+,,,,60,121770,0,How 'bout the rhinoceros,rhinoceros,
 ,,,,61,124014,0,,,selects
 ,,,,62,125367,0,Yeah!,n/a,
 ,,,,63,126588,0,"OK, then, where's the dog?",dog,
@@ -79,14 +79,14 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,77,157740,0,,n/a,selects
 ,,,,78,158829,0,there it is!,,
 ,,,,79,161271,0,"No, we're going to finish this game.",n/a,
-,,,,80,163581,0,How 'bout the lobster? Where's the red lobster?,yeah!,
+,,,,80,163581,0,How 'bout the lobster? Where's the red lobster?,lobster,
 ,,,,81,164505,0,,,selects
 ,,,,82,166551,0,yeah!,,
 ,,,,83,169521,0,"OK, how about the...",elephant,
 ,,,,84,171534,0,elephant,elephant,
 ,,,,85,172887,0,,,selects
 ,,,,86,173481,0,Yeah! Very good!,n/a,
-,,,,87,176748,0,"OK, can you find the rhinocerous?",rhinocerous,
+,,,,87,176748,0,"OK, can you find the rhinoceros?",rhinoceros,
 ,,,,88,179190,0,,,selects
 ,,,,89,179850,0,There it is! Good job.,n/a,
 ,,,,90,182391,0,how 'bout the pig.,pig,

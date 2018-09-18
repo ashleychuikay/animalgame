@@ -13,10 +13,10 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 11,124780,0,www,11,45458,0,,,selects
 12,138108,0,raccoon!,12,45458,0,Which one's green?,artichoke,
 13,149498,0,that one,13,48926,0,"OK, Good job, wait, wait for mommy!",n/a,
-14,163370,0,again!,14,52938,0,"Rhinocerous, you saw a rhinocerous at the zoo. Which one's the rhinocerous? It's big, it's got horns... which one is it?",rhinocerous,
+14,163370,0,again!,14,52938,0,"rhinoceros, you saw a rhinoceros at the zoo. Which one's the rhinoceros? It's big, it's got horns... which one is it?",rhinoceros,
 15,168470,0,walk,15,61914,0,,,selects
-16,178024,0,fish,16,61914,0,"not that one, not that one",rhinocerous,
-17,181118,0,what's this,17,65450,0,"OK, A cat! Which one's a cat?",,
+16,178024,0,fish,16,61914,0,"not that one, not that one",rhinoceros,
+17,181118,0,what's this,17,65450,0,"OK, A cat! Which one's a cat?",cat,
 18,185334,0,woah,18,68714,0,,,selects
 19,191522,0,yay!,19,68714,0,That was a dog,cat,
 20,197540,0,hee-haw!,20,73508,0,"OK, which one's a lobster? it's red. Which one's red?",lobster,
@@ -93,10 +93,10 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,91,237524,0,A dog.  Who says woof woof?,dog,
 ,,,,92,240244,0,,,selects
 ,,,,93,242420,0,Woof woof!,dog,
-,,,,94,243576,0,"Rhinocerous. It's the big one, on the end. Which one's a--",rhinocerous,
+,,,,94,243576,0,"rhinoceros. It's the big one, on the end. Which one's a--",rhinoceros,
 ,,,,95,247452,0,,,selects
-,,,,96,248506,0,Good job,rhinocerous,
-,,,,97,251090,0,"Duck. Which one's a duck? Which one's a duck? No, that's a fish!  Which one's a duck?",Duck,
+,,,,96,248506,0,Good job,rhinoceros,
+,,,,97,251090,0,"Duck. Which one's a duck? Which one's a duck? No, that's a fish!  Which one's a duck?",duck,
 ,,,,98,257652,0,,,selects
 ,,,,99,257652,0,"Nope, that's wrong ",duck,
 ,,,,100,261596,0,"OK, leopard. Which one--",leopard,

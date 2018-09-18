@@ -18,19 +18,19 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 16,280005,0,more?,16,66099,0,hit the bird again. which one's the bird?,bird,
 ,,,,17,67386,0,,,selects
 ,,,,18,69267,0,Good job!,n/a,
-,,,,19,71643,0,"Now the rhino, the one with the horns",rhinocerous,
+,,,,19,71643,0,"Now the rhino, the one with the horns",rhinoceros,
 ,,,,20,75108,0,,,selects
-,,,,21,75900,0,"that's the donkey, but good try! it's the same color",rhinocerous,
+,,,,21,75900,0,"that's the donkey, but good try! it's the same color",rhinoceros,
 ,,,,22,78936,0,where's the doggie? where's the doggie?,dog,
 ,,,,23,80982,0,,,selects
-,,,,24,82038,0,good job!,n/a,
+,,,,24,82038,0,good job!,dog,
 ,,,,25,85041,0,ruff,dog,
 ,,,,26,86691,0,which one's the kitty cat? it looks kind of like a cat that's got spots,leopard,
 ,,,,27,89925,0,,,selects
 ,,,,28,90486,0,"ohhh, that's the rooster! that was close.",leopard,
 ,,,,29,94215,0,"oh, elephant!",elephant,
 ,,,,30,95139,0,,,selects
-,,,,31,96030,0,"yeah! you know elephant, good job.",n/a,
+,,,,31,96030,0,"yeah! you know elephant, good job.",elephant,
 ,,,,32,98076,0,"wait wait wait, wait wait. oh yeah, push on the birdie again.",swan,
 ,,,,33,101376,0,,,selects
 ,,,,34,102399,0,"good job, that's the swan.",swan,
@@ -46,7 +46,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,44,119163,0,neigh!,horse,
 ,,,,45,120417,0,"where's the birdie? it's the peacock, where's the peacock?",peacock,
 ,,,,46,124080,0,,,selects
-,,,,47,125004,0,"good job! alright, don't push anything yet!",n/a,
+,,,,47,125004,0,"good job! alright, don't push anything yet!",peacock,
 ,,,,48,128073,0,where's the cat? the kitty cat? where's the kitty cat?,cat,
 ,,,,49,132099,0,,,selects
 ,,,,50,138072,0,can you push the red one? where's the red one?,lobster,
@@ -65,7 +65,7 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,63,165528,0,"oh, good job! i didn't know if you knew that one!",squirrel,
 ,,,,64,169818,0,"and then, where's the kitty cat?",cat,
 ,,,,65,170412,0,,,selects
-,,,,66,171963,0,did you get the kitty cat before I told you?,n/a,
+,,,,66,171963,0,did you get the kitty cat before I told you?,cat,
 ,,,,67,173778,0,"hold on, we're... ok, can you push the donkey?",donkey,
 ,,,,68,174570,0,,,
 ,,,,69,177540,0,,,selects
@@ -96,10 +96,10 @@ ChildUtterance.ordinal,ChildUtterance.onset,ChildUtterance.offset,ChildUtterance
 ,,,,94,229449,0,,,selects
 ,,,,95,232716,0,lost it? where's the cow?,cow,
 ,,,,96,234366,0,,,selects
-,,,,97,235059,0,there it is! good job.,n/a,
+,,,,97,235059,0,there it is! good job.,cow,
 ,,,,98,238722,0,where's that rooster where it made the loud noise again?,rooster,
 ,,,,99,240669,0,,,selects
-,,,,100,241692,0,"oh, that was the leopard! that was the cat",leopard,
+,,,,100,241692,0,"oh, that was the leopard! that was the cat",rooster,
 ,,,,101,243969,0,where's the duckie?,duck,
 ,,,,102,245388,0,,,selects
 ,,,,103,248688,0,"no no, don't push it, where's the raccoon?",raccoon,
