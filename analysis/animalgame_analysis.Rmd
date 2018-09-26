@@ -61,7 +61,7 @@ tidy_vocab <- vocab_data %>%
   mutate(ResponseId = as.character(ResponseId))
 ```
 Read in response data
-```{r read_data}
+```{r read_response}
 child_response <- read_csv("../raw_data/animalgame_results.csv")
 
 response_data <- left_join(vocab_data,

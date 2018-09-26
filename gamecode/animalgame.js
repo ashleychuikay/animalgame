@@ -231,6 +231,8 @@ function startExperiment() {
 		wordList.push(word)
 	};
 
+	console.log(wordList)
+
 	//order image names according to trial order
 
 
@@ -241,6 +243,8 @@ function startExperiment() {
 		 	allImages.push(newImages[j]);
 		 }
 	};
+
+	console.log(allImages)
 
 	//load all animal sounds and arrange in trial order
   	for (i=0; i < animals.length; i++) {
@@ -345,7 +349,7 @@ var experiment = {
 			}
 		}
 		showSlide("training");
-		$('.dot').bind(' touchstart', function(event) {
+		$('.dot').bind('click touchstart', function(event) {
 	    	var dotID = $(event.currentTarget).attr('id');
 
 	    	//only count towards completion clicks on dots that have not yet been clicked
@@ -427,7 +431,7 @@ var experiment = {
 		},  1500);
 		
 
-		$('.pic').on('touchstart', function(event) {
+		$('.pic').on('click touchstart', function(event) {
 	    	if (clickDisabled) return;
 
 	    	globalGame.clickDisabled = false;
@@ -552,6 +556,8 @@ var experiment = {
 		var objects_html = "";
 
 		// Create the object table (tr=table row; td= table data)
+
+		console.log(allImages[0])
 	    
 	   	//HTML for the first object on the left
 		leftname = "animalimages/" + allImages[0] + ".png";
@@ -580,7 +586,7 @@ var experiment = {
 		},  1500);
 		
 
-		$('.pic').on('touchstart', function(event) {
+		$('.pic').on('click touchstart', function(event) {
 
 	    	if (clickDisabled) return;
 

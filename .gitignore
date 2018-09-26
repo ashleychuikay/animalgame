@@ -2,6 +2,8 @@
 package-lock.json
 video/*
 raw_data/*
+analysis/animalgame_analysis_cache
+analysis/animalgame_analysis_files
 
 # knitr and R markdown default cache directories
 /*_cache/
