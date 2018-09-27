@@ -1,0 +1,79 @@
+---
+title: "Process Animal Game Transcripts"
+author: "Dan Yurovsky"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    theme: lumen
+    code_folding: show
+---
+
+```{r load_libraries, message=FALSE, warning=FALSE, show = F}
+library(tidyverse)
+library(knitr)
+library(stringr)
+library(DT)
+
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+               error = FALSE, cache = TRUE, tidy = FALSE)
+
+
+theme_set(theme_classic(base_size = 16))
+```
+
+```{r read_transcripts}
+transcripts <- list.files("../raw_data/coded", "*.csv", full.names = T)
+
+read_transcript <- function(file) {
+  
+  transcript <- read_csv(file) %>%
+    mutate(id = str_split(file, "[//.]")[[1]][6])
+  
+  # Pull out either parent or child's data
+  pull_data <- function(person) {
+    transcript %>%
+      select(starts_with(person)) %>%
+      select_all(~gsub(person, "", .x)) %>%
+      select_all(~gsub("Utterance\\.", "", .x)) %>%
+      mutate(person = person) %>%
+      mutate(id = first(transcript$id))
+    
+  }
+  
+  # Tidy up
+  bind_rows(pull_data("Child"), pull_data("Parent")) %>%
+    mutate(target = gsub("\\.", "", target) %>% tolower) %>%
+    mutate(utterance = str_trim(utterance)) #%>%
+    # mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
+    #                           target == "ducj" ~ "duck",
+    #                           target == "co" ~ "cow",
+    #                           T ~ target)) 
+}
+
+tidy_data_identifiable <- map(transcripts, read_transcript) %>%
+  bind_rows() 
+
+targets <- read_csv("targets.csv")
+```
+
+Check transcipt integrity
+
+Check 1: All targets should be in the set of experimental targets. 
+```{r target_identity}
+tidy_data_identifiable %>%
+  filter(!is.na(target), !target %in% targets$target) %>%
+  select(-selection, -offset) %>%
+  arrange(target, id, onset) %>%
+  datatable()
+```
+
+Check 2: All targets have 2 selections
+```{r checks}
+tidy_data_identifiable %>%
+  group_by(id, person, target) %>%
+  summarise(selected = sum(selection == "selects", na.rm = T)) %>%
+  filter(selected != 2) %>%
+  arrange(id, person, target) %>%
+  datatable()
+```
+
