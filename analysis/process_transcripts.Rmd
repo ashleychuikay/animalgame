@@ -15,7 +15,7 @@ library(stringr)
 library(DT)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
-               error = FALSE, cache = TRUE, tidy = FALSE)
+               error = FALSE, cache = FALSE, tidy = FALSE)
 
 
 theme_set(theme_classic(base_size = 16))
@@ -43,7 +43,8 @@ read_transcript <- function(file) {
   # Tidy up
   bind_rows(pull_data("Child"), pull_data("Parent")) %>%
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
-    mutate(utterance = str_trim(utterance)) #%>%
+    mutate(utterance = str_trim(utterance)) %>%
+    mutate(target = if_else(target == "n/a", as.character(NA), target))
     # mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
     #                           target == "ducj" ~ "duck",
     #                           target == "co" ~ "cow",
@@ -70,6 +71,8 @@ tidy_data_identifiable %>%
 Check 2: All targets have 2 selections
 ```{r checks}
 tidy_data_identifiable %>%
+  filter(id != "8514") %>%
+  filter(!is.na(target)) %>%
   group_by(id, person, target) %>%
   summarise(selected = sum(selection == "selects", na.rm = T)) %>%
   filter(selected != 2) %>%
