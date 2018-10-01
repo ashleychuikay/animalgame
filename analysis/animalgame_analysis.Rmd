@@ -125,7 +125,7 @@ plotting_words <- word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
 
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
-                            ymax = ci_upper)) +
+                            ymax = ci_upper)) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   geom_pointrange()
 ```
 
@@ -189,7 +189,7 @@ ggplot(target_data, aes(x = difficulty, y = log(length), color = phase)) +
 mean_data <- target_data %>%
   group_by(phase, appearance, understands, id, trial_target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(log(length)), na.rm = T) %>%
+  summarise(length = mean(log(length+1)), na.rm = T) %>%
   tidyboot_mean(length)
 
 ggplot(filter(mean_data, !is.na(understands)),
