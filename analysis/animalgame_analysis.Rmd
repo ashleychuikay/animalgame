@@ -29,27 +29,23 @@ theme_set(theme_classic(base_size = 16))
 Read in vocab data
 
 ```{r read_data, message=F}
-survey1 <- read_csv("../raw_data/Vocabulary_Measure-Distribution_History.csv")
-survey2 <- read_csv("../raw_data/Vocabulary_Measure-Distribution_History (1).csv")
-
-vocab_measure1 <- rbind(survey1,survey2) %>%
-  filter(!is.na(`Response ID`)) %>%
-  select(`Response ID`, Link)
-
-vocab_measure2 <- read_csv("../raw_data/Vocabulary Measure_September 12, 2018_12.36.csv") %>%
+qualtrics_data <- read_csv("../raw_data/qualtrics_data.csv") %>%
   slice(3:nrow(.))
 
-vocab_measure <- vocab_measure1 %>%
-  left_join(vocab_measure2, by = c(`Response ID` = "ResponseId")) %>%
-  select(`Response ID`, Link, Q1)
+qualtrics_ids <- read_csv("../raw_data/qualtrics_ids.csv") 
 
+survey1 <- read_csv("../raw_data/survey_link1.csv")
+survey2 <- read_csv("../raw_data/survey_link2.csv")
 
-vocab_data <- left_join(vocab_measure,
-                        read_xlsx("../raw_data/qualtrics cdi links.csv.xlsx"),
-                        by = "Link") %>%
-  select(`Response ID.y`, Q1, '#') %>%
-  rename(ResponseId = `Response ID.y`) %>%
-  mutate(ResponseId = as.integer(ResponseId))
+vocab_data <- bind_rows(survey1, survey2) %>%
+  filter(`Response ID` != "") %>%
+  left_join(qualtrics_data, by = c(`Response ID` = "ResponseId")) %>%
+  select(Link, Q1) %>%
+  left_join(qualtrics_ids, by = "Link") %>%
+  select(Q1, `Response ID`, `#`) %>%
+  rename(video_id = `Response ID`, subj = `#`) %>%
+  filter(!is.na(subj))
+
 ```
 
 Munge vocab data
@@ -57,16 +53,31 @@ Munge vocab data
 tidy_vocab <- vocab_data %>%
   unnest_tokens(word, Q1) %>% 
   mutate(understands = T) %>%
-  complete(ResponseId, word, fill = list(understands = F)) %>%
-  mutate(ResponseId = as.character(ResponseId))
+  select(-video_id) %>%
+  complete(subj, word, fill = list(understands = F)) %>%
+  left_join(select(vocab_data, -Q1))
 ```
 Read in response data
 ```{r read_response}
-child_response <- read_csv("../raw_data/animalgame_results.csv")
+child_response <- read_csv("../raw_data/animalgame_data.csv")
+
+missing_data <- read_csv("../raw_data/animalgame_missing.csv")
+
+filled_data <- bind_rows(child_response, missing_data)
+
 
 response_data <- left_join(vocab_data,
-                           child_response,
-                           by = c(`#` = "SubID"))
+                           filled_data,
+                           by = "subj") %>%
+  mutate(game_trial = trial_type != "practice") %>%
+  arrange(subj, game_trial, trial_num) %>%
+  group_by(subj) %>%
+  mutate(trial_num = 1:n(),
+         correct = correct == "Y")
+
+
+#write_csv(response_data, "wrong_trialnums.csv")
+
 ```
 
 Read in transcript data
@@ -95,8 +106,6 @@ read_transcript <- function(file) {
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
     mutate(utterance = str_trim(utterance)) %>%
     mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
-                              target == "ducj" ~ "duck",
-                              target == "co" ~ "cow",
                               T ~ target)) 
 }
 
@@ -105,7 +114,7 @@ tidy_data <- map(transcripts, read_transcript) %>%
 
 targets <- tidy_data %>%
   distinct(target) %>%
-  filter(!is.na(target), !target %in% c("n/a", "<target>")) %>%
+  filter(!is.na(target), !target %in% c("n/a")) %>%
   pull()
 
 practice_targets <- c("artichoke", "apple") 
@@ -125,7 +134,8 @@ plotting_words <- word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
 
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
-                            ymax = ci_upper)) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+                            ymax = ci_upper)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   geom_pointrange()
 ```
 
@@ -133,7 +143,7 @@ Munge transcript data
 ```{r make_target_df}
 trials <- tidy_data %>%
   group_by(id) %>%
-  arrange(onset) %>%
+  arrange(id, onset) %>%
   filter(target %in% targets) %>%
   mutate(new_trial = target != lag(target),
          new_trial = if_else(is.na(new_trial), TRUE, new_trial),
@@ -141,12 +151,25 @@ trials <- tidy_data %>%
   select(-new_trial)
 
 
+# Selections per target--should be 2 for each target for each id
+selects <- trials %>%
+  filter(selection == "selects") %>%
+  group_by(id, target) %>%
+  summarise(n = n()) %>%
+  filter(n != 2)
+
 trial_targets <- trials %>%
   distinct(id, trial, target) %>%
   rename(trial_target = target)
 
+# Trials per target, should be 2 for each id
+trial_targets %>%
+  group_by(id, trial_target) %>%
+  summarise(n = n()) %>% 
+  filter(n != 2)
+
 parent_data <- tidy_data %>%
-  filter(id != "9261") %>%
+#  filter(id != "9261") %>%
   filter(person == "Parent") %>%
   left_join(trials) %>%
   group_by(id) %>%
@@ -168,28 +191,47 @@ parent_data <- tidy_data %>%
          id = as.character(id))
 
 
-target_data <- parent_data %>%
+target_data_gaps <- parent_data %>%
   mutate(length = str_count(utterance, " ") + 1) %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
   rename(difficulty = understands) %>%
-  left_join(tidy_vocab, by = c("id" = "ResponseId", "trial_target" = "word")) %>%
+  left_join(tidy_vocab, by = c("id" = "video_id", "trial_target" = "word")) %>%
   filter(phase != "during") %>%
-  group_by(phase, difficulty, understands, appearance, trial_target, id) %>%
-  summarise(length = sum(length))
+  group_by(phase, difficulty, understands, appearance, trial_target, id)
+
+ids <- target_data_gaps %>%
+  ungroup() %>%
+  distinct(id, subj) %>%
+  filter(!is.na(subj))
+
+target_data <- target_data_gaps %>%
+  select(-subj) %>%
+  left_join(ids) %>%
+  left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num"))
+```
+
+```{r accuracy}
+
+cor.test(target_data$difficulty, as.numeric(target_data$correct), 
+         use = "complete", method = "kendall")
+
 ```
 
 ```{r plot_lengths_aggregate}
-ggplot(target_data, aes(x = difficulty, y = log(length), color = phase)) + 
+target_data %>%
+  summarise(length = sum(length)) %>%
+  ggplot(aes(x = difficulty, y = log(length), color = phase)) + 
   facet_wrap(~ appearance) +
   geom_point() +
-  geom_smooth(method = "loess", se = F)
+  geom_smooth(method = "glm", se = F)
 ```
 
 ```{r plot_lengths_personal}
 mean_data <- target_data %>%
+  summarise(length = sum(length)) %>%
   group_by(phase, appearance, understands, id, trial_target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(log(length+1)), na.rm = T) %>%
+  summarise(length = mean(log(length+1), na.rm = T)) %>%
   tidyboot_mean(length)
 
 ggplot(filter(mean_data, !is.na(understands)),
@@ -199,6 +241,40 @@ ggplot(filter(mean_data, !is.na(understands)),
   geom_pointrange(position = position_dodge(.5))
 ```
 
+```{r first_utterance}
+mean_data <- target_data %>%
+  group_by(phase, appearance, understands, id, trial_target) %>%
+  arrange(id, appearance, phase, trial_target, onset) %>%
+  summarise(length = first(length)) %>%
+  summarise(length = mean(log(length+1), na.rm = T)) %>%
+  tidyboot_mean(length)
+
+ggplot(filter(mean_data, !is.na(understands)),
+       aes(x = understands, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
+  facet_wrap(~ appearance) +
+  geom_pointrange(position = position_dodge(.5))
+
+```
+
+
+```{r lag_analysis}
+target_data %>%
+  group_by(id, phase, understands, correct, trial_target, appearance) %>%
+  summarise(length = sum(length)) %>%
+  arrange(id, phase, understands, correct, trial_target, appearance) %>%
+  mutate(lag_correct = lag(correct)) %>%
+  filter(appearance == "second") %>%
+  group_by(phase, understands, correct, id, trial_target) %>%
+  summarise(length = sum(length, na.rm = T)) %>%
+  summarise(length = mean(log(length+1), na.rm = T)) %>%
+  filter(!is.na(understands)) %>%
+  tidyboot_mean(length) %>%
+  ggplot(aes(x = correct, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
+  facet_wrap(~ understands) +
+  geom_pointrange(position = position_dodge(.5))
+```
 
 ```{r show_lobster}
 target_data %>%
