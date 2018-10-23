@@ -59,7 +59,8 @@ tidy_vocab <- vocab_data %>%
 ```
 Read in response data
 ```{r read_response}
-child_response <- read_csv("../raw_data/animalgame_data.csv")
+child_response <- read_csv("../raw_data/animalgame_data.csv") %>%
+  filter(!subj %in% c("xx", "Twst", "Test", "test"))
 
 missing_data <- read_csv("../raw_data/animalgame_missing.csv")
 
@@ -104,9 +105,9 @@ read_transcript <- function(file) {
   # Tidy up
   bind_rows(pull_data("Child"), pull_data("Parent")) %>%
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
-    mutate(utterance = str_trim(utterance)) %>%
-    mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
-                              T ~ target)) 
+    mutate(utterance = str_trim(utterance))
+    # mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
+    #                           T ~ target)) 
 }
 
 tidy_data <- map(transcripts, read_transcript) %>%
@@ -196,7 +197,7 @@ target_data_gaps <- parent_data %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
   rename(difficulty = understands) %>%
   left_join(tidy_vocab, by = c("id" = "video_id", "trial_target" = "word")) %>%
-  filter(phase != "during") %>%
+ # filter(phase != "during") %>%
   group_by(phase, difficulty, understands, appearance, trial_target, id)
 
 ids <- target_data_gaps %>%
@@ -259,21 +260,59 @@ ggplot(filter(mean_data, !is.na(understands)),
 
 
 ```{r lag_analysis}
-target_data %>%
-  group_by(id, phase, understands, correct, trial_target, appearance) %>%
+#pdf("lag_data.pdf", width = 6, height = 4)
+lag_data <- target_data %>%
+  ungroup() %>%
+  filter(!id %in% c("10397", "8787")) %>%
+#  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
+  group_by(id, phase, understands, trial_target, appearance, correct) %>%
   summarise(length = sum(length)) %>%
-  arrange(id, phase, understands, correct, trial_target, appearance) %>%
+  ungroup() %>%
+  complete(nesting(id, trial_target, understands,  correct,  appearance), phase,
+           fill = list(length = 0)) %>%
+  arrange(id, phase, understands, trial_target,appearance, correct) %>%
+  group_by(id, phase, understands, trial_target) %>%
   mutate(lag_correct = lag(correct)) %>%
   filter(appearance == "second") %>%
-  group_by(phase, understands, correct, id, trial_target) %>%
+  filter(phase != "during") %>%
+  group_by(phase, understands, lag_correct, id, trial_target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
   summarise(length = mean(log(length+1), na.rm = T)) %>%
   filter(!is.na(understands)) %>%
   tidyboot_mean(length) %>%
-  ggplot(aes(x = correct, y = empirical_stat, 
+  ggplot(aes(x = lag_correct, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = phase)) + 
   facet_wrap(~ understands) +
   geom_pointrange(position = position_dodge(.5))
+dev.off()
+```
+
+```{r lag_analysis}
+#pdf("lag_len.pdf", width = 6, height = 4)
+target_data %>%
+  filter(!id %in% c("10397", "8787")) %>%
+#  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
+  group_by(id, phase, understands, trial_target, appearance, correct) %>%
+  summarise(length = sum(length, na.rm = T)) %>%
+  ungroup() %>%
+  complete(nesting(id, trial_target, understands,  correct,  appearance), phase,
+           fill = list(length = 0)) %>%
+  filter(phase != "during") %>%
+  arrange(id, phase, understands, trial_target, appearance, correct) %>%
+  mutate(lag_correct = lag(correct), lag_length = lag(length)) %>%
+  filter(appearance == "second") %>%
+  group_by(phase, understands, lag_correct, id, trial_target) %>%
+  summarise(length = mean(log(length+1), na.rm = T),
+            lag_length = mean(log(lag_length+1), na.rm = T)) %>%
+  mutate(diff = length - lag_length) %>%
+  filter(!is.na(understands)) %>%
+  group_by(phase, understands, lag_correct) %>%
+  tidyboot_mean(diff) %>%
+  ggplot(aes(x = lag_correct, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
+  facet_wrap(~ understands) +
+  geom_pointrange(position = position_dodge(.5))
+#dev.off()
 ```
 
 ```{r show_lobster}
