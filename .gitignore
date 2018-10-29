@@ -6,10 +6,10 @@ analysis/animalgame_analysis_cache
 analysis/animalgame_analysis_files
 
 # knitr and R markdown default cache directories
-/*_cache/
+*/*_cache/
 
 # knitr and R markdown default files directories
-/*_files/
+*/*_files/
 
 # History files
 .Rhistory
@@ -17,3 +17,6 @@ analysis/animalgame_analysis_files
 
 # Session Data files
 .RData
+.Rproj.user
+
+.httr-oauth

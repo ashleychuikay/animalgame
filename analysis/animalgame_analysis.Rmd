@@ -18,6 +18,9 @@ library(tidytext)
 library(readxl)
 library(tidyboot)
 library(stringr)
+library(janitor)
+library(here)
+library(ggthemes)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
@@ -29,21 +32,24 @@ theme_set(theme_classic(base_size = 16))
 Read in vocab data
 
 ```{r read_data, message=F}
-qualtrics_data <- read_csv("../raw_data/qualtrics_data.csv") %>%
-  slice(3:nrow(.))
+qualtrics_data <- read_csv(here("../raw_data/qualtrics_data.csv")) %>%
+  slice(3:nrow(.)) %>%
+  clean_names()
 
-qualtrics_ids <- read_csv("../raw_data/qualtrics_ids.csv") 
+qualtrics_ids <- read_csv(here("../raw_data/qualtrics_ids.csv")) %>%
+  clean_names()
 
-survey1 <- read_csv("../raw_data/survey_link1.csv")
-survey2 <- read_csv("../raw_data/survey_link2.csv")
+survey1 <- read_csv(here("../raw_data/survey_link1.csv"))
+survey2 <- read_csv(here("../raw_data/survey_link2.csv"))
 
 vocab_data <- bind_rows(survey1, survey2) %>%
-  filter(`Response ID` != "") %>%
-  left_join(qualtrics_data, by = c(`Response ID` = "ResponseId")) %>%
-  select(Link, Q1) %>%
-  left_join(qualtrics_ids, by = "Link") %>%
-  select(Q1, `Response ID`, `#`) %>%
-  rename(video_id = `Response ID`, subj = `#`) %>%
+  clean_names() %>%
+  filter(!is.na(response_id)) %>%
+  left_join(qualtrics_data, by = "response_id") %>%
+  select(link, q1) %>%
+  left_join(qualtrics_ids, by = "link") %>%
+  select(q1, response_id, number) %>%
+  rename(video_id = response_id, subj = number) %>%
   filter(!is.na(subj))
 
 ```
@@ -51,25 +57,22 @@ vocab_data <- bind_rows(survey1, survey2) %>%
 Munge vocab data
 ```{r munge_vocab}
 tidy_vocab <- vocab_data %>%
-  unnest_tokens(word, Q1) %>% 
+  unnest_tokens(word, q1) %>% 
   mutate(understands = T) %>%
   select(-video_id) %>%
   complete(subj, word, fill = list(understands = F)) %>%
-  left_join(select(vocab_data, -Q1))
+  left_join(select(vocab_data, -q1), by = "subj")
 ```
 Read in response data
 ```{r read_response}
-child_response <- read_csv("../raw_data/animalgame_data.csv") %>%
+child_response <- read_csv(here("../raw_data/animalgame_data.csv")) %>%
   filter(!subj %in% c("xx", "Twst", "Test", "test"))
 
-missing_data <- read_csv("../raw_data/animalgame_missing.csv")
+missing_data <- read_csv(here("../raw_data/animalgame_missing.csv"))
 
 filled_data <- bind_rows(child_response, missing_data)
 
-
-response_data <- left_join(vocab_data,
-                           filled_data,
-                           by = "subj") %>%
+response_data <- left_join(vocab_data, filled_data, by = "subj") %>%
   mutate(game_trial = trial_type != "practice") %>%
   arrange(subj, game_trial, trial_num) %>%
   group_by(subj) %>%
@@ -83,27 +86,29 @@ response_data <- left_join(vocab_data,
 
 Read in transcript data
 ```{r munge}
-transcripts <- list.files("../raw_data/coded", "*.csv", full.names = T)
+transcripts <- list.files(here("../raw_data/coded"), "*.csv", full.names = T)
 
 
 read_transcript <- function(file) {
 
   transcript <- read_csv(file) %>%
-    mutate(id = str_split(file, "[//.]")[[1]][6])
+    mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1)) %>%
+    remove_empty("cols") %>%
+    clean_names()
     
     # Pull out either parent or child's data
     pull_data <- function(person) {
       transcript %>%
         select(starts_with(person)) %>%
-        select_all(~gsub(person, "", .x)) %>%
-        select_all(~gsub("Utterance\\.", "", .x)) %>%
+        select_all(~gsub(paste0(person,"_"), "", .x)) %>%
+        select_all(~gsub("utterance_", "", .x)) %>%
         mutate(person = person) %>%
         mutate(id = first(transcript$id))
     
     }
   
   # Tidy up
-  bind_rows(pull_data("Child"), pull_data("Parent")) %>%
+  bind_rows(pull_data("child"), pull_data("parent")) %>%
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
     mutate(utterance = str_trim(utterance))
     # mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
@@ -171,7 +176,7 @@ trial_targets %>%
 
 parent_data <- tidy_data %>%
 #  filter(id != "9261") %>%
-  filter(person == "Parent") %>%
+  filter(person == "parent") %>%
   left_join(trials) %>%
   group_by(id) %>%
   fill(trial) %>%
@@ -208,7 +213,8 @@ ids <- target_data_gaps %>%
 target_data <- target_data_gaps %>%
   select(-subj) %>%
   left_join(ids) %>%
-  left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num"))
+  left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num")) %>%
+  filter(trial_type != "practice")
 ```
 
 ```{r accuracy}
@@ -220,15 +226,18 @@ cor.test(target_data$difficulty, as.numeric(target_data$correct),
 
 ```{r plot_lengths_aggregate}
 target_data %>%
+  filter(phase != "during") %>%
   summarise(length = sum(length)) %>%
   ggplot(aes(x = difficulty, y = log(length), color = phase)) + 
   facet_wrap(~ appearance) +
   geom_point() +
-  geom_smooth(method = "glm", se = F)
+  geom_smooth(method = "glm", se = F) +
+  scale_color_ptol()
 ```
 
 ```{r plot_lengths_personal}
 mean_data <- target_data %>%
+  filter(phase != "during") %>%
   summarise(length = sum(length)) %>%
   group_by(phase, appearance, understands, id, trial_target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
@@ -239,11 +248,13 @@ ggplot(filter(mean_data, !is.na(understands)),
        aes(x = understands, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = phase)) + 
   facet_wrap(~ appearance) +
-  geom_pointrange(position = position_dodge(.5))
+  geom_pointrange(position = position_dodge(.5)) +
+  scale_color_ptol()
 ```
 
 ```{r first_utterance}
 mean_data <- target_data %>%
+  filter(phase != "during") %>%
   group_by(phase, appearance, understands, id, trial_target) %>%
   arrange(id, appearance, phase, trial_target, onset) %>%
   summarise(length = first(length)) %>%
@@ -254,15 +265,17 @@ ggplot(filter(mean_data, !is.na(understands)),
        aes(x = understands, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = phase)) + 
   facet_wrap(~ appearance) +
-  geom_pointrange(position = position_dodge(.5))
+  geom_pointrange(position = position_dodge(.5)) +
+  scale_color_ptol()
 
 ```
 
 
 ```{r lag_analysis}
 #pdf("lag_data.pdf", width = 6, height = 4)
-lag_data <- target_data %>%
+target_data %>%
   ungroup() %>%
+  mutate(understands = factor(understands, labels = c("unknown", "known"))) %>%
   filter(!id %in% c("10397", "8787")) %>%
 #  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
   group_by(id, phase, understands, trial_target, appearance, correct) %>%
@@ -273,8 +286,7 @@ lag_data <- target_data %>%
   arrange(id, phase, understands, trial_target,appearance, correct) %>%
   group_by(id, phase, understands, trial_target) %>%
   mutate(lag_correct = lag(correct)) %>%
-  filter(appearance == "second") %>%
-  filter(phase != "during") %>%
+  filter(appearance == "second", phase != "during") %>%
   group_by(phase, understands, lag_correct, id, trial_target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
   summarise(length = mean(log(length+1), na.rm = T)) %>%
@@ -283,8 +295,9 @@ lag_data <- target_data %>%
   ggplot(aes(x = lag_correct, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = phase)) + 
   facet_wrap(~ understands) +
-  geom_pointrange(position = position_dodge(.5))
-dev.off()
+  geom_pointrange(position = position_dodge(.5)) +
+  scale_color_ptol()
+#dev.off()
 ```
 
 ```{r lag_analysis}
