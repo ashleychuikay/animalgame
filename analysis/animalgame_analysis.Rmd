@@ -21,6 +21,8 @@ library(stringr)
 library(janitor)
 library(here)
 library(ggthemes)
+library(lme4)
+library(lmerTest)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
@@ -332,4 +334,33 @@ target_data %>%
 target_data %>%
   filter(trial_target == "lobster") %>%
   kable()
+```
+
+
+```{r language}
+target_data %>% 
+  ungroup() %>%
+  filter(phase == "pre", trial_type != "practice", !is.na(understands)) %>% 
+  select(understands, id, utterance) %>% 
+  mutate(length = nchar(utterance)) %>%
+  mutate(length = log(length)) %>%
+  group_by(id) %>%
+  mutate(length = scale(length)) %>%
+  group_by(utterance) %>%
+  ggplot(aes(x = length, color = understands)) +
+  geom_density()
+```
+
+
+```{r model}
+target_data %>%
+  ungroup() %>%
+  filter(!is.na(difficulty), phase != "during") %>%
+  mutate(difficulty = 1 - difficulty) %>%
+  group_by(difficulty, understands, correct, trial, phase, appearance, trial_target, id) %>%
+  summarise(length = sum(length)) %>%
+  lmer(log(length) ~ difficulty + appearance + difficulty * phase + difficulty* correct + trial +
+         difficulty* understands + (1|trial_target) + (1|id), data = .) %>%
+  summary()
+
 ```
