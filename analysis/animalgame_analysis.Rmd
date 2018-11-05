@@ -237,6 +237,24 @@ target_data %>%
   scale_color_ptol()
 ```
 
+
+```{r plot_lengths_pre}
+jpeg("continuous_length.jpeg", width = 4, height = 6, units = "in", res = 600)
+target_data %>%
+  filter(phase == "pre", !is.na(difficulty)) %>%
+  summarise(length = sum(length)) %>%
+  ungroup() %>%
+  ggplot(aes(x = difficulty, y = log(length+1))) + 
+  geom_jitter(alpha = .1) +
+  geom_smooth(method = "glm", se = T) +
+  scale_color_ptol() +
+  labs(x = "Proportion parents reporting child knows", y = "Log Utterance length") + 
+  geom_hline(aes(yintercept = 2), lty = 2) +
+  scale_y_continuous()
+dev.off()
+```
+
+
 ```{r plot_lengths_personal}
 mean_data <- target_data %>%
   filter(phase != "during") %>%
@@ -252,6 +270,28 @@ ggplot(filter(mean_data, !is.na(understands)),
   facet_wrap(~ appearance) +
   geom_pointrange(position = position_dodge(.5)) +
   scale_color_ptol()
+
+pre_data <- target_data %>%
+  filter(phase == "pre") %>%
+  summarise(length = sum(length)) %>%
+  group_by(phase, understands, id, trial_target) %>%
+  summarise(length = sum(length, na.rm = T)) %>%
+  summarise(length = mean(log(length+1), na.rm = T)) %>%
+  tidyboot_mean(length) %>%
+  mutate(understands = factor(understands, labels = c("Child Doesn't Know", "Child Knows")))
+
+jpeg("belief_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
+pre_data %>%
+  filter(!is.na(understands)) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = understands)) + 
+  geom_pointrange(position = position_dodge(.5), show.legend = F) +
+  scale_color_ptol() + 
+  labs(x = "Parent's belief", y = "Log Utterance length") + 
+  theme_classic(base_size = 20)
+dev.off()
+
+
 ```
 
 ```{r first_utterance}
