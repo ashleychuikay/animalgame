@@ -131,6 +131,7 @@ practice_targets <- c("artichoke", "apple")
 The unique targets were: `r targets`
 
 ```{r word_difficulty}
+jpeg("word_diff.jpeg", width = 14, height = 10, units = "in", res = 600)
 word_difficulty <- tidy_vocab %>%
   filter(word %in% targets) %>%
   group_by(word) %>%
@@ -143,8 +144,10 @@ plotting_words <- word_difficulty %>%
 
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
                             ymax = ci_upper)) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-  geom_pointrange()
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), text = element_text(size = 20)) +
+  geom_pointrange() +
+  labs(y = "Proportion of children who know the word (parent report)", x = "Word")
+dev.off()
 ```
 
 Munge transcript data
@@ -239,7 +242,7 @@ target_data %>%
 
 
 ```{r plot_lengths_pre}
-jpeg("continuous_length.jpeg", width = 4, height = 6, units = "in", res = 600)
+jpeg("continuous_length.jpeg", width = 6.2, height = 6, units = "in", res = 600)
 target_data %>%
   filter(phase == "pre", !is.na(difficulty)) %>%
   summarise(length = sum(length)) %>%
@@ -248,7 +251,7 @@ target_data %>%
   geom_jitter(alpha = .1) +
   geom_smooth(method = "glm", se = T) +
   scale_color_ptol() +
-  labs(x = "Proportion parents reporting child knows", y = "Log Utterance length") + 
+  labs(x = "Proportion of children who know the word (parent report)", y = "Log Utterance length") + 
   geom_hline(aes(yintercept = 2), lty = 2) +
   scale_y_continuous()
 dev.off()
@@ -340,6 +343,37 @@ target_data %>%
   geom_pointrange(position = position_dodge(.5)) +
   scale_color_ptol()
 #dev.off()
+
+
+jpeg("lag_data.jpg", width = 6, height = 4, units = "in", res = 600)
+target_data %>%
+  ungroup() %>%
+  mutate(understands = factor(understands, labels = c("Child doesn't know", "Child knows"))) %>%
+  mutate(correct = factor(correct, labels = c("Incorrect", "Correct"))) %>%
+  #filter(!id %in% c("10397", "8787")) %>%
+#  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
+  group_by(id, phase, understands, trial_target, appearance, correct) %>%
+  summarise(length = sum(length)) %>%
+  ungroup() %>%
+  complete(nesting(id, trial_target, understands,  correct,  appearance), phase,
+           fill = list(length = 0)) %>%
+  arrange(id, phase, understands, trial_target,appearance, correct) %>%
+  group_by(id, phase, understands, trial_target) %>%
+  mutate(lag_correct = lag(correct)) %>%
+  filter(appearance == "second", phase == "pre") %>%
+  group_by(phase, understands, lag_correct, id, trial_target) %>%
+  summarise(length = sum(length, na.rm = T)) %>%
+  summarise(length = mean(log(length+1), na.rm = T)) %>%
+  filter(!is.na(understands)) %>%
+  tidyboot_mean(length) %>%
+  ggplot(aes(x = lag_correct, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = understands)) + 
+  facet_wrap(~ understands) +
+  geom_pointrange(position = position_dodge(.5), show.legend = F) +
+  labs(x ="Child's previous response", y = "Log utterance length") +
+  scale_color_ptol()+
+  theme_classic(base_size = 20)
+dev.off()
 ```
 
 ```{r lag_analysis}
