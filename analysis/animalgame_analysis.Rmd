@@ -23,12 +23,85 @@ library(here)
 library(ggthemes)
 library(lme4)
 library(lmerTest)
+library(directlabels)
+library(ggrepel)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
 
 
-theme_set(theme_classic(base_size = 16))
+theme_set(theme_classic(base_size = 20))
+```
+
+
+```{r masu_plot}
+masur_data <- data_frame(age = c(10, 13, 17, 21), 
+           novel_mean= c(97, 93, 92, 97), 
+           comprehended_mean = c(NA, 92, 87, 76), 
+           familiar_mean = c(NA, 90, 78, 58),
+           novel_sd = c(8, 16, 13, 11),
+           comprehended_sd = c(NA, 15, 25, 24),
+           familiar_sd = c(NA, 8, 27, 24),
+           n = c(17, 20, 17, 17 )) %>%
+  gather(type, value, novel_mean:familiar_sd) %>%
+  separate(type, into = c("type", "measure")) %>%
+  mutate(value = value / 100) %>%
+  spread(measure, value) %>%
+  mutate(se = sd / sqrt(n)) %>%
+  rowwise() %>%
+  mutate(ci_upper = min(mean + 1.96 * se, 1),
+         ci_lower = max(mean - 1.96 * se, 0)) %>%
+  select(age, n, type, mean, ci_upper, ci_lower) %>%
+  mutate(type = factor(type, levels = c("comprehended", "familiar", "novel")))
+
+jpeg("masur_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
+ggplot(masur_data, aes(x = age, y = mean, ymin = ci_lower, ymax = ci_upper,
+       color = type, label = type)) + 
+  geom_pointrange(position = position_dodge(.25)) +
+  geom_smooth(method = "lm", se = F) +
+  geom_dl(method = list(dl.trans(x=x +.2), "last.qp", cex=1)) +
+  scale_color_ptol() + 
+  scale_x_continuous(name = "age (months)", limits = c(10, 26), 
+                     breaks = c(10, 13, 17, 21)) +
+  scale_y_continuous(name = "prop. labeled in first mention") +
+  theme(legend.position = "none")
+dev.off()
+
+jpeg("masur_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
+ggplot(masur_data, aes(x = age, y = mean, ymin = ci_lower, ymax = ci_upper,
+       color = type, label = type)) + 
+  geom_pointrange(position = position_dodge(.5)) +
+  geom_smooth(method = "lm", se = F) +
+  geom_dl(method = list(dl.trans(x=x +.5), "last.qp", cex=1.2)) +
+  scale_color_ptol() + 
+  scale_x_continuous(name = "age (months)", limits = c(10, 26), 
+                     breaks = c(10, 13, 17, 21)) +
+  scale_y_continuous(name = "labeled on first mention") +
+  theme(legend.position = "none")
+dev.off()
+
+```
+
+```{r wordbank_plot}
+items <- read_csv("item_trajectory_table.csv") %>%
+  select(-skip) %>%
+  gather(animal, prop, dog, cow) %>%
+  group_by(animal, age) %>%
+  summarise(prop = mean(prop, na.rm = T))
+
+
+jpeg("wordbank_plot.jpg", width = 6, height = 4, units = "in", res = 600)
+ggplot(items, aes(x = age, y = prop, color = animal, label = animal)) +
+  geom_point() + 
+  geom_smooth(se = F) +
+  geom_dl(method = list(dl.trans(x=x +.5), "last.qp", cex=1.2)) +
+  geom_hline(aes(yintercept = .5), lty = 2, size = 1) + 
+  scale_color_ptol() + 
+  scale_x_continuous(name = "age (months)", limits = c(8, 32), 
+                     breaks = seq(8, 30, 4)) +
+  scale_y_continuous(name = "prop. producing", limits = c(0, 1)) +
+  theme(legend.position = "none")
+dev.off()
 ```
 
 Read in vocab data
@@ -131,7 +204,7 @@ practice_targets <- c("artichoke", "apple")
 The unique targets were: `r targets`
 
 ```{r word_difficulty}
-jpeg("word_diff.jpeg", width = 14, height = 10, units = "in", res = 600)
+
 word_difficulty <- tidy_vocab %>%
   filter(word %in% targets) %>%
   group_by(word) %>%
@@ -142,11 +215,13 @@ word_difficulty <- tidy_vocab %>%
 plotting_words <- word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
 
+jpeg("word_diff.jpeg", width = 8, height = 6, units = "in", res = 600)
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
                             ymax = ci_upper)) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), text = element_text(size = 20)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        text = element_text(size = 20)) +
   geom_pointrange() +
-  labs(y = "Proportion of children who know the word (parent report)", x = "Word")
+  labs(y = "prop. parents report known", x = "") 
 dev.off()
 ```
 
@@ -203,7 +278,8 @@ parent_data <- tidy_data %>%
 
 
 target_data_gaps <- parent_data %>%
-  mutate(length = str_count(utterance, " ") + 1) %>%
+  mutate(length = str_count(utterance, " ") + 1,
+         length = if_else(is.na(length), as.numeric(0), length)) %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
   rename(difficulty = understands) %>%
   left_join(tidy_vocab, by = c("id" = "video_id", "trial_target" = "word")) %>%
@@ -242,6 +318,52 @@ target_data %>%
 
 
 ```{r plot_lengths_pre}
+plotting_data <- target_data %>%
+  filter(phase == "pre", !is.na(difficulty)) %>%
+  group_by(appearance, target, id) %>%
+  summarise(length = log(sum(length))) %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  left_join(word_difficulty, by = c("target" = "word")) %>%
+  rename(understands_lower = ci_lower, understands_upper = ci_upper) %>%
+  select(-mean) %>%
+  mutate(plotting_appearance = factor(appearance, levels = c("first", "second"),
+                                     labels = c("1st appearance",
+                                                "2nd appearance")))
+
+
+jpeg("length_facetted.jpeg", width = 8, height = 4, units = "in", res = 600)
+ggplot(plotting_data, aes(x = understands, y = length, xmin = understands_lower,
+                          xmax = understands_upper, ymin = length_lower,
+                          ymax = length_upper, color = plotting_appearance,
+                          label = target)) + 
+  geom_smooth(method = "lm", se = F) +
+  facet_wrap( ~ plotting_appearance) + 
+  geom_pointrange()+ 
+  geom_errorbarh() + 
+  geom_label_repel() +
+  scale_color_ptol() +
+  theme(legend.position = "none") +
+  labs(x = "prop. parents report known", 
+       y = "log utterance length") 
+dev.off()
+
+jpeg("length_apperance.jpeg", width = 6, height = 4, units = "in", res = 600)
+ggplot(plotting_data, aes(x = understands, y = length, xmin = understands_lower,
+                          xmax = understands_upper, ymin = length_lower,
+                          ymax = length_upper, color = plotting_appearance)) + 
+  geom_smooth(method = "lm", se = F) +
+  geom_pointrange(alpha = .2)+ 
+  geom_errorbarh(alpha = .2) + 
+  scale_color_ptol() +
+  theme(legend.position = "none") +
+  labs(x = "prop. parents report known", 
+       y = "log utterance length") 
+dev.off()
+
 jpeg("continuous_length.jpeg", width = 6.2, height = 6, units = "in", res = 600)
 target_data %>%
   filter(phase == "pre", !is.na(difficulty)) %>%
@@ -260,41 +382,29 @@ dev.off()
 
 ```{r plot_lengths_personal}
 mean_data <- target_data %>%
-  filter(phase != "during") %>%
+  filter(phase == "pre", !is.na(understands)) %>%
+  group_by(appearance, understands, id, target) %>%
   summarise(length = sum(length)) %>%
-  group_by(phase, appearance, understands, id, trial_target) %>%
-  summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(log(length+1), na.rm = T)) %>%
-  tidyboot_mean(length)
-
-ggplot(filter(mean_data, !is.na(understands)),
-       aes(x = understands, y = empirical_stat, 
-           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
-  facet_wrap(~ appearance) +
-  geom_pointrange(position = position_dodge(.5)) +
-  scale_color_ptol()
-
-pre_data <- target_data %>%
-  filter(phase == "pre") %>%
-  summarise(length = sum(length)) %>%
-  group_by(phase, understands, id, trial_target) %>%
-  summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(log(length+1), na.rm = T)) %>%
+  summarise(length = mean(log(length))) %>%
   tidyboot_mean(length) %>%
-  mutate(understands = factor(understands, labels = c("Child Doesn't Know", "Child Knows")))
+  mutate(understands = factor(understands, 
+                              labels = c("unknown", "known")),
+         plotting_appearance = factor(appearance, 
+                                      levels = c("first", "second"),
+                                      labels = c("1st appearance", 
+                                                 "2nd appearance")))
+
 
 jpeg("belief_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
-pre_data %>%
-  filter(!is.na(understands)) %>%
-  ggplot(aes(x = understands, y = empirical_stat, 
-           ymin = ci_lower, ymax = ci_upper, color = understands)) + 
-  geom_pointrange(position = position_dodge(.5), show.legend = F) +
-  scale_color_ptol() + 
-  labs(x = "Parent's belief", y = "Log Utterance length") + 
-  theme_classic(base_size = 20)
+ggplot(mean_data,
+       aes(x = understands, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = plotting_appearance)) + 
+  facet_wrap(~ plotting_appearance) +
+  geom_pointrange(position = position_dodge(.5)) +
+  scale_color_ptol() +
+  labs(x = "Parent's belief", y = "Log Utterance length") +
+  theme(legend.position = "none")
 dev.off()
-
-
 ```
 
 ```{r first_utterance}
@@ -345,28 +455,29 @@ target_data %>%
 #dev.off()
 
 
-jpeg("lag_data.jpg", width = 6, height = 4, units = "in", res = 600)
-target_data %>%
+lag_data <- target_data %>%
+  filter(phase == "pre", !is.na(understands)) %>%
   ungroup() %>%
-  mutate(understands = factor(understands, labels = c("Child doesn't know", "Child knows"))) %>%
-  mutate(correct = factor(correct, labels = c("Incorrect", "Correct"))) %>%
-  #filter(!id %in% c("10397", "8787")) %>%
-#  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
-  group_by(id, phase, understands, trial_target, appearance, correct) %>%
+  mutate(understands = factor(understands, 
+                              labels = c("child doesn't know", "child knows"))) %>%
+  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
+                          labels = c("correct", "incorrect"))) %>%
+  group_by(id, phase, understands, target, appearance, correct) %>%
   summarise(length = sum(length)) %>%
   ungroup() %>%
-  complete(nesting(id, trial_target, understands,  correct,  appearance), phase,
+  complete(nesting(id, target, understands,  correct,  appearance),
            fill = list(length = 0)) %>%
-  arrange(id, phase, understands, trial_target,appearance, correct) %>%
-  group_by(id, phase, understands, trial_target) %>%
+  arrange(id, understands, target,appearance, correct) %>%
+  group_by(id, understands, target) %>%
   mutate(lag_correct = lag(correct)) %>%
-  filter(appearance == "second", phase == "pre") %>%
-  group_by(phase, understands, lag_correct, id, trial_target) %>%
+  filter(appearance == "second", !is.na(lag_correct)) %>%
+  group_by(understands, lag_correct, id, target) %>%
   summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(log(length+1), na.rm = T)) %>%
-  filter(!is.na(understands)) %>%
-  tidyboot_mean(length) %>%
-  ggplot(aes(x = lag_correct, y = empirical_stat, 
+  summarise(length = mean(log(length), na.rm = T)) %>%
+  tidyboot_mean(length)
+
+jpeg("lag_correct.jpeg", width = 6, height = 4, units = "in", res = 600)
+ggplot(lag_data, aes(x = lag_correct, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands)) + 
   facet_wrap(~ understands) +
   geom_pointrange(position = position_dodge(.5), show.legend = F) +
