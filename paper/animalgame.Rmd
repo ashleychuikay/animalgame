@@ -1,12 +1,13 @@
 ---
-title: "How to Make a Camera-Ready Proceedings Contribution"
+title: "Parents Calibrate Speech to Children's Vocabulary Knowledge"
 bibliography: animalgame.bib
 csl: apa6.csl
 document-params: "10pt, letterpaper"
 
 author-information: > 
-    \author{{\large \bf Author 1} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ Some University
-    \And {\large \bf Author 2} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ Some University}
+    \author{{\large \bf Ashley Leung} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ University of Chicago
+    \{\large \bf Alexandra Tunkel} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ University of Chicago
+    \And {\large \bf Daniel Yurovsky} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ University of Chicago}
 
 abstract: 
     "The abstract should be one paragraph, indented 1/8 inch on both sides,
