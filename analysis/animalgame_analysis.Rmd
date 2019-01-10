@@ -116,8 +116,9 @@ qualtrics_ids <- read_csv(here("../raw_data/qualtrics_ids.csv")) %>%
 
 survey1 <- read_csv(here("../raw_data/survey_link1.csv"))
 survey2 <- read_csv(here("../raw_data/survey_link2.csv"))
+survey3 <- read_csv(here("../raw_data/survey_link3.csv"))
 
-vocab_data <- bind_rows(survey1, survey2) %>%
+vocab_data <- bind_rows(survey1, survey2, survey3) %>%
   clean_names() %>%
   filter(!is.na(response_id)) %>%
   left_join(qualtrics_data, by = "response_id") %>%

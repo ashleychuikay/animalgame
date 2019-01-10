@@ -9,7 +9,8 @@ author-information: >
     \{\large \bf Alexandra Tunkel} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ University of Chicago
     \And {\large \bf Daniel Yurovsky} \\ \texttt{author1@university.edu} \\ Department of Psychology \\ University of Chicago}
 
-abstract: 
+abstract:
+    Almost all children acquire language, yet the rates of development differ drastically across individuals. Previous research suggests that these differences may arise partially from disparities in parental input, a finding that has been the foundation for quantity-based intervention programs. However, language development is not simply absorbing input- language is social in nature. The communicative intent and interactive nature of language must not be ignored when considering how parental input influences children's language development. Indeed, studies have shown that parental responsiveness shapes young children's language learning. Parental sensitivity (to children's knowledge, intent, etc.) may thus be a better predictor of children's language development than mere quantity of speech. The present study examined whether parents calibrate speech to their children's knowledge in an interactive game. Our results show that parents modify their language according to beliefs about their children's vocabulary knowledge, using longer sentences when describing unfamiliar objects, and shorter sentences for familiar objects.
     "The abstract should be one paragraph, indented 1/8 inch on both sides,
 in 9 point font with single spacing. The heading Abstract should
 be 10 point, bold, centered, with one line space below it. This
@@ -18,6 +19,7 @@ papers and standard posters (i.e., those presentations that will be
 represented by six page papers in the Proceedings)."
     
 keywords:
+  parent-child interaction; language development
     "Add your choice of indexing terms or keywords; kindly use a semi-colon; between each term."
     
 output: cogsci2016::cogsci_paper
@@ -33,7 +35,27 @@ library(png)
 library(grid)
 library(ggplot2)
 library(xtable)
+library(tidyverse)
+library(forcats)
+library(knitr)
+library(tidytext)
+library(readxl)
+library(tidyboot)
+library(stringr)
+library(janitor)
+library(here)
+library(ggthemes)
+library(lme4)
+library(lmerTest)
+library(directlabels)
+library(ggrepel)
+
+theme_set(theme_classic(base_size = 20))
 ```
+
+# Introduction
+
+Language, at its core, is communicative. People use language daily to interact with others, and even children as young as six months understand the communicative nature of spoken language (Vouloumanos, Martin, & Onishi, 2014). For young children, communication with others also plays a crucial role in language acquisition. Most of young children's language input come from parents, and while statistical learning likely plays a part in language acquisition (e.g. Saffran, 2003), successful learning may also rely on parents' sensitivity to their children's knowledge, interests, and developmental level (Hoff-Ginsberg & Shatz, 1982; Tamis-LeMonda, Kuchirko, & Song, 2014; Yurovsky, Doyle, & Frank, 2016). Focusing on parent and child as a dyad, rather than isolated individuals, is important when seeking to understand the ways in which parental input influences children's language acquisition.
 
 # General Formatting Instructions 
 
