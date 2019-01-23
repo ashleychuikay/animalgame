@@ -90,7 +90,7 @@ items <- read_csv("item_trajectory_table.csv") %>%
   summarise(prop = mean(prop, na.rm = T))
 
 
-jpeg("wordbank_plot.jpg", width = 6, height = 4, units = "in", res = 600)
+#jpeg("wordbank_plot.jpg", width = 6, height = 4, units = "in", res = 600)
 ggplot(items, aes(x = age, y = prop, color = animal, label = animal)) +
   geom_point() + 
   geom_smooth(se = F) +
@@ -101,22 +101,22 @@ ggplot(items, aes(x = age, y = prop, color = animal, label = animal)) +
                      breaks = seq(8, 30, 4)) +
   scale_y_continuous(name = "prop. producing", limits = c(0, 1)) +
   theme(legend.position = "none")
-dev.off()
+#dev.off()
 ```
 
 Read in vocab data
 
 ```{r read_data, message=F}
-qualtrics_data <- read_csv(here("../raw_data/qualtrics_data.csv")) %>%
+qualtrics_data <- read_csv(here("raw_data/qualtrics_data.csv")) %>%
   slice(3:nrow(.)) %>%
   clean_names()
 
-qualtrics_ids <- read_csv(here("../raw_data/qualtrics_ids.csv")) %>%
+qualtrics_ids <- read_csv(here("raw_data/qualtrics_ids.csv")) %>%
   clean_names()
 
-survey1 <- read_csv(here("../raw_data/survey_link1.csv"))
-survey2 <- read_csv(here("../raw_data/survey_link2.csv"))
-survey3 <- read_csv(here("../raw_data/survey_link3.csv"))
+survey1 <- read_csv(here("raw_data/survey_link1.csv"))
+survey2 <- read_csv(here("raw_data/survey_link2.csv"))
+survey3 <- read_csv(here("raw_data/survey_link3.csv"))
 
 vocab_data <- bind_rows(survey1, survey2, survey3) %>%
   clean_names() %>%
@@ -141,10 +141,10 @@ tidy_vocab <- vocab_data %>%
 ```
 Read in response data
 ```{r read_response}
-child_response <- read_csv(here("../raw_data/animalgame_data.csv")) %>%
+child_response <- read_csv(here("raw_data/animalgame_data.csv")) %>%
   filter(!subj %in% c("xx", "Twst", "Test", "test"))
 
-missing_data <- read_csv(here("../raw_data/animalgame_missing.csv"))
+missing_data <- read_csv(here("raw_data/animalgame_missing.csv"))
 
 filled_data <- bind_rows(child_response, missing_data)
 
@@ -162,7 +162,7 @@ response_data <- left_join(vocab_data, filled_data, by = "subj") %>%
 
 Read in transcript data
 ```{r munge}
-transcripts <- list.files(here("../raw_data/coded"), "*.csv", full.names = T)
+transcripts <- list.files(here("raw_data/coded"), "*.csv", full.names = T)
 
 
 read_transcript <- function(file) {
@@ -216,14 +216,14 @@ word_difficulty <- tidy_vocab %>%
 plotting_words <- word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
 
-jpeg("word_diff.jpeg", width = 8, height = 6, units = "in", res = 600)
+#jpeg("word_diff.jpeg", width = 8, height = 6, units = "in", res = 600)
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
                             ymax = ci_upper)) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         text = element_text(size = 20)) +
   geom_pointrange() +
   labs(y = "prop. parents report known", x = "") 
-dev.off()
+#dev.off()
 ```
 
 Munge transcript data
@@ -300,8 +300,45 @@ target_data <- target_data_gaps %>%
 ```
 
 ```{r accuracy}
+test_data <- target_data %>%
+  ungroup() %>%
+  filter(phase == "pre", !is.na(understands)) %>%
+  group_by(id, trial_target, appearance, correct, 
+         trial, difficulty, understands) %>%
+  summarise(length = log(sum(length))) %>%
+  rename(ease = difficulty)
 
-cor.test(target_data$difficulty, as.numeric(target_data$correct), 
+
+test_data %>%
+    mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  glmer(correct ~ length * understands + appearance + trial + 
+        (1|id) + (1|trial_target), 
+      family = "binomial", 
+      control = glmerControl(optimizer = "bobyqa"),
+      data = .) %>%
+  tidy() %>%
+  filter(group == "fixed") 
+
+
+test_data %>%
+  ungroup() %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  group_by(correct,  understands) %>%
+  tidyboot_mean(length) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+             ymin = ci_lower, ymax = ci_upper,
+             color = correct)) + 
+  geom_pointrange(position = position_dodge(.5))
+
+
+
+ggplot(test_data, aes(x = difficulty, y = correct)) +
+  facet_wrap(~ appearance) +
+  geom_point(alpha = .1)
+
+cor.test(response_data_difficulty$mean, as.numeric(response_data_difficulty$correct),
          use = "complete", method = "kendall")
 
 ```
