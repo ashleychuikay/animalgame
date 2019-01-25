@@ -308,7 +308,6 @@ test_data <- target_data %>%
   summarise(length = log(sum(length))) %>%
   rename(ease = difficulty)
 
-
 test_data %>%
     mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
@@ -334,7 +333,7 @@ test_data %>%
 
 
 
-ggplot(test_data, aes(x = difficulty, y = correct)) +
+ggplot(test_data, aes(x = ease, y = correct)) +
   facet_wrap(~ appearance) +
   geom_point(alpha = .1)
 

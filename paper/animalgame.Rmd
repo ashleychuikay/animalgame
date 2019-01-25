@@ -42,6 +42,7 @@ library(lme4)
 library(lmerTest)
 library(directlabels)
 library(ggrepel)
+library(extrafont)
 
 theme_set(theme_classic(base_size = 20))
 ```
@@ -50,9 +51,11 @@ theme_set(theme_classic(base_size = 20))
 
 Children learn language at astonishing rates, acquiring thousands of words by the time they are toddlers. How do children learn so many words even before they know how to dress themselves? One account for children's rapid language acquisition is statistical learning. Young children can attend to the distributional structure of language, learning to discriminate words and identify word order from speech streams [@Saffran1996; @Saffran2003]. Statistical learning can be a powerful tool for early language learning, and showcases the ability that children have to harvest information from their surroundings. However, children's language environments may also play a role in supporting language development.
 
-The way we speak to children often differs from the way we speak to adults. Child-directed speech (CDS) exists across cultures, and is characterized by higher pitches and exaggerated enunciations [@Cooper1990; @Grieser1988]. Not only do children prefer CDS over adult-directed speech (ADS), CDS is also more helpful for language learning than overheard ADS [@Shneidman2013]. One reason why CDS may facilitate language development is that its structural qualities make speech segmentation and word learning easier [@Thiessen2005; @Yurovsky2016]. Parents also show sensitivity towards children's development, such that they use simpler and more redundant language when talking to toddlers, and more complex syntactic structures when speaking with school-age children [@Snow1972]. Children's language environments are uniquely suited for their abilities, and these environments change across development.
+The way we speak to children often differs from the way we speak to adults. Child-directed speech (CDS) exists across cultures, and is characterized by higher pitches and exaggerated enunciations [@Cooper1990; @Grieser1988]. Not only do children prefer CDS over adult-directed speech (ADS), CDS is also more helpful for language learning than overheard ADS [@Shneidman2013]. One reason why CDS may facilitate language development is that its structural qualities make speech segmentation and word learning easier [@Thiessen2005; @Yurovsky2012]. Parents also show sensitivity towards children's development, such that they use simpler and more redundant language when talking to toddlers, and more complex syntactic structures when speaking with school-age children [@Snow1972]. Children's language environments are uniquely suited for their abilities, and these environments change across development.
 
-Why do parents modify the way they speak according to their children? One possible explanation is that parents are actively teaching their children. Indeed, some have posited that CDS is an ostensive cue for social learning, and that infants are born prepared to attend to these cues [@Csibra2009]. While it may be true that parents hope to impart knowledge to their children, we argue that effective communication is the proximal goal. The field of linguistics has long established that adults communicate in ways that are efficient. For example, Grice's (1975) maxim of quantity states that speech should be as informative as necessary, and no more. Adults are able to adhere to these maxims with relative ease, and it is likely that they do so regardless of who they are speaking to. That is, a parent's goal to communicate efficiently does not change depending on whether they are speaking to a child or an adult. Our account posits, therefore, that as parents seek to communicate with their children, they modify their language as a means to achieve successful communication.
+Why do parents modify the way they speak according to their children? One possible explanation is that parents are actively teaching their children. Indeed, some have posited that CDS is an ostensive cue for social learning, and that infants are born prepared to attend to these cues [@Csibra2009]. While it may be true that parents hope to impart knowledge to their children, we argue that effective communication is the proximal goal. The field of linguistics has long established that adults communicate in ways that are efficient. For example, Grice's (1975) maxim of quantity states that speech should be as informative as necessary, and no more. Adults are able to adhere to these maxims, adapting speech according to conversational partners' knowledge as needed for successful communication [@Clark1986]. We argue that the parent's goal to communicate with their child drives the change in language use. 
+
+As parents seek to communicate with their children, they modify their language as a means to achieve successful communication. This could be the reason why parents use simpler language and are more linguistically aligned with their younger children - they do so in order to communicate efficiently with their children [@Snow1972; @Yurovsky2016]. Parents are also sensitive to children's vocabulary knowledge, and the way they refer to objects change markedly depending on whether they are novel, comprehended, or familiar to their children [@Masur1997].
 
 # General Formatting Instructions 
 
@@ -105,16 +108,7 @@ heading.
 
 # Formalities, Footnotes, and Floats
 
-Use standard APA citation format. Citations within the text should
-include the author's last name and year. If the authors' names are
-included in the sentence, place only the year in parentheses, as in
-[-@NewellSimon1972a], but otherwise place the entire reference in
-parentheses with the authors and year separated by a comma
-[@NewellSimon1972a]. List multiple references alphabetically and
-separate them by semicolons [@ChalnickBillman1988a; @NewellSimon1972a]. 
-Use the et. al. construction only after listing all the authors to a
-publication in an earlier reference and for citations with four or
-more authors.
+
 
 For more information on citations in RMarkdown, see **[here](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html#citations).**
 
