@@ -68,10 +68,11 @@ We designed an interactive iPad game where parents guide their children to selec
 ```{r load_data}
 target_data <- read_feather(here("data/animalgame_data.feather"))
 word_difficulty <- read_feather(here("data/word_difficulty.feather"))
+demo_data <- read_csv(here("analysis/raw_data/animalgame_demo.csv"))
 ```
 
 ## Participants
-Children from age 2;0 to 2;6 and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 45 parent-child pairs were recruited, but data from five pairs was dropped from analysis due to experimental error or failure to complete the study. The 40 children **D DEMOGRAPHICS HERE**
+Children from age `r (min(demo_data$age))/365 ` to `r (max(demo_data$age))/365` (M = `r (mean(demo_data$age))/365`) and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 47 parent-child pairs were recruited, but data from six pairs was dropped from analysis due to experimental error or failure to complete the study. The 40 children **D DEMOGRAPHICS HERE**
 
 ```{r word_difficulty}
 group_difficulty <- word_difficulty %>%
@@ -89,9 +90,9 @@ difficulty_lmer <- word_difficulty %>%
 
 
 ## Stimuli
-Eighteen animal images selected from @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on age of acquisition (AoA), using data from WordBank [@frank2017]. Half of the selected animals had lower AoA (12-20 months), and the other half had higher AoA (25-31 months). 
+Eighteen animal images were selected from @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on age of acquisition (AoA), using data from WordBank [@frank2017]. The AoA of the selected animals ranged from 12 to 31 months. Half of the animals had lower AoA (12-20 months), and the other half had higher AoA (25-31 months). 
 
-A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered via an online survey. The selected animal words were embedded among the **AMOUNT** words in the survey.  Parents were invited to complete the survey prior to participating in the study. Two of the animal words--one in the early AOA and one in the late AOA category were excluded by accident, and so trials for those words were not included in analysis.
+A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the **AMOUNT** words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category were excluded by accident, and so trials for those words were not included in analysis.
 
 ## Design and Procedure
 Each parent-child pair played an interactive game on iPads. Children were given two warm-up trials to get used to tapping on an iPad. The practice and experiment trials began after the warm-up. On each trial, three images were displayed side by side on the child’s screen, and a single word appeared on the parent’s screen (Figure \ref{fig:ipads}). Parents were instructed to communicate as they normally would with their child, and encourage them to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once an animal was tapped, the trial ended, and a new trial began. There were a total of 36 experiment trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.

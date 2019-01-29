@@ -25,6 +25,7 @@ library(lme4)
 library(lmerTest)
 library(directlabels)
 library(ggrepel)
+library(feather)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
@@ -127,6 +128,12 @@ vocab_data <- bind_rows(survey1, survey2, survey3) %>%
   select(q1, response_id, number) %>%
   rename(video_id = response_id, subj = number) %>%
   filter(!is.na(subj))
+
+```
+
+Demographics
+```{r demographics}
+demo_data <- read_csv(here("analysis/raw_data/animalgame_demo.csv"))
 
 ```
 
