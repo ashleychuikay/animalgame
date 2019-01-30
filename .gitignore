@@ -20,3 +20,6 @@ analysis/animalgame_analysis_files
 .Rproj.user
 
 .httr-oauth
+
+paper/*.log
+paper/animalgame.tex

@@ -67,7 +67,7 @@ We designed an interactive iPad game in which parents verbally guide their child
 # Method
 
 ```{r load_data}
-target_data <- read_feather(here("data/animalgame_data.feather")) %>%
+target_data <- read_feather(here("data/target_data.feather")) %>%
     filter(phase != "during", person == "parent", !is.na(understands))
 
 word_difficulty <- read_feather(here("data/word_difficulty.feather"))
@@ -75,8 +75,8 @@ demos <- read_feather(here("data/demos.feather"))
 ```
 
 ## Participants
-Two to two and a half year old children and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 47 parent-child pairs were recruited, but data from six pairs was dropped from analysis due to experimental error or failure to complete the study. The final sample consistend of `r nrow(demos)` children aged `r min(demos$age)` to `r max(demos$age)` years ($M =$ `r mean(demos$age)`), `r demos %>% summarise(female = sum(demos == "female")) %>% pull` of whom were girls. 
 
+Two to two and a half year old children and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 47 parent-child pairs were recruited, but data from six pairs was dropped from analysis due to experimental error or failure to complete the study. The final sample consistend of `r nrow(demos)` children aged `r min(demos$age)` to `r max(demos$age)` years ($M =$ `r mean(demos$age)`), `r demos %>% summarise(female = sum(demos == "female")) %>% pull` of whom were girls. 
 
 ```{r word_difficulty}
 group_difficulty <- word_difficulty %>%
@@ -98,8 +98,9 @@ Eighteen animal images were selected from @rossion2004 image set, which is a col
 
 A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the 85 words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category--were excluded by accident, so trials for those words were not included in analysis.
 
+
 ## Design and Procedure
-Each parent-child pair played an interactive game on iPads. Children were given two warm-up trials to get used to tapping on an iPad. The practice and experiment trials began after the warm-up. On each trial, three images were displayed side by side on the child’s screen, and a single word appeared on the parent’s screen (Figure \ref{fig:ipads}). Parents were instructed to communicate as they normally would with their child, and encourage them to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once an animal was tapped, the trial ended, and a new trial began. There were a total of 36 experiment trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.
+Each parent-child pair played an interactive game using two iPads. Children were given two warm-up trials to get used to tapping on an iPad. The practice and experiment trials began after the warm-up. On each trial, three images of animals were displayed side by side on the child’s screen, and a single word appeared on the parent’s screen (Figure \ref{fig:ipads}). Parents were instructed to communicate as they normally would with their child, and encourage them to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once an animal was tapped, the trial ended, and a new trial began. There were a total of 36 experiment trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.
 
 ```{r ipads, fig.env = "figure", fig.pos = "tb", fig.align='center', fig.width=2, fig.height=2, out.width = "150px", set.cap.width=T, num.cols.cap=1, fig.cap = "Example iPad screens for the child (top) and parent (bottom) during the experiment."}
 include_graphics("figs/ipads.pdf")
@@ -107,13 +108,13 @@ include_graphics("figs/ipads.pdf")
 
 ## Results
 
-The data of interest in this study were parent utterances used during the interactive game, and parents’ responses on the CDI. Transcripts of the videos were analyzed for utterance length. We measured the length of parents' referring utterances as a proxy for amount of information given in each utterance. Parent utterances irrelevant to the iPad game (e.g. asking the child to sit down) were not analyzed. Children’s utterances were coded when audible, but were not analyzed.
+The data of interest in this study were parent utterances used during the interactive game and parents’ responses on the adapted CDI. Transcripts of the videos were analyzed for utterance length. We measured the length of parents' referring utterances as a proxy for amount of information given in each utterance. Parent utterances irrelevant to the iPad game (e.g. asking the child to sit down) were not analyzed. Children’s utterances were coded when audible, but were not analyzed.
 
 ### Word difficulty 
 
 We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. Analyses confirmed that animals in the early AoA category were judged to be understood by `r group_difficulty %>% filter(type == "early") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`% of parents, and items in the late AoA category were judged understood by `r group_difficulty %>% filter(type == "late") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`%.
 
-```{r difficulty_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Word difficulties.", fig.height = 2}
+```{r difficulty_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Parent responses on the CDI for the selected animal words.", fig.height = 2}
 mean_word_difficulty <- word_difficulty %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
@@ -171,12 +172,40 @@ known_lmer <- trial_known_data %>%
 If parents are calibrating the referential expressions to their children's linguistic knowledge, we predicted that they should produce more informative-- and thus longer--utterances to refer to animals that they thought their children did not know. Figure ~\ref{fig:known_plot} shows parents’ utterance lengths for animals that they believe their children know versus those they believe their children do not know--both before their child selected an animal and after. In line with our prediction, parents used significantly shorter utterances when talking about animals that they believe their children know. However, once the child had selected an animal, the encouragement and other conversation did not differ between known and unknown animals. We confimed this result statistically, predicting utterance length from a mixed effects model with fixed effects of phase and animal knowledge and their interaction, and random effects of participant and item. All phase and the interaction of phase and knowledge were  significant: Utterances were longer before selection ($\beta =$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(statistic)`,
 $p$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(p.value) %>% printp()`), and before selection when the animal was unknown ($\beta =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(p.value) %>% printp()`), but not after the selection ($\beta =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(p.value) %>% printp()`).
 
-In order to examine whether parents modify their speech behaviors within the timeframe of the experiment, we compared utterance lengths between first and second appearances of each target. Overall, utterances were shorter for the second appearance of a given target (Fig. 4).
+```{r length_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Parent utterance length on the first (blue) and second (red) appearance of targets. The x-axis is proportion of parents who responded that their children knew the word.", fig.height = 2, eval = F}
+plotting_data <- target_data %>%
+  group_by(appearance, target, subj) %>%
+  summarise(length = sum(length)) %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  left_join(word_difficulty, by = c("target" = "word")) %>%
+  rename(understands_lower = ci_lower, understands_upper = ci_upper) %>%
+  select(-mean) %>%
+  mutate(plotting_appearance = factor(appearance, levels = c("first", "second"),
+                                     labels = c("1st appearance",
+                                                "2nd appearance")))
 
-We also asked whether parents changed their behaviors according to their children’s responses during the game. When accounting for children’s accuracy, we found that parents used longer utterances when their child responded incorrectly on the first appearance of a target that they believe their children know. However, no difference in utterance length was found for words that parents believed their children did not know (Fig. 5). These results are partially in line with our prediction that parents would modify their speech during the game.
+ggplot(plotting_data, aes(x = understands, y = length, xmin = understands_lower,
+                          xmax = understands_upper, ymin = length_lower,
+                          ymax = length_upper, color = plotting_appearance)) + 
+  geom_smooth(method = "lm", se = F) +
+  geom_pointrange(alpha = .2)+ 
+  geom_errorbarh(alpha = .2) + 
+  scale_color_ptol() +
+  scale_y_continuous(limits = c(0, 20)) +
+  theme(legend.position = "none") +
+  labs(x = "prop. parents report known", 
+       y = "log utterance length") 
+```
 
-We did not make specific predictions about accuracy, but our results show that children performed significantly above chance for both high and low AoA words (plot coming soon!).
-A linear model predicting children’s response accuracy found that utterance length, parent belief about children’s knowledge, and the interaction between these two factors were reliable predictors (Table 1). Specifically, children were more likely to be correct on trials where parents used longer utterances. On trials where parents believe their children know the word, children were more likely to be correct. Finally, there was an interaction between utterance length and parent belief. Longer utterances were more likely to be associated with a correct response on trials where parents believe their children do not know the word.
+In order to examine whether parents modify their speech behaviors within the timeframe of the experiment, we compared utterance lengths between first and second appearances of each target. Overall, utterances were shorter for the second appearance of a given target (Fig. \ref{fig:length_fig}).
+
+We also asked whether parents changed their behaviors according to their children’s responses during the game. When children responded incorrectly on the first appearance of a target that parents believe they know (e.g. cat), we found that parents used longer utterances when the same target appeared a second time. However, we did not find this effect for targets that parents believe their children do not know (e.g. lobster). That is, regardless of whether children responded correctly or incorrectly on the first appearance of these targets, there was no difference in utterance length on the second appearance (Fig. 5). These results are partially in line with our prediction that parents would modify their speech during the game based on their children's accuracy.
+
+A linear model predicting children’s response accuracy found that utterance length, parent belief about children’s knowledge, and the interaction between these two factors were reliable predictors (Table 1). Specifically, children were more likely to be correct on trials where parents used longer utterances. On trials where parents believe their children know the word, children were more likely to be correct. Finally, there was an interaction between utterance length and parent belief. Longer utterances were more likely to be associated with a correct response on trials where parents believe their children do not know the word. Overall, children performed significantly above chance for both high and low AoA words (**Accuracy Plot Here**).
 
 # Discussion
 

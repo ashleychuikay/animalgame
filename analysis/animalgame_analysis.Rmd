@@ -315,7 +315,7 @@ target_data <- target_data_gaps %>%
 
 
 target_data %>%
-  select(subj, person, id, target, trial, phase, trial_target, appearance, length, difficulty, understands, correct, trial_type, game_trial) %>%
+  select(subj, person, target, trial, phase, trial_target, appearance, length, difficulty, understands, correct, trial_type, game_trial) %>%
   write_feather("data/target_data.feather")
 
 ```
