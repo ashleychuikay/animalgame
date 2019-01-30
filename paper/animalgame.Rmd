@@ -73,7 +73,7 @@ demo_data <- read_csv(here("analysis/raw_data/animalgame_demo.csv"))
 ```
 
 ## Participants
-Children from age `r (min(demo_data$age))/365 ` to `r (max(demo_data$age))/365` (M = `r (mean(demo_data$age))/365`) and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 47 parent-child pairs were recruited, but data from six pairs was dropped from analysis due to experimental error or failure to complete the study. The 40 children **D DEMOGRAPHICS HERE**
+Children from age `r (min(demo_data$age))/365 ` to `r (max(demo_data$age))/365` (M = `r (mean(demo_data$age))/365`) and their parents were recruited from a databse of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. Five dyads were recruited as pilot participants, and their data were not analyzed. A total of 47 parent-child pairs were recruited for the study, but data from six pairs were dropped from analysis due to experimental error or failure to complete the study. The presented data are from the remaining 41 children (`r length(demo_data[demo_data$gender == "f"])` females). There were `r length(demo_data[demo_data$race == "White"])` white participants, `r length(demo_data[demo_data$race == "Black or African American"])` Black participants, `r length(demo_data[demo_data$race == "Asian"])` Asian participants, and `r length(demo_data[demo_data$race == "Other"])` participants who were mixed-race or declined to state their race.
 
 ```{r word_difficulty}
 group_difficulty <- word_difficulty %>%
