@@ -133,8 +133,7 @@ vocab_data <- bind_rows(survey1, survey2, survey3) %>%
 
 Demographics
 ```{r demographics}
-demo_data <- read_csv(here("analysis/raw_data/animalgame_demo.csv"))
-
+demo_data <- read_csv(here("raw_data/animalgame_demo.csv"))
 ```
 
 Munge vocab data
@@ -313,6 +312,12 @@ target_data <- target_data_gaps %>%
   left_join(ids) %>%
   left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num")) %>%
   filter(trial_type != "practice")
+
+
+target_data %>%
+  select(subj, person, id, target, trial, phase, trial_target, appearance, length, difficulty, understands, correct, trial_type, game_trial) %>%
+  write_feather("data/target_data.feather")
+
 ```
 
 ```{r accuracy}
