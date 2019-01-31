@@ -68,7 +68,9 @@ We designed an interactive iPad game in which parents verbally guide their child
 
 ```{r load_data}
 target_data <- read_feather(here("data/target_data.feather")) %>%
-    filter(phase != "during", person == "parent", !is.na(understands))
+    filter(phase != "during", person == "parent", !is.na(understands)) %>%
+    complete(nesting(subj, target, understands,  correct,  appearance),
+           fill = list(length = 0))
 
 word_difficulty <- read_feather(here("data/word_difficulty.feather"))
 demos <- read_feather(here("data/demos.feather"))
@@ -152,15 +154,16 @@ mean_known_data <- trial_known_data %>%
 
 known_lmer <- trial_known_data %>%
   ungroup() %>%
-  # mutate(phase = factor(phase, levels = c("after selection", "before selection")),
-  #        understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
-  lmer(length ~ phase * understands + (1|subj) + (1|trial_target), data = .) %>%
+  mutate(length = log(length+1)) %>%
+  lmer(length ~ phase * understands + (1|subj) + (1|trial_target), 
+       data = .) %>%
   tidy() %>%
   filter(effect == "fixed")
 
 known_difficulty_lmer <- trial_known_data %>%
   ungroup() %>% 
   filter(phase == "before selection") %>%
+  mutate(length = log(length+1)) %>%
   mutate(difficulty = 1 - difficulty, 
          understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
   lmer(length ~ difficulty + understands + (1|subj) + (1|trial_target), data = .) %>%
@@ -248,8 +251,10 @@ mean_lag_data <- lag_data %>%
   summarise(length = mean(length, na.rm = T)) %>%
   tidyboot_mean(length) 
 
-lag_lmer <- lmer(length ~ lag_correct * understands + (1|subj) + (1|target), 
-                 data = lag_data) %>%
+lag_lmer <- lag_data %>%
+  mutate(length = log(length+1)) %>%
+  lmer(length ~ lag_correct * understands + (1|subj) + (1|target), 
+                 data = .) %>%
   tidy() %>%
   filter(effect == "fixed")
 
@@ -263,8 +268,7 @@ ggplot(mean_lag_data, aes(x = lag_correct, y = empirical_stat,
   labs(x ="child's selection on previous appearance", y = "Partents' words produced") +
   scale_color_ptol()
 ```
-We then tested our second hypothesis: Parents should modify their productions over the course of the experiment as they get evidence about their child's knowledge. Because each animal was the target twice, parents could use their child's selection on the first trial of the game to inform their referential expressions on the second appearance. Figure \ref{fig:lag_plot} shows the length of parents' referring expressions as a function of their prior belief about their child's knowledge and their child's selection on the first appearance of the target animal. As predicted, parents who thought their child knew an animal, but who observed evidence that they didn't lengthened their referring expressions on it's second appearance. Parents who thought their child did not know an animal before the start of the game did not shorten their referring expressions if their child was correct the first time. We cannot say definitely why their utterances do not change in length, but one likely candidate is that the utterances that lead to success the first time were heavily scaffolded and may not even have contained the animal's canonical label (e.g. "the one that looks like a cat" for leopard). We confirmed these results with a mixed effects model predicting length of expressions from parents' prior beliefs, their child's selection on the first trial, and their interaction and found only the interaction to be significant: Utterances were not reliabvly longer when parents thought their child did not know the animal ($\beta =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(statistic)`, $p =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(p.value) %>% printp()`), nor when the child was incorrect on the previous trial  ($\beta =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(statistic)`,
-$p =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(p.value) %>% printp()`, but only when the parent thought their child did not know the animal and was incorrect on the previous trial ($\beta =$ `r lag_lmer %>% filter(term == "lag_correctincorrect:understandsparent believes unknown") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "lag_correctincorrect:understandsparent believes unknown") %>% pull(statistic)`, $p =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(p.value) %>% printp()`).
+We then tested our second hypothesis: Parents should modify their productions over the course of the experiment as they get evidence about their child's knowledge. Because each animal was the target twice, parents could use their child's selection on the first trial of the game to inform their referential expressions on the second appearance. Figure \ref{fig:lag_plot} shows the length of parents' referring expressions as a function of their prior belief about their child's knowledge and their child's selection on the first appearance of the target animal. As predicted, parents who thought their child knew an animal, but who observed evidence that they didn't lengthened their referring expressions on it's second appearance. Parents who thought their child did not know an animal before the start of the game did not shorten their referring expressions if their child was correct the first time. We cannot say definitely why their utterances do not change in length, but one likely candidate is that the utterances that lead to success the first time were heavily scaffolded and may not even have contained the animal's canonical label (e.g. "the one that looks like a cat" for leopard). We confirmed these results with a mixed effects model predicting length of expressions from parents' prior beliefs, their child's selection on the first trial, and their interaction and found only the interaction to be significant: Utterances were not reliably longer when parents thought their child did not know the animal ($\beta =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(statistic)`, $p =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(p.value) %>% printp()`), nor when the child was incorrect on the previous trial  ($\beta =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(statistic)`, $p =$ `r lag_lmer %>% filter(term == "lag_correctincorrect") %>% pull(p.value) %>% printp()`, but only when the parent thought their child did not know the animal and was incorrect on the previous trial ($\beta =$ `r lag_lmer %>% filter(term == "lag_correctincorrect:understandsparent believes unknown") %>% pull(estimate)`, $t =$ `r lag_lmer %>% filter(term == "lag_correctincorrect:understandsparent believes unknown") %>% pull(statistic)`, $p =$ `r lag_lmer %>% filter(term == "understandsparent believes unknown") %>% pull(p.value) %>% printp()`).
 
 ### Children's selections
 
@@ -277,7 +281,16 @@ test_data <- target_data %>%
   group_by(understands, correct,  subj, trial, trial_target, appearance) %>%
   summarise(length = log(sum(length))+1) 
 
+
+mean_test_data <- test_data %>%
+  group_by(understands, subj, trial_target, appearance) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  tidyboot_mean(correct)
+
 test_lmer <- test_data %>%
+  mutate(length = log(length+1)) %>%
   glmer(correct ~ length * understands + appearance + trial + 
         (1|subj) + (1|trial_target), 
       family = "binomial", 
@@ -285,7 +298,19 @@ test_lmer <- test_data %>%
       data = .) %>%
   tidy() %>%
   filter(effect == "fixed") 
+```
 
+```{r selection_plot, cache = T, fig.cap = "Children's accuracy at selecting both known and unknown animals. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping", fig.height = 2}
+mean_test_data %>%
+  mutate(understands = factor(understands, labels = c("Child knows",
+                                                      "Child doesn't know"))) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+           ymin = ci_lower, ymax = ci_upper, color = understands,
+           label = understands)) + 
+  geom_pointrange(position = position_dodge(.25)) +
+  scale_color_ptol() +
+  labs(x = "Parents' belief about animal", y = "Selection accuracy") +
+  theme(legend.position = "none")
 ```
 
 ```{r test_model, results="asis", tab.env = "table", cache = T}
@@ -296,7 +321,7 @@ model_table <- test_lmer %>%
          p.value = printp(p.value)) %>%
   rename(`t-value` = statistic,
          `p-value` = p.value) %>%
-  xtable(caption = "Coefficient estimates for a mixed-effects logistic regression predicting children's success in selecting the target animal. The model was specified as \\texttt{correct $\\sim$ log(freq) * unknown + appearance + trial + (1|subj) + (1|animal)}.",
+  xtable(caption = "Coefficient estimates for a mixed-effects logistic regression predicting children's success in selecting the target animal. The model was specified as \\texttt{correct $\\sim$ log(length) * unknown + appearance + trial + (1|subj) + (1|animal)}.",
          label = "tab:test_model")
 
 
