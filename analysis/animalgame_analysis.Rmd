@@ -201,7 +201,10 @@ tidy_data <- map(transcripts, read_transcript) %>%
   bind_rows()
 
 targets <- tidy_data %>%
-  distinct(target) %>%
+  filter(!is.na(target)) %>%
+  distinct(target, keep)
+
+%>%
   filter(!is.na(target), !target %in% c("n/a", "unknown", "cat>", "hold on",
                                         "rhinoceorus")) %>%
   pull()
@@ -364,7 +367,7 @@ test_data %>%
 
 
 
-ggplot(test_data, aes(x = ease, y = correct)) +
+ggplot(test_data, aes(x = understands, y = correct)) +
   facet_wrap(~ appearance) +
   geom_point(alpha = .1)
 
