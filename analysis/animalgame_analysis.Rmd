@@ -201,13 +201,9 @@ tidy_data <- map(transcripts, read_transcript) %>%
   bind_rows()
 
 targets <- tidy_data %>%
-  filter(!is.na(target)) %>%
-  distinct(target, keep)
-
-%>%
-  filter(!is.na(target), !target %in% c("n/a", "unknown", "cat>", "hold on",
-                                        "rhinoceorus")) %>%
-  pull()
+  filter(!is.na(target), target != "n/a") %>%
+  distinct(target, .keep_all = T) %>%
+  select(id, target) %>%  pull()
 
 practice_targets <- c("artichoke", "apple") 
 ```
@@ -310,7 +306,7 @@ target_data_gaps <- parent_data %>%
   mutate(length = str_count(utterance, " ") + 1,
          length = if_else(is.na(length), as.numeric(0), length)) %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
-  rename(difficulty = understands) %>%
+ # rename(difficulty = understands) %>%
   left_join(tidy_vocab, by = c("id" = "video_id", "trial_target" = "word")) %>%
  # filter(phase != "during") %>%
   group_by(phase, difficulty, understands, appearance, trial_target, id)
@@ -556,6 +552,21 @@ ggplot(lag_data, aes(x = lag_correct, y = empirical_stat,
   scale_color_ptol()+
   theme_classic(base_size = 20)
 dev.off()
+```
+
+
+```{r write_demos}
+target_data %>%
+  ungroup() %>%
+  distinct(subj) %>%
+  left_join(qualtrics_ids, by = c("subj"="number")) %>%
+  left_join(demo_data, by = c("response_id"="id")) %>%
+  select(subj, age, gender) %>%
+  mutate(age = age/365,
+         gender = factor(gender, levels = c("f", "m"), 
+                         labels = c("female", "make"))) %>%
+  write_feather(here("data/demos.feather"))
+
 ```
 
 ```{r lag_analysis}
