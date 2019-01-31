@@ -96,7 +96,7 @@ difficulty_lmer <- word_difficulty %>%
 ## Stimuli
 Eighteen animal images were selected from @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on age of acquisition (AoA), using data from WordBank [@frank2017]. The AoA of the selected animals ranged from 12 to 31 months. Half of the animals had lower AoA (12-20 months), and the other half had higher AoA (25-31 months). 
 
-A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the 85 words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category--were excluded by accident, so trials for those words were not included in analysis.
+A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the 85 words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category--were accidentally omitted, so trials for those words were not included in analysis.
 
 
 ## Design and Procedure
@@ -133,44 +133,98 @@ ggplot(plotting_words, aes(x = word, y = empirical_stat, ymin = ci_lower,
 
 The difference between these groups was confirmed statistically with a logistic mixed effects regression with a fixed effect of AoA type and random effects of participants. The late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(estimate)`, $t =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(statistic)`, $p$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(p.value) %>% printp()`). Parents' judgments for each target word are shown in Figure \ref{fig:difficulty_fig}.
 
-### Utterance length
+### Length of referring expressions
 
-```{r known_plot, cache = T, fig.cap = "Length of parents' utterances before their child before and after they selected a target. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping", fig.height = 2}
+```{r trial_known_data}
 trial_known_data <- target_data %>%
   mutate(phase = factor(phase, levels = c("pre", "post"), labels = c("before selection",
                                                                      "after selection")),
          understands = factor(understands, labels = c("unknown animal", "known animal"))) %>%
-  group_by(phase, understands, subj, appearance, trial_target) %>%
+  group_by(phase, difficulty, understands, subj, appearance, trial_target) %>%
   summarise(length = sum(length)) 
 
 mean_known_data <- trial_known_data %>%
+  group_by(phase, understands, subj, appearance, trial_target) %>%
+  summarise(length = mean(length)) %>%
   summarise(length = mean(length)) %>%
   summarise(length = mean(length)) %>%
   tidyboot_mean(length)
 
+known_lmer <- trial_known_data %>%
+  ungroup() %>%
+  # mutate(phase = factor(phase, levels = c("after selection", "before selection")),
+  #        understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
+  lmer(length ~ phase * understands + (1|subj) + (1|trial_target), data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed")
+
+known_difficulty_lmer <- trial_known_data %>%
+  ungroup() %>% 
+  filter(phase == "before selection") %>%
+  mutate(difficulty = 1 - difficulty, 
+         understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
+  lmer(length ~ difficulty + understands + (1|subj) + (1|trial_target), data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed")
+```
+
+If parents calibrate their referential expressions to their children's linguistic knowledge, they should provice more information to children for whom a simple bare noun e.g. ("leopard") would be insufficient to identify the target. Parents did this in a number of ways: With one or more adjectives (e.g., "the spotted, yellow leopard"), with similes (e.g., "the one that's like a cat"), and with allusions to familiar specific animals exemplars of the category. In all of these cases, parents' would be required to produce more words. Thus, we analyzed the length of parents' referential expressions as a theory-agnostic proxy for informativeness.
+
+We predicted that they should produce more informative--and thus longer--utterances to refer to animals that they thought their children did not know. We divided every trial of the game into phases: The time before a child selected an animal, and the time following selection until the start of the next trial. Figure \ref{fig:known_plot} shows parents’ utterance lengths for animals that they believe their children know versus those they believe their children do not know--both before their child selected an animal and after. In line with our prediction, parents used significantly longer utterances when talking about animals that they believed their children did not know. However, once the child had selected an animal, the encouragement and other conversation that followed did not differ between known and unknown animals. 
+
+We confimed this result statistically, predicting utterance length from a mixed effects model with fixed effects of phase and animal knowledge and their interaction, and random effects of participant and item. All phase and the interaction of phase and knowledge were significant: Parents produced fewer words after selection ($\beta =$ `r known_lmer %>% filter(term == "phaseafter selection") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phaseafter selection") %>% pull(statistic)`,
+$p$ `r known_lmer %>% filter(term == "phaseafter selection") %>% pull(p.value) %>% printp()`), and when the animal was known, ($\beta =$ `r known_lmer %>% filter(term == "understandsknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "understandsknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "understandsknown animal") %>% pull(p.value) %>% printp()`), but the change was smaller for known animals($\beta =$ `r known_lmer %>% filter(term == "phaseafter selection:understandsknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phaseafter selection:understandsknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "phaseafter selection:understandsknown animal") %>% pull(p.value) %>% printp()`). In the remainder of our analyses, we focus on utterances in the pre-selection phase of each trial as the post selection phase did not vary across trial targets.
+
+Although each parent only gave a single bit of information about each animal--whether they thought their child knew it or not--we pooled these judgments across parents to estimate a continuous measure of difficulty (Figure \ref{fig:difficulty_fig}). If parents' utterances reflect a sensitivity to this continuous difficulty, the length of their utterances should vary smoothly with the difficulty of words. Figure \ref{fig:continuous_difficulty_fig} shows this relationship, which was confirmed by a mixed effecs model oredicting utterance length from fixed effects of difficulty and animal knowledge, and random effects of subject and trial target. Utterances were reliably longer for more difficult animals ($\beta =$ `r known_difficulty_lmer %>% filter(term == "difficulty") %>% pull(estimate)`, $t =$ `r known_difficulty_lmer %>% filter(term == "difficulty") %>% pull(statistic)`,
+$p =$ `r known_difficulty_lmer %>% filter(term == "difficulty") %>% pull(p.value) %>% printp()`) over and above the increase for unknown animals ($\beta =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(statistic)`,
+$p =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(p.value) %>% printp()`) 
+
+```{r known_plot, cache = T, fig.cap = "Length of parents' utterances before and after their child selected a target animal. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping", fig.height = 2}
 ggplot(mean_known_data,
        aes(x = phase, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands,
            label = understands)) + 
   geom_pointrange(position = position_dodge(.25)) +
   scale_color_ptol() +
-  labs(x = "", y = "Utterance length (log)") +
+  labs(x = "", y = "Parents' words produced") +
   geom_dl(method = list(dl.trans(x=x +2.2), "first.points", cex=.7)) +
   theme(legend.position = "none")
 ```
 
-```{r}
-known_lmer <- trial_known_data %>%
-  ungroup() %>%
-  mutate(phase = factor(phase, levels = c("after selection", "before selection")),
-         understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
-  lmer(length ~ phase * understands + (1|subj) + (1|trial_target), data = .) %>%
-  tidy() %>%
-  filter(effect == "fixed")
+```{r continuous_plot_data}
+continuous_plot_data <- target_data %>%
+  filter(phase == "pre") %>%
+  group_by(trial_target, subj, appearance) %>%
+  summarise(length = sum(length)) %>%
+  summarise(length = mean(length)) %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  left_join(mean_word_difficulty, by = c("trial_target" = "word")) %>%
+  rename(understands_lower = ci_lower, understands_upper = ci_upper, 
+         understands = empirical_stat) %>%
+  select(-mean) %>%
+  mutate(plotting_target = if_else(trial_target %in% c("squirrel", "cat", "lobster"),
+                                   trial_target, as.character(NA)))
 ```
 
-If parents are calibrating the referential expressions to their children's linguistic knowledge, we predicted that they should produce more informative-- and thus longer--utterances to refer to animals that they thought their children did not know. Figure ~\ref{fig:known_plot} shows parents’ utterance lengths for animals that they believe their children know versus those they believe their children do not know--both before their child selected an animal and after. In line with our prediction, parents used significantly shorter utterances when talking about animals that they believe their children know. However, once the child had selected an animal, the encouragement and other conversation did not differ between known and unknown animals. We confimed this result statistically, predicting utterance length from a mixed effects model with fixed effects of phase and animal knowledge and their interaction, and random effects of participant and item. All phase and the interaction of phase and knowledge were  significant: Utterances were longer before selection ($\beta =$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(statistic)`,
-$p$ `r known_lmer %>% filter(term == "phasebefore selection") %>% pull(p.value) %>% printp()`), and before selection when the animal was unknown ($\beta =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "phasebefore selection:understandsunknown animal") %>% pull(p.value) %>% printp()`), but not after the selection ($\beta =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(statistic)`, $p =$ `r known_lmer %>% filter(term == "understandsunknown animal") %>% pull(p.value) %>% printp()`).
+```{r continuous_difficulty_fig, fig.env = "figure*", fig.width=5.5, fig.height=2.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Number of words in parents' referential expressions as a function of the probability that children knew the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap",}
+ggplot(continuous_plot_data, aes(x = understands, y = length, xmin = understands_lower,
+                          xmax = understands_upper, ymin = length_lower,
+                          ymax = length_upper,
+                          label = plotting_target)) + 
+  geom_smooth(method = "lm", se = F, color = "black") +
+  geom_pointrange()+ 
+  geom_errorbarh() + 
+  geom_label_repel() +
+  theme(legend.position = "none") +
+  labs(x = "Proportion of children knowing target word", 
+       y = "Parents' words produced") 
+```
+
+
 
 ```{r length_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Parent utterance length on the first (blue) and second (red) appearance of targets. The x-axis is proportion of parents who responded that their children knew the word.", fig.height = 2, eval = F}
 plotting_data <- target_data %>%
@@ -201,9 +255,9 @@ ggplot(plotting_data, aes(x = understands, y = length, xmin = understands_lower,
        y = "log utterance length") 
 ```
 
-In order to examine whether parents modify their speech behaviors within the timeframe of the experiment, we compared utterance lengths between first and second appearances of each target. Overall, utterances were shorter for the second appearance of a given target (Fig. \ref{fig:length_fig}).
+We then tested our second hypothesis: Parents should modify their productions over the course of the experiment as they get evidence about their child's knowledge. When children responded incorrectly on the first appearance of a target that parents believe they know (e.g. cat), we found that parents used longer utterances when the same target appeared a second time. However, we did not find this effect for targets that parents believe their children do not know (e.g. lobster). That is, regardless of whether children responded correctly or incorrectly on the first appearance of these targets, there was no difference in utterance length on the second appearance (Fig. 5). These results are partially in line with our prediction that parents would modify their speech during the game based on their children's accuracy.
 
-We also asked whether parents changed their behaviors according to their children’s responses during the game. When children responded incorrectly on the first appearance of a target that parents believe they know (e.g. cat), we found that parents used longer utterances when the same target appeared a second time. However, we did not find this effect for targets that parents believe their children do not know (e.g. lobster). That is, regardless of whether children responded correctly or incorrectly on the first appearance of these targets, there was no difference in utterance length on the second appearance (Fig. 5). These results are partially in line with our prediction that parents would modify their speech during the game based on their children's accuracy.
+### Children's selections
 
 A linear model predicting children’s response accuracy found that utterance length, parent belief about children’s knowledge, and the interaction between these two factors were reliable predictors (Table 1). Specifically, children were more likely to be correct on trials in which parents used longer utterances. On trials where parents believe their children know the word, children were more likely to be correct. Finally, there was an interaction between utterance length and parent belief. Longer utterances were more likely to be associated with a correct response on trials in which parents believe their children do not know the word. Overall, children performed significantly above chance for both high and low AoA words (**Accuracy Plot Here**).
 

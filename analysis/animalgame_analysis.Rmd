@@ -214,19 +214,29 @@ The unique targets were: `r targets`
 ```{r word_difficulty}
 
 word_difficulty <- tidy_vocab %>%
-  filter(word %in% targets) %>%
+  filter(word %in% targets, subj %in% target_data$subj) %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
   rename(understands = empirical_stat) %>%
-  arrange(desc(understands))
+  arrange(desc(understands)) %>%
+  rename(difficulty = understands) %>%
+  select(-mean)
 
 tidy_vocab %>%
   select(subj, word, understands) %>%
   filter(word %in% targets) %>%
   mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
          if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
+                 "early", "late")))%>%
+  left_join(word_difficulty) %>%
+  write_feather("data/word_difficulty.feather")
+
+word_difficulty %>%
+  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
+         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
                  "early", "late"))) %>%
   write_feather("data/word_difficulty.feather")
+
 
 plotting_words <- word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
