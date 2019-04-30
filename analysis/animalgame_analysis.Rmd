@@ -168,13 +168,14 @@ response_data <- left_join(vocab_data, filled_data, by = "subj") %>%
 
 Read in transcript data
 ```{r munge}
-transcripts <- list.files(here("raw_data/coded"), "*.csv", full.names = T)
+transcripts <- list.files(here("raw_data/qcoded"), "*.csv", full.names = T)
 
 
 read_transcript <- function(file) {
 
   transcript <- read_csv(file) %>%
-    mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1)) %>%
+    mutate(id = parse_number(basename(file))) %>%
+    #mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1)) %>%
     remove_empty("cols") %>%
     clean_names()
     
