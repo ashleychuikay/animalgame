@@ -173,6 +173,8 @@ transcripts <- list.files(here("raw_data/qcoded"), "*.csv", full.names = T)
 
 read_transcript <- function(file) {
 
+  print(file)
+  
   transcript <- read_csv(file) %>%
     mutate(id = parse_number(basename(file))) %>%
     #mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1)) %>%
