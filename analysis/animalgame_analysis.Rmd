@@ -179,13 +179,13 @@ read_transcript <- function(file) {
     #mutate(id = parse_number(basename(file))) %>%
     mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1),
            id = gsub("q", "", id)) %>%
-    remove_empty("cols") %>%
+    #remove_empty("cols") %>%
     clean_names()
     
     # Pull out either parent or child's data
     pull_data <- function(person) {
       transcript %>%
-        select(starts_with(person)) %>%
+        select(starts_with(person), descriptors:num_subordinate) %>%
         select_all(~gsub(paste0(person,"_"), "", .x)) %>%
         select_all(~gsub("utterance_", "", .x)) %>%
         mutate(person = person) %>%
@@ -194,7 +194,7 @@ read_transcript <- function(file) {
     }
   
   # Tidy up
-  bind_rows(pull_data("child"), pull_data("parent")) %>%
+  bind_rows(pull_data("parent")) %>%
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
     mutate(utterance = str_trim(utterance))
 }
@@ -338,7 +338,11 @@ test_data <- target_data %>%
   filter(phase == "pre", !is.na(understands)) %>%
   group_by(id, trial_target, appearance, correct, 
          trial, difficulty, understands) %>%
-  summarise(length = log(sum(length))) %>%
+  summarise(length = log(sum(length)),
+            num_canonical = sum(!is.na(num_canonical)) > 0,
+            num_descriptors = sum(!is.na(num_descriptors)) > 0,
+            num_anaphoric = sum(!is.na(num_anaphoric)) > 0,
+             num_comparison= sum(!is.na(num_comparison)) > 0,) %>%
   rename(ease = difficulty)
 
 test_data %>%
@@ -374,6 +378,24 @@ test_data %>%
 #          use = "complete", method = "kendall")
 
 ```
+
+```{r descriptors}
+test_data %>%
+  ungroup() %>%
+  gather(measure, value, num_canonical, num_descriptors, num_comparison,
+         num_anaphoric) %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  group_by(understands, measure) %>%
+  tidyboot_mean(value) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+             ymin = ci_lower, ymax = ci_upper, color = measure)) + 
+  facet_wrap(~measure, scales = "free") + 
+  geom_pointrange(position = position_dodge(.5)) + 
+  theme(legend.position = "none")
+
+```
+
 
 ```{r plot_lengths_aggregate}
 target_data %>%
