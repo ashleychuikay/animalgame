@@ -16,7 +16,7 @@ keywords:
   "parent-child interaction; language development; communication"
     
 output: cogsci2016::cogsci_paper
-#final-submission: \cogscifinalcopy
+final-submission: \cogscifinalcopy
 ---
 
 ```{r global_options, include=FALSE}
