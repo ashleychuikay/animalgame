@@ -83,7 +83,7 @@ dev.off()
 
 ```
 
-```{r wordbank_plot}
+```{r wordbank_plot, eval = F}
 items <- read_csv("item_trajectory_table.csv") %>%
   select(-skip) %>%
   gather(animal, prop, dog, cow) %>%
@@ -176,8 +176,9 @@ read_transcript <- function(file) {
   print(file)
   
   transcript <- read_csv(file) %>%
-    mutate(id = parse_number(basename(file))) %>%
-    #mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1)) %>%
+    #mutate(id = parse_number(basename(file))) %>%
+    mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1),
+           id = gsub("q", "", id)) %>%
     remove_empty("cols") %>%
     clean_names()
     
@@ -214,7 +215,7 @@ The unique targets were: `r targets`
 ```{r word_difficulty}
 
 word_difficulty <- tidy_vocab %>%
-  filter(word %in% targets, subj %in% target_data$subj) %>%
+  filter(word %in% targets, video_id %in% tidy_data$id) %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
   rename(understands = empirical_stat) %>%
@@ -239,7 +240,8 @@ word_difficulty %>%
 
 
 plotting_words <- word_difficulty %>%
-  mutate(word = factor(word, levels = unique(word)))
+  mutate(word = factor(word, levels = unique(word))) %>%
+  rename(understands = difficulty)
 
 #jpeg("word_diff.jpeg", width = 8, height = 6, units = "in", res = 600)
 ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
@@ -323,8 +325,8 @@ target_data <- target_data_gaps %>%
   left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num")) %>%
   filter(trial_type != "practice")
 
-
 target_data %>%
+  ungroup() %>%
   select(subj, person, target, trial, phase, trial_target, appearance, length, difficulty, understands, correct, trial_type, game_trial) %>%
   write_feather("data/target_data.feather")
 
@@ -364,12 +366,12 @@ test_data %>%
 
 
 
-ggplot(test_data, aes(x = understands, y = correct)) +
-  facet_wrap(~ appearance) +
-  geom_point(alpha = .1)
-
-cor.test(response_data_difficulty$mean, as.numeric(response_data_difficulty$correct),
-         use = "complete", method = "kendall")
+# ggplot(test_data, aes(x = understands, y = correct)) +
+#   facet_wrap(~ appearance) +
+#   geom_point(alpha = .1)
+# 
+# cor.test(response_data_difficulty$mean, as.numeric(response_data_difficulty$correct),
+#          use = "complete", method = "kendall")
 
 ```
 
@@ -396,8 +398,8 @@ plotting_data <- target_data %>%
          length_lower = ci_lower) %>%
   select(-mean, -n) %>%
   left_join(word_difficulty, by = c("target" = "word")) %>%
-  rename(understands_lower = ci_lower, understands_upper = ci_upper) %>%
-  select(-mean) %>%
+  rename(understands_lower = ci_lower, understands_upper = ci_upper, 
+         understands = difficulty) %>%
   mutate(plotting_appearance = factor(appearance, levels = c("first", "second"),
                                      labels = c("1st appearance",
                                                 "2nd appearance")))
