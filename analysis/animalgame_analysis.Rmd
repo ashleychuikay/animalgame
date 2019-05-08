@@ -196,8 +196,6 @@ read_transcript <- function(file) {
   bind_rows(pull_data("child"), pull_data("parent")) %>%
     mutate(target = gsub("\\.", "", target) %>% tolower) %>%
     mutate(utterance = str_trim(utterance))
-    # mutate(target = case_when(target == "rhinocerous" ~ "rhinoceros", 
-    #                           T ~ target)) 
 }
 
 tidy_data <- map(transcripts, read_transcript) %>%
