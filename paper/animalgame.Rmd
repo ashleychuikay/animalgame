@@ -16,7 +16,7 @@ keywords:
   "parent-child interaction; language development; communication"
     
 output: cogsci2016::cogsci_paper
-final-submission: \cogscifinalcopy
+#final-submission: \cogscifinalcopy
 ---
 
 ```{r global_options, include=FALSE}
@@ -49,7 +49,7 @@ theme_set(theme_classic(base_size = 10))
 
 # Introduction
 
-Children learn language at astonishing rates, acquiring thousands of words by the time they are toddlers. How do children learn so many words before they know how to dress themselves? One account for children's rapid language acquisition is statistical learning. Young children can attend to the distributional structure of language, learning to discriminate words and identify word order from speech streams [@saffran1996; @saffran2003]. Statistical learning can be a powerful tool for early language learning, and showcases the ability that children have to harvest information from their surroundings. However, the particular structure of children's language environments may also play a role in supporting language development.
+Children learn language at astonishing rates, acquiring thousands of words by the time they are toddlers. How do children learn so many words before they know how to dress themselves? One account for children's rapid language acquisition is statistical learning. Young children can attend to the distributional structure of language, learning to discriminate words and identify word order from speech streams [@saffran1996]. Statistical learning can be a powerful tool for early language learning, and showcases the ability that children have to harvest information from their surroundings. However, the particular structure of children's language environments may also play a role in supporting language development.
 
 The way we speak to children often differs from the way we speak to adults. Child-directed speech (CDS) exists across cultures, and is characterized by higher pitches and more exaggerated enunciations when compared to adult-directed speech (ADS) [@cooper1990; @grieser1988]. Not only do children prefer CDS over ADS, CDS is also a better predictor for language learning than overheard ADS [@shneidman2013]. CDS does not only differ from ADS in prosodic features- the structural qualities of CDS make speech segmentation and word learning easier [@thiessen2005; @yurovsky2012]. While children live in the same physical environments as adults, their *language environments* contain specific types of input that facilitate early language learning.
 
@@ -90,7 +90,7 @@ difficulty_lmer <- word_difficulty %>%
   mutate(type = factor(type, levels = c("early", "late"))) %>%
   glmer(understands ~ type + (1|subj), family = "binomial", data = .) %>%
   tidy() %>%
-  filter(effect == "fixed")
+  filter(group == "fixed")
 ```
 
 
@@ -344,7 +344,7 @@ In general, communicative success was high. Children selected the correct animal
 
 Our proposed explanation for these results is that they are produced by a pressure for effective communication: Parents need to produce sufficient information for their children to understand their intended meaning. That is, parents design their utterances for their children's benefit [speaker-design, @jaeger2013]. It could be instead that these utterances reflect pressure from speaking itself. For example, length of parents' utterances may reflect their difficulty in retrieving certain animal words [@macdonald2013]. We find this explanation unlikely given that parents were given the target words in written form on their iPad, essentially eliminating retrieval problems [@wingfield1968]. The fact that parents are using long and short referring expressions depending on their beliefs about children's vocabulary knowledge suggests that they are calibrating to their children.
 
-It is important to note that our current results do not rule out the possibility that parents are engaging in pedagogy. Parents may be using longer referring expressions because they wish to teach their children certain words. This account potentially explains why parents use longer references for words they believe their children do not know, and our current analysis does not allow us to distinguish between the pedagogical and communicative hypotheses. However, analyzing the content of parents' speech will be helpful in understanding the motivations behind long and short utterances. While full qualitative analysis is underway, there is preliminary evidence in support of the communicative account. Parents often do not use the canonical name of an animal during a trial where they believe their children do not know the target word (e.g. "Find the red one" instead of "Find the red lobster"). This suggests that some parent behaviors during the game are driven by a pressure to communicate rather than a motivation to teach.
+It is important to note that our current results do not rule out the possibility that parents are engaging in pedagogy. Parents may be using longer referring expressions because they wish to teach their children certain words. This account potentially explains why parents use longer references for words they believe their children do not know, and our current analysis does not allow us to distinguish between the pedagogical and communicative hypotheses. However, analyzing the content of parents' speech will be helpful in understanding the motivations behind long and short utterances. While full qualitative analysis is underway, there is preliminary evidence in support of the communicative account. Parents often use adjectives to describe an animal during a trial where they believe their children do not know the target word (e.g. "red lobster" instead of "lobster"). This suggests that some parent behaviors during the game are driven by a pressure to communicate rather than a motivation to teach.
 
 Our work contributes to the current literature on parent-child interaction, and forms the basis for further experimental work examining the influences that parent speech has on children’s language development. In line with @masur1997, our findings provide evidence that parents calibrate speech sensitively to their children's vocabulary knowledge. These results are important in light of previous work suggesting that parent responsiveness and sensitivity shape the way young children learn language [@hoff-ginsberg1982; @tamis-lemonda2014]. Furthermore, we propose that parents are modifying their speech as a means to communicate, and that communicative intent shapes the language environments children experience. Further qualitative analysis of our dataset will shed light onto the characteristics of parent-child communication that are helpful for language acquisition.
 
