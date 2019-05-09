@@ -90,7 +90,7 @@ difficulty_lmer <- word_difficulty %>%
   mutate(type = factor(type, levels = c("early", "late"))) %>%
   glmer(understands ~ type + (1|subj), family = "binomial", data = .) %>%
   tidy() %>%
-  filter(group == "fixed")
+  filter(effect == "fixed")
 ```
 
 
