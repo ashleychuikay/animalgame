@@ -350,6 +350,12 @@ Our work contributes to the current literature on parent-child interaction, and 
 
 Finally, this study highlights the importance of studying the parent-child pair as a unit, rather than viewing children as isolated learners: both parents and children contribute to the process of language development [@hoff-ginsberg1982; @brown1977]. Focusing on the interactive and communicative nature of language captures a more realistic picture of children's language environments: The input that children receive is not random – it is sensitive to their developmental level.
 
+\vspace{1em} \fbox{\parbox[b][][c]{7.3cm}{\centering All code for these analyses are available at\ \url{https://github.com/ashleychuikay/animalgame}}}
+
+# Acknowledgements
+
+This research was funded by a James S. McDonnell Foundation Scholar Award to DY. 
+
 # References 
 
 ```{r}
