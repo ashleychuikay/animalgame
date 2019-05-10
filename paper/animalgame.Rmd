@@ -182,7 +182,7 @@ Although each parent only gave a single bit of information about each animal--wh
 $p =$ `r known_difficulty_lmer %>% filter(term == "difficulty") %>% pull(p.value) %>% printp()`), over and above the increase for unknown animals ($\beta =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(statistic)`,
 $p =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(p.value) %>% printp()`) 
 
-```{r known_plot, cache = T, fig.cap = "Length of parents' references before and after their child selected a target animal. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping", fig.height = 2}
+```{r known_plot, cache = T, fig.cap = "Length of parents' references before and after their child selected a target animal. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping.", fig.height = 2}
 ggplot(mean_known_data,
        aes(x = phase, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands,
@@ -213,7 +213,7 @@ continuous_plot_data <- target_data %>%
                                    trial_target, as.character(NA)))
 ```
 
-```{r continuous_difficulty_fig, fig.env = "figure*", fig.width=5.5, fig.height=2.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Number of words in parents' referential expressions as a function of the proportion of children reported to know the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap"}
+```{r continuous_difficulty_fig, fig.env = "figure*", fig.width=5.5, fig.height=2.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Number of words in parents' referential expressions as a function of the proportion of children reported to know the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 ggplot(continuous_plot_data, aes(x = understands, y = length, xmin = understands_lower,
                           xmax = understands_upper, ymin = length_lower,
                           ymax = length_upper,
@@ -320,7 +320,7 @@ print(model_table, type = "latex", comment = F, table.placement = "tb",
 ```
 
 
-```{r selection_plot, cache = T, fig.cap = "Children's accuracy at selecting both known and unknown animals. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping", fig.height = 2}
+```{r selection_plot, cache = T, fig.cap = "Children's accuracy at selecting both known and unknown animals. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping.", fig.height = 2}
 mean_test_data %>%
   mutate(understands = factor(understands, labels = c("Child knows",
                                                       "Child doesn't know"))) %>%
