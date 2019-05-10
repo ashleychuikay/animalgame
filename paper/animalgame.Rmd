@@ -116,7 +116,7 @@ The data of interest in this study were parent utterances used during the intera
 
 We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the early AoA category were judged to be understood by `r group_difficulty %>% filter(type == "early") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`% of parents, and items in the late AoA category were judged understood by `r group_difficulty %>% filter(type == "late") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`%.
 
-```{r difficulty_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap.", fig.height = 2}
+```{r difficulty_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap.", fig.height = 2.1}
 mean_word_difficulty <- word_difficulty %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
