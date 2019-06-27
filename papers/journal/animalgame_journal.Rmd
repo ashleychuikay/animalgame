@@ -8,12 +8,12 @@ author:
     corresponding : yes    # Define only one corresponding author
     address       : "Postal address"
     email         : "my@email.com"
-  - name          : "Ernst-August Doelle"
-    affiliation   : "1,2"
+  - name          : "Ashley Leung"
+    affiliation   : "1"
 
 affiliation:
   - id            : "1"
-    institution   : "Wilhelm-Wundt-University"
+    institution   : "The University of Chicago"
   - id            : "2"
     institution   : "Konstanz Business School"
 
@@ -60,15 +60,28 @@ We report how we determined our sample size, all data exclusions (if any), all m
 
 ## Participants
 
+Toddlers (aged 2.0 to 2.5 years) and their parents were recruited from a database of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 46 parent-child pairs were recruited, but data from six pairs were dropped from analysis due to experimental error or failure to complete the study. The final sample consisted of `r nrow(demos)` children aged `r min(demos$age)` to `r max(demos$age)` years ($M =$ `r mean(demos$age)`), `r demos %>% summarise(female = sum(demos == "female")) %>% pull` of whom were girls. 
+
 ## Material
+
+Eighteen animal images were selected from the @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on age of acquisition (AoA), using data from WordBank [@frank2017]. The AoA of the selected animals ranged from 12 to 31 months. Half of the animals had lower AoA (12-20 months), and the other half had higher AoA (25-31 months). Each trial featured three animals, all from either the low AoA or high AoA category. 
+
+A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the 85 words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category--were accidentally omitted, so trials for those words were not included in analysis.
 
 ## Procedure
 
+Each parent-child pair played an interactive game using two iPads. Children were given two warm-up trials to get used to the iPads. The practice and experimental trials began after the warm-up. On each trial, three images of animals were displayed side by side on the child’s screen, and a single word appeared on the parent’s screen (Figure \ref{fig:ipads}). Parents were instructed to communicate as they normally would with their child, and encourage them to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once an animal was tapped, the trial ended, and a new trial began. There was a total of 36 experimental trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.
+
 ## Data analysis
-We used  for all our analyses.
+
+The data of interest in this study were parent utterances used during the interactive game and parents’ responses on the adapted CDI. Transcripts of the videos were analyzed for length of referring expressions. We measured the length of parents' referring utterances as a proxy for amount of information given in each utterance. Furthermore, utterances were manually coded for the following: use of canonical labels, descriptors, and comparison to other animals. Parent utterances irrelevant to the iPad game (e.g. asking the child to sit down) were not analyzed. Children’s utterances were coded when audible, but were not analyzed.
 
 
 # Results
+
+### Word difficulty. 
+
+We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the early AoA category were judged to be understood by `r group_difficulty %>% filter(type == "early") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`% of parents, and items in the late AoA category were judged understood by `r group_difficulty %>% filter(type == "late") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`%.
 
 # Discussion
 
