@@ -21,6 +21,7 @@ analysis/animalgame_analysis_files
 
 .httr-oauth
 
-paper/*.log
-paper/animalgame.tex
-paper/animalgame.synctex.gz
+*.log
+*.tex
+*.fff
+*cache*
