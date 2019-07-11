@@ -382,19 +382,39 @@ test_data %>%
 ```
 
 ```{r qual_coding}
+jpeg("qual_plot.jpeg", width = 10, height = 8, units = "in", res = 600)
 test_data %>%
   ungroup() %>%
   gather(measure, value, num_canonical, num_descriptors, num_comparison,
-         num_anaphoric, num_subordinate, num_superordinate) %>%
+         num_subordinate, num_superordinate) %>%
   mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
   group_by(understands, measure) %>%
   tidyboot_mean(value) %>%
   ggplot(aes(x = understands, y = empirical_stat, 
              ymin = ci_lower, ymax = ci_upper, color = measure)) + 
+  labs(x = "Parents' belief about animal word", y = "Proportion of trials") +
   facet_wrap(~measure, scales = "free") + 
   geom_pointrange(position = position_dodge(.5)) + 
   theme(legend.position = "none")
+dev.off()
+
+jpeg("qual_plot2.jpeg", width = 12, height = 4, units = "in", res = 600)
+test_data %>%
+  ungroup() %>%
+  gather(measure, value, num_descriptors, num_comparison,
+         num_superordinate) %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  group_by(understands, measure) %>%
+  tidyboot_mean(value) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+             ymin = ci_lower, ymax = ci_upper, color = measure)) + 
+  labs(x = "Parents' belief about animal word", y = "Proportion of trials") +
+  facet_wrap(~measure, scales = "free") + 
+  geom_pointrange(position = position_dodge(.5)) + 
+  theme(legend.position = "none")
+dev.off()
 
 test_data %>%
   ungroup() %>%
