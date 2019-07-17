@@ -251,6 +251,17 @@ ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower,
   geom_pointrange() +
   labs(y = "prop. parents report known", x = "") 
 #dev.off()
+
+##ascending order for prop. known
+
+#jpeg("word_diff_ascend.jpeg", width = 8, height = 6, units = "in", res = 600)
+ggplot(plotting_words, aes(x = reorder(word, understands), y = understands, ymin = ci_lower, 
+                            ymax = ci_upper)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), 
+        text = element_text(size = 20)) +
+  geom_pointrange() +
+  labs(y = "prop. parents report known", x = "") 
+#dev.off()
 ```
 
 Munge transcript data
@@ -387,6 +398,12 @@ test_data %>%
   ungroup() %>%
   gather(measure, value, num_canonical, num_descriptors, num_comparison,
          num_subordinate, num_superordinate) %>%
+  mutate(measure = case_when(
+        measure == "num_canonical" ~ "Canonical label",
+        measure == "num_descriptors" ~ "Descriptors",
+        measure =="num_comparison" ~ "Comparison",
+        measure =="num_subordinate" ~ "Subordinate category",
+        measure =="num_superordinate" ~ "Superordinate category"))%>%
   mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
   group_by(understands, measure) %>%
@@ -404,6 +421,10 @@ test_data %>%
   ungroup() %>%
   gather(measure, value, num_descriptors, num_comparison,
          num_superordinate) %>%
+    mutate(measure = case_when(
+        measure == "num_descriptors" ~ "Descriptors",
+        measure =="num_comparison" ~ "Comparison",
+        measure =="num_superordinate" ~ "Superordinate category"))%>%
   mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
   group_by(understands, measure) %>%
@@ -420,6 +441,10 @@ test_data %>%
   ungroup() %>%
   gather(measure, value, num_canonical, num_descriptors, num_comparison,
          num_anaphoric, num_subordinate, num_superordinate) %>%
+  mutate(measure = case_when(
+    measure == "num_canonical" ~ "canonical words",
+    measure == "num_descriptors" ~ "number of descriptors",
+    T ~ measure)) %>%
   mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
   mutate(appearance = factor(appearance)) %>%
