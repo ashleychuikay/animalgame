@@ -254,14 +254,14 @@ ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower,
 
 ##ascending order for prop. known
 
-#jpeg("word_diff_ascend.jpeg", width = 8, height = 6, units = "in", res = 600)
+jpeg("word_diff_ascend.jpeg", width = 10, height = 8, units = "in", res = 600)
 ggplot(plotting_words, aes(x = reorder(word, understands), y = understands, ymin = ci_lower, 
                             ymax = ci_upper)) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), 
         text = element_text(size = 20)) +
   geom_pointrange() +
-  labs(y = "prop. parents report known", x = "") 
-#dev.off()
+  labs(y = "Proportion of children reported knowing the word", x = "") 
+dev.off()
 ```
 
 Munge transcript data
@@ -530,6 +530,35 @@ target_data %>%
   labs(x = "Proportion of children who know the word (parent report)", y = "Log Utterance length") + 
   geom_hline(aes(yintercept = 2), lty = 2) +
   scale_y_continuous()
+dev.off()
+
+continuous_plot_data <- target_data %>%
+  filter(phase == "pre", !is.na(difficulty)) %>%
+  group_by(target, id) %>%
+  summarise(length = log(sum(length))) %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  left_join(word_difficulty, by = c("target" = "word")) %>%
+  rename(understands_lower = ci_lower, understands_upper = ci_upper, 
+         understands = difficulty) %>%
+  mutate(plotting_target = if_else(target %in% c("squirrel", "cat", "swan"),
+                                   target, as.character(NA)))
+
+jpeg("length_continuous.jpeg", width = 8, height = 5, units = "in", res = 600)
+ggplot(continuous_plot_data, aes(x = understands, y = length, xmin = understands_lower,
+                          xmax = understands_upper, ymin = length_lower,
+                          ymax = length_upper,
+                          label = plotting_target)) + 
+  geom_smooth(method = "lm", se = F, color = "black") +
+  geom_pointrange()+ 
+  geom_errorbarh() + 
+  geom_label_repel() +
+  theme(legend.position = "none") +
+  labs(x = "Proportion of children reported knowing target word", 
+       y = "Parents' words produced") 
 dev.off()
 ```
 
