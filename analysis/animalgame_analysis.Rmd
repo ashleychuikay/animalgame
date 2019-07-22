@@ -536,7 +536,6 @@ continuous_plot_data <- target_data %>%
   filter(phase == "pre", !is.na(difficulty)) %>%
   group_by(target, id) %>%
   summarise(length = sum(length)) %>%
-  summarise(length = mean(length)) %>%
   tidyboot_mean(length) %>%
   rename(length = empirical_stat,
          length_upper = ci_upper,
