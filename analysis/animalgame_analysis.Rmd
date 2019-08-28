@@ -1,14 +1,16 @@
 ---
 title: "Animal Game Transcripts"
 author: "Ashley Leung, Alex Tunkel, and Dan Yurovsky"
-date: '`r Sys.Date()`'
-output: 
+date: "`r Sys.Date()`"
+output:
   html_document:
-    toc: false
-    number_sections: false
-    theme: lumen
-    toc_float: false
     code_folding: hide
+    number_sections: no
+    theme: lumen
+    toc: no
+    toc_float: no
+  pdf_document:
+    toc: no
 ---
 ```{r, message=FALSE, warning=FALSE, show = F}
 library(tidyverse)
@@ -684,41 +686,6 @@ target_data %>%
   write_feather(here("data/demos.feather"))
 
 ```
-
-```{r lag_analysis}
-#pdf("lag_len.pdf", width = 6, height = 4)
-target_data %>%
-  filter(!id %in% c("10397", "8787")) %>%
-#  mutate(phase = factor(as.character(phase), levels = c("pre", "post"))) %>%
-  group_by(id, phase, understands, trial_target, appearance, correct) %>%
-  summarise(length = sum(length, na.rm = T)) %>%
-  ungroup() %>%
-  complete(nesting(id, trial_target, understands,  correct,  appearance), phase,
-           fill = list(length = 0)) %>%
-  filter(phase != "during") %>%
-  arrange(id, phase, understands, trial_target, appearance, correct) %>%
-  mutate(lag_correct = lag(correct), lag_length = lag(length)) %>%
-  filter(appearance == "second") %>%
-  group_by(phase, understands, lag_correct, id, trial_target) %>%
-  summarise(length = mean(log(length+1), na.rm = T),
-            lag_length = mean(log(lag_length+1), na.rm = T)) %>%
-  mutate(diff = length - lag_length) %>%
-  filter(!is.na(understands)) %>%
-  group_by(phase, understands, lag_correct) %>%
-  tidyboot_mean(diff) %>%
-  ggplot(aes(x = lag_correct, y = empirical_stat, 
-           ymin = ci_lower, ymax = ci_upper, color = phase)) + 
-  facet_wrap(~ understands) +
-  geom_pointrange(position = position_dodge(.5))
-#dev.off()
-```
-
-```{r show_lobster}
-target_data %>%
-  filter(trial_target == "lobster") %>%
-  kable()
-```
-
 
 ```{r language}
 target_data %>% 
