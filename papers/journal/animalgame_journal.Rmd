@@ -54,7 +54,7 @@ library(knitr)
 ```
 
 
-```{r load_data}
+```{r load_difficulty_data}
 demos <- read_feather(here("data/demos.feather"))
 word_difficulty <- read_feather(here("data/word_difficulty.feather")) %>%
     rename(understands = difficulty)
