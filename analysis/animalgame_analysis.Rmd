@@ -234,11 +234,11 @@ tidy_vocab %>%
   left_join(word_difficulty) %>%
   write_feather(here("data/word_difficulty.feather"))
 
-word_difficulty %>%
-  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
-         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
-                 "early", "late"))) %>%
-  write_feather(here("data/word_difficulty.feather"))
+#word_difficulty %>%
+#  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
+#         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
+#                 "early", "late"))) %>%
+#  write_feather(here("data/word_difficulty.feather"))
 
 
 plotting_words <- word_difficulty %>%

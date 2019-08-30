@@ -44,20 +44,32 @@ output            : papaja::apa6_pdf
 ---
 
 ```{r setup, include = FALSE}
-library(papaja)
+library(png)
+library(grid)
+library(xtable)
 library(tidyverse)
-library(here)
-library(feather)
-library(tidyboot)
-library(lme4)
 library(knitr)
+library(papaja)
+library(ggthemes)
+library(lme4)
+library(lmerTest)
+library(directlabels)
+library(ggrepel)
+library(feather)
+library(here)
+library(tidyboot)
+library(broom)
+library(broom.mixed)
 ```
 
 
 ```{r load_difficulty_data}
-demos <- read_feather(here("data/demos.feather"))
-word_difficulty <- read_feather(here("data/word_difficulty.feather")) %>%
-    rename(understands = difficulty)
+
+## both of these are loaded in the next chunk -- is there a reason to load them earlier?
+
+# demos <- read_feather(here("data/demos.feather"))
+# word_difficulty <- read_feather(here("data/word_difficulty.feather")) %>%
+#    rename(understands = difficulty)
 ```
 
 
@@ -119,12 +131,12 @@ group_difficulty <- word_difficulty %>%
   summarise(understands = mean(understands)) %>%
   tidyboot_mean(understands)
 
-# difficulty_lmer <- word_difficulty %>%
-#   filter(type %in% c("early", "late")) %>%
-#   mutate(type = factor(type, levels = c("early", "late"))) %>%
-#   glmer(understands ~ type + (1|subj), family = "binomial", data = .) %>%
-#   tidy() %>%
-#   filter(effect == "fixed")
+ difficulty_lmer <- word_difficulty %>%
+   filter(type %in% c("early", "late")) %>%
+   mutate(type = factor(type, levels = c("early", "late"))) %>%
+   glmer(understands ~ type + (1|subj), family = "binomial", data = .) %>%
+   tidy() %>%
+   filter(effect == "fixed")
 ```
 
 
