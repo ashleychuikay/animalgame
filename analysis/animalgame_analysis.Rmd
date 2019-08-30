@@ -460,6 +460,33 @@ test_data %>%
 
 ```
 
+```{r qual_model}
+
+test_data %>%
+  ungroup() %>%
+  gather(measure, value, num_canonical, num_descriptors, num_comparison,
+         num_subordinate, num_superordinate) %>%
+  mutate(measure = case_when(
+        measure == "num_canonical" ~ "Canonical label",
+        measure == "num_descriptors" ~ "Descriptors",
+        measure =="num_comparison" ~ "Comparison",
+        measure =="num_subordinate" ~ "Subordinate category",
+        measure =="num_superordinate" ~ "Superordinate category"))%>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  mutate(appearance = factor(appearance)) %>%
+  group_by(understands, appearance, measure, trial, id, trial_target) %>%
+  tidyboot_mean(value) %>%
+  glmer(empirical_stat ~ understands + appearance + trial + 
+        (1|id) + (1|trial_target), 
+      family = "binomial", 
+      control = glmerControl(optimizer = "bobyqa"),
+      data = .) %>%
+  tidy() %>%
+  filter(group == "fixed") 
+
+```
+
 
 ```{r plot_lengths_aggregate}
 target_data %>%
