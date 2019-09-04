@@ -395,6 +395,23 @@ test_data %>%
 ```
 
 ```{r qual_coding}
+tidy_test_data <- test_data %>%
+  gather(measure, value, num_canonical, num_descriptors, num_comparison,
+         num_subordinate, num_superordinate)
+
+models <- tidy_test_data %>%
+  group_by(measure) %>%
+  nest() %>%
+  mutate(model = map(data, ~glmer(value ~ understands + appearance + length +
+                      (1 |id), 
+                      family = "binomial", data = .) %>% tidy())) %>%
+  select(-data) %>%
+  unnest() %>%
+  filter(group == "fixed") %>%
+  select(-group)
+```
+
+```{r qual-coding-plots}
 jpeg("qual_plot.jpeg", width = 10, height = 8, units = "in", res = 600)
 test_data %>%
   ungroup() %>%
