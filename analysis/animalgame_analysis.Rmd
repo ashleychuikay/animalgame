@@ -358,7 +358,8 @@ test_data <- target_data %>%
             num_comparison = sum(!is.na(num_comparison)) > 0,
             num_subordinate = sum(!is.na(num_subordinate)) > 0,
             num_superordinate = sum(!is.na(num_superordinate)) > 0) %>%
-  rename(ease = difficulty)
+  rename(ease = difficulty) %>%
+  write_feather(here("data/qual_data.feather"))
 
 test_data %>%
     mutate(understands = factor(understands, levels = c(T,F), 
@@ -397,7 +398,8 @@ test_data %>%
 ```{r qual_coding}
 tidy_test_data <- test_data %>%
   gather(measure, value, num_canonical, num_descriptors, num_comparison,
-         num_subordinate, num_superordinate)
+         num_subordinate, num_superordinate) %>%
+  write_feather(here("data/qual_model.feather"))
 
 models <- tidy_test_data %>%
   group_by(measure) %>%
