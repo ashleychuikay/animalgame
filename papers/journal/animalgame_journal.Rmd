@@ -373,10 +373,32 @@ models <- tidy_test_data %>%
   filter(group == "fixed") %>%
   select(-group)
 ```
+```{r qual_plot, cache = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals.", fig.height = 2}
+qual_data %>%
+  ungroup() %>%
+  gather(measure, value, num_canonical, num_descriptors, num_comparison,
+         num_subordinate, num_superordinate) %>%
+  mutate(measure = case_when(
+        measure == "num_canonical" ~ "Canonical label",
+        measure == "num_descriptors" ~ "Descriptors",
+        measure =="num_comparison" ~ "Comparison",
+        measure =="num_subordinate" ~ "Subordinate category",
+        measure =="num_superordinate" ~ "Superordinate category"))%>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  group_by(understands, measure) %>%
+  tidyboot_mean(value) %>%
+  ggplot(aes(x = understands, y = empirical_stat, 
+             ymin = ci_lower, ymax = ci_upper, color = measure)) + 
+  labs(x = "Parents' belief about animal word", y = "Proportion of trials") +
+  facet_wrap(~measure, scales = "free") + 
+  geom_pointrange(position = position_dodge(.5)) + 
+  theme(legend.position = "none")
+```
 
 ### Qualitative Analysis
 
-We then analyzed the content of parents' utterances by calculating the proportion of trials where parents used the following: canonical labels (e.g. peacock), basic level category labels (e.g. bird), subordinate category labels (e.g. Limelight Larry), descriptors or adjectives, and comparison to other animals (e.g. "the one that looks like a cat"). We predicted that parents would use more descriptors, comparisons, as well as basic level category labels for unfamiliar words. On the other hand, we expected parents to use more canonical labels and subordinate category labels for familiar animals. 
+We then analyzed the content of parents' utterances by calculating the proportion of trials where parents used the following: canonical labels (e.g. peacock), basic level category labels (e.g. bird), subordinate category labels (e.g. Limelight Larry), descriptors or adjectives, and comparison to other animals (e.g. "the one that looks like a cat"). We predicted that parents would use more descriptors, comparisons, as well as basic level category labels for unfamiliar words. On the other hand, we expected parents to use more canonical labels and subordinate category labels for familiar animals. An overview of results can be seen in Figure \ref{fig:qual_plot}.
 
 We looked first at parents' use of canonical labels and subordinate category labels. Our analysis showed no difference in likelihood of using a canonical label in trials with familiar and unfamiliar animals. Instead, parents used canonical labels on most of the trials. As predicted, parents used more subordinate category labels (such as proper nouns) for words that they believe their children knew ($\beta =$ `r models %>% filter(measure == "num_subordinate") %>% filter(term == "understandsTRUE") %>% pull(estimate)`, $t =$ `r models %>% filter(measure == "num_subordinate") %>% filter(term == "understandsTRUE") %>% pull(statistic)`, $p =$ `r models %>% filter(measure == "num_subordinate") %>% filter(term == "understandsTRUE") %>% pull(p.value) %>% printp()`).
 
