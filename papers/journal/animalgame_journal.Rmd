@@ -373,6 +373,8 @@ models <- tidy_test_data %>%
   filter(group == "fixed") %>%
   select(-group)
 ```
+
+
 ```{r qual_plot, cache = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals.", fig.height = 2}
 qual_data %>%
   ungroup() %>%
