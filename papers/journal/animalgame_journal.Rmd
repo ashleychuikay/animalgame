@@ -23,7 +23,7 @@ abstract: |
    Young children learn language at an incredible rate. While children come prepared with powerful statistical learning mechanisms, the statistics they encounter are also prepared for them: Children learn from caregivers motivated to communicate with them. Do caregivers modify their speech in order to support children's comprehension? We asked children and their parents to play a simple reference game in which the parent's goal was to guide their child to select a target animal from a set of three. We show that parents calibrate their referring expressions to their children's language knowledge, producing more informative references for animals that they thought their children did not know. Further, parents learn about their children's knowledge over the course of the game, and calibrate their referring expressions accordingly. These results underscore the importance of understanding the communicative context in which language learning happens. 
 
 authornote: |
-  All code for these analyses are available at \url{https://github.com/ashleychuikay/animalgame}
+  Parts of this work were presented at the Annual Conference of the Cognitive Science Society: Leung et al. (2019). All code for these analyses are available at \url{https://github.com/ashleychuikay/animalgame}
 
 keywords          : "parent-child interaction; language development; communication"
 wordcount         : "X"
@@ -43,11 +43,10 @@ classoption       : "man"
 output            : papaja::apa6_pdf
 ---
 
-```{r setup, include = FALSE}
+```{r load_packages, include = FALSE}
 library(png)
 library(grid)
 library(xtable)
-library(tidyverse)
 library(knitr)
 library(papaja)
 library(ggthemes)
@@ -60,6 +59,14 @@ library(here)
 library(tidyboot)
 library(broom)
 library(broom.mixed)
+library(kableExtra)
+library(tidyverse)
+
+theme_set(theme_classic(base_size = 14) + theme(legend.position = "none"))
+
+knitr::opts_chunk$set(fig.pos = 'tb', echo = F, warning = F, cache = F,
+                      warning = F, message = F, sanitize = T)
+set.seed(42)
 ```
 
 
@@ -106,7 +113,7 @@ A modified version of the MacArthur-Bates Communicative Development Inventory [C
 
 Each parent-child pair played an interactive game using two iPads. Children were given two warm-up trials to get used to the iPads. The practice and experimental trials began after the warm-up. On each trial, three images of animals were displayed side by side on the child’s screen, and a single word appeared on the parent’s screen (Figure \ref{fig:ipads}). Parents were instructed to communicate as they normally would with their child, and encourage them to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once an animal was tapped, the trial ended, and a new trial began. There was a total of 36 experimental trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.
 
-```{r ipads, fig.env = "figure", fig.pos = "tb", fig.align='center', fig.width=2, fig.height=2, out.width = "150px", set.cap.width=T, num.cols.cap=1, fig.cap = "Example iPad screens for the child (top) and parent (bottom) during the experiment."}
+```{r ipads, fig.env = "figure", fig.width = 2, fig.height = 4, fig.cap = "Example iPad screens for the child (top) and parent (bottom) during the experiment."}
 include_graphics("figs/ipads.pdf")
 ```
 
@@ -120,11 +127,16 @@ The data of interest in this study were parent utterances used during the intera
 
 # Results
 
-```{r word_difficulty}
+```{r word_difficulty, cache = T}
 group_difficulty <- word_difficulty %>%
   group_by(type, word) %>%
   summarise(understands = mean(understands)) %>%
   tidyboot_mean(understands)
+
+mean_word_difficulty <- word_difficulty %>%
+  group_by(word) %>%
+  tidyboot_mean(understands) %>%
+  arrange(desc(empirical_stat))
 
  difficulty_lmer <- word_difficulty %>%
    filter(type %in% c("early", "late")) %>%
@@ -139,12 +151,7 @@ group_difficulty <- word_difficulty %>%
 
 We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the early AoA category were judged to be understood by `r group_difficulty %>% filter(type == "early") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`% of parents, and items in the late AoA category were judged understood by `r group_difficulty %>% filter(type == "late") %>% mutate(empirical_stat = empirical_stat * 100) %>% pull(empirical_stat) %>% round(0)`%.
 
-```{r difficulty_fig, set.cap.width=T, num.cols.cap=1, fig.cap = "Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap.", fig.height = 2.1}
-mean_word_difficulty <- word_difficulty %>%
-  group_by(word) %>%
-  tidyboot_mean(understands) %>%
-  arrange(desc(empirical_stat))
-
+```{r difficulty_fig, fig.env = "figure", fig.width = 4, fig.height = 3, fig.cap = "Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap."}
 plotting_words <- mean_word_difficulty %>%
   mutate(word = factor(word, levels = unique(word)))
 
@@ -160,11 +167,12 @@ The difference between these groups was confirmed statistically with a logistic 
 
 ### Length of referring expressions.
 
-```{r trial_known_data}
+```{r trial_known_data, cache = T}
 trial_known_data <- target_data %>%
-  mutate(phase = factor(phase, levels = c("pre", "post"), labels = c("before selection",
-                                                                     "after selection")),
-         understands = factor(understands, labels = c("unknown animal", "known animal"))) %>%
+  mutate(phase = factor(phase, levels = c("pre", "post"), 
+                        labels = c("before selection", "after selection")),
+         understands = factor(understands, labels = c("unknown animal", 
+                                                      "known animal"))) %>%
   group_by(phase, difficulty, understands, subj, appearance, trial_target) %>%
   summarise(length = sum(length)) 
 
@@ -188,8 +196,10 @@ known_difficulty_lmer <- trial_known_data %>%
   filter(phase == "before selection") %>%
   mutate(length = log(length+1)) %>%
   mutate(difficulty = 1 - difficulty, 
-         understands = factor(understands, levels = c("known animal", "unknown animal"))) %>%
-  lmer(length ~ difficulty + understands + (1|subj) + (1|trial_target), data = .) %>%
+         understands = factor(understands, levels = c("known animal", 
+                                                      "unknown animal"))) %>%
+  lmer(length ~ difficulty + understands + (1|subj) + (1|trial_target), 
+       data = .) %>%
   tidy() %>%
   filter(effect == "fixed")
 ```
@@ -205,7 +215,7 @@ Although each parent only gave a single bit of information about each animal--wh
 $p =$ `r known_difficulty_lmer %>% filter(term == "difficulty") %>% pull(p.value) %>% printp()`), over and above the increase for unknown animals ($\beta =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(estimate)`, $t =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(statistic)`,
 $p =$ `r known_difficulty_lmer %>% filter(term == "understandsunknown animal") %>% pull(p.value) %>% printp()`) 
 
-```{r known_plot, cache = T, fig.cap = "Length of parents' references before and after their child selected a target animal. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping.", fig.height = 2}
+```{r known_plot, fig.env = "figure", fig.height = 2, fig.width = 3, cache = T, fig.cap = "Length of parents' references before and after their child selected a target animal. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping."}
 ggplot(mean_known_data,
        aes(x = phase, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands,
@@ -217,7 +227,7 @@ ggplot(mean_known_data,
   theme(legend.position = "none")
 ```
 
-```{r continuous_plot_data}
+```{r continuous_plot_data, cache = T}
 continuous_plot_data <- target_data %>%
   filter(phase == "pre") %>%
   group_by(trial_target, subj, appearance) %>%
@@ -232,12 +242,14 @@ continuous_plot_data <- target_data %>%
   rename(understands_lower = ci_lower, understands_upper = ci_upper, 
          understands = empirical_stat) %>%
   select(-mean) %>%
-  mutate(plotting_target = if_else(trial_target %in% c("squirrel", "cat", "lobster"),
+  mutate(plotting_target = if_else(trial_target %in% c("squirrel", "cat",
+                                                       "lobster"),
                                    trial_target, as.character(NA)))
 ```
 
-```{r continuous_difficulty_fig, fig.env = "figure*", fig.width=5.5, fig.height=2.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Number of words in parents' referential expressions as a function of the proportion of children reported to know the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
-ggplot(continuous_plot_data, aes(x = understands, y = length, xmin = understands_lower,
+```{r continuous_difficulty_fig, fig.env = "figure", fig.width = 4, fig.height = 2, fig.cap = "Number of words in parents' referential expressions as a function of the proportion of children reported to know the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
+ggplot(continuous_plot_data, aes(x = understands, y = length, 
+                                 xmin = understands_lower,
                           xmax = understands_upper, ymin = length_lower,
                           ymax = length_upper,
                           label = plotting_target)) + 
@@ -250,12 +262,13 @@ ggplot(continuous_plot_data, aes(x = understands, y = length, xmin = understands
        y = "Parents' words produced") 
 ```
 
-```{r lag_data}
+```{r lag_data, cache = T}
 lag_data <- target_data %>%
   filter(phase == "pre") %>%
   ungroup() %>%
   mutate(understands = factor(understands, levels = c(T, F), 
-                              labels = c("parent believes known", "parent believes unknown"))) %>%
+                              labels = c("parent believes known", 
+                                         "parent believes unknown"))) %>%
   mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
                           labels = c("correct", "incorrect"))) %>%
   group_by(subj, phase, understands, target, appearance, correct) %>%
@@ -280,10 +293,9 @@ lag_lmer <- lag_data %>%
                  data = .) %>%
   tidy() %>%
   filter(effect == "fixed")
-
 ```
 
-```{r lag_plot,  fig.cap = "Length of parents' referring expressions on the second appearance of each animal. Points show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap.", fig.height = 2}
+```{r lag_plot,  fig.env = "figure", fig.cap = "Length of parents' referring expressions on the second appearance of each animal. Points show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap.", fig.height = 2}
 ggplot(mean_lag_data, aes(x = lag_correct, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands)) + 
   facet_wrap(~ understands) +
@@ -297,7 +309,7 @@ We then tested our second hypothesis: Parents should modify their productions ov
 
 ### Children's selections.
 
-```{r test_data}
+```{r test_data, cache = T}
 test_data <- target_data %>%
   ungroup() %>%
   mutate(understands = factor(understands, levels = c(T,F), 
@@ -305,7 +317,6 @@ test_data <- target_data %>%
   filter(phase == "pre", !is.na(understands)) %>%
   group_by(understands, correct,  subj, trial, trial_target, appearance) %>%
   summarise(length = log(sum(length))+1) 
-
 
 mean_test_data <- test_data %>%
   group_by(understands, subj, trial_target, appearance) %>%
@@ -325,7 +336,7 @@ test_lmer <- test_data %>%
   filter(effect == "fixed") 
 ```
 
-```{r test_model, results="asis", tab.env = "table", cache = T}
+```{r test_model, results="asis", tab.env = "table"}
 model_table <- test_lmer %>%
   select(-effect, -group,-std.error) %>%
   mutate(term = c("intercept", "length (log)", "unknown", 
@@ -336,16 +347,16 @@ model_table <- test_lmer %>%
   xtable(caption = "Coefficient estimates for a mixed-effects logistic regression predicting children's success in selecting the target animal. The model was specified as \\texttt{correct $\\sim$ log(length) * unknown + appearance + trial + (1|subj) + (1|animal)}.",
          label = "tab:test_model")
 
-
 print(model_table, type = "latex", comment = F, table.placement = "tb",
       include.rownames = FALSE)
 ```
 
 
-```{r selection_plot, cache = T, fig.cap = "Children's accuracy at selecting both known and unknown animals. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping.", fig.height = 2}
+```{r selection_plot, fig.env = "figure", fig.cap = "Children's accuracy at selecting both known and unknown animals. Points indicate means, error bars indicate 95\\% confidence intervals computed by non-parametric bootstrapping.", fig.height = 2}
 mean_test_data %>%
-  mutate(understands = factor(understands, labels = c("Child knows",
-                                                      "Child doesn't know"))) %>%
+  mutate(understands = factor(understands, 
+                              labels = c("Child knows",
+                                         "Child doesn't know"))) %>%
   ggplot(aes(x = understands, y = empirical_stat, 
            ymin = ci_lower, ymax = ci_upper, color = understands,
            label = understands)) + 
@@ -357,7 +368,7 @@ mean_test_data %>%
 
 Overall, children performed significantly above chance for both low AoA and high AoA trials. In our previous analyses, we showed that parents calibrated the length of their referring expressions to their beliefs about their children's knowledge. They did this both in response to their prior beliefs (Figure \ref{fig:known_plot}), and their in-game observations of their children's knowledge (Figure \ref{fig:lag_plot}). In our final analyses, we asked whether this mattered for children's selections. Are children more likely to succeed in the task when parents provide well calibrated utterances? We asked this question by predicting children's selection trial by trial from a mixed effects logistic regression with fixed effects of parents' prior beliefs about children's knowledge of the target animal, whether the trial was the first or second appearance of the the target animal, the length of parents' referring expressions, and the interaction of parents' prior beliefs and the length of their expressions, as well as random effects of subject and trial target. Children were more likely to be correct when their parents produced longer references, but only for animals that their parents believed that they did not know. Thus, parents' informative references to unknown animals did appear to be supporting successful communication of the target animal. Table \ref{tab:test_model} shows coefficient estimates for all parameters.
 
-```{r qual_coding}
+```{r qual_coding, cache = T}
 #tidy_test_data <- test_data %>%
 #  gather(measure, value, num_canonical, num_descriptors, num_comparison,
 #         num_subordinate, num_superordinate)
@@ -369,13 +380,13 @@ models <- tidy_test_data %>%
                       (1 |id), 
                       family = "binomial", data = .) %>% tidy())) %>%
   select(-data) %>%
-  unnest() %>%
-  filter(group == "fixed") %>%
-  select(-group)
+  unnest(cols = c(model)) %>%
+  filter(effect == "fixed") %>%
+  select(-effect)
 ```
 
 
-```{r qual_plot, cache = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals.", fig.height = 2}
+```{r qual_plot, fig.height = 3, fig.width = 2, fig.env = "figure", fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals."}
 qual_data %>%
   ungroup() %>%
   gather(measure, value, num_canonical, num_descriptors, num_comparison,
@@ -389,7 +400,7 @@ qual_data %>%
   mutate(understands = factor(understands, levels = c(T,F), 
                               labels = c("Knows", "Doesn't Know"))) %>%
   group_by(understands, measure) %>%
-  tidyboot_mean(value) %>%
+  tidyboot_mean(value, nboot = 10) %>%
   ggplot(aes(x = understands, y = empirical_stat, 
              ymin = ci_lower, ymax = ci_upper, color = measure)) + 
   labs(x = "Parents' belief about animal word", y = "Proportion of trials") +
@@ -422,7 +433,6 @@ Our work contributes to the current literature on parent-child interaction, and 
 
 Finally, this study highlights the importance of studying the parent-child pair as a unit, rather than viewing children as isolated learners: both parents and children contribute to the process of language development [@hoff-ginsberg1982; @brown1977]. Focusing on the interactive and communicative nature of language captures a more realistic picture of children's language environments: The input that children receive is not random – it is sensitive to their developmental level.
 
-
 # Acknowledgements
 
 This research was funded by a James S. McDonnell Foundation Scholar Award to DY.
@@ -430,9 +440,6 @@ This research was funded by a James S. McDonnell Foundation Scholar Award to DY.
 \newpage
 
 # References
-```{r create_r-references}
-#r_refs(file = "r-references.bib")
-```
 
 \begingroup
 \setlength{\parindent}{-0.5in}
