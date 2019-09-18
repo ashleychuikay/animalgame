@@ -701,7 +701,7 @@ target_data %>%
   select(subj, age, gender) %>%
   mutate(age = age/365,
          gender = factor(gender, levels = c("f", "m"), 
-                         labels = c("female", "make"))) %>%
+                         labels = c("female", "male"))) %>%
   write_feather(here("data/demos.feather"))
 
 ```
