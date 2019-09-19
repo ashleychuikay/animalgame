@@ -1,0 +1,105 @@
+---
+title: "Animal AoA norms"
+author: "Dan Yurovsky"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    number_sections: no
+    theme: lumen
+    toc: no
+    toc_float: no
+  pdf_document:
+    toc: no
+---
+
+```{r load-libraries, message=FALSE, warning=FALSE, show = F}
+library(wordbankr)
+library(readxl)
+library(janitor)
+library(here)
+library(knitr)
+library(tidyverse)
+
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+               error = FALSE, cache = TRUE, tidy = FALSE)
+
+theme_set(theme_classic(base_size = 14))
+```
+
+```{r load-wordbank-data}
+administrations <- get_administration_data(language = "English (American)",
+                                           form = "WS", original_ids = TRUE)
+
+first_longitudinals <- administrations %>%
+      filter(longitudinal) %>%
+      arrange(original_id, age) %>%
+      group_by(original_id) %>%
+      slice(1)
+
+cross_sectional <- administrations %>%
+  mutate(cross_sectional = !longitudinal |
+           (longitudinal & (data_id %in% first_longitudinals$data_id))) %>%
+  filter(cross_sectional)
+
+animals <- get_item_data(language = "English (American)", form = "WS") %>%
+  filter(category == "animals")
+
+animal_data <- get_instrument_data(language = "English (American)", form = "WS", 
+                    items = animals$item_id, administrations = cross_sectional) 
+
+wordbank_aoas <- fit_aoa(animal_data, method = "glmrob") %>%
+  ungroup() %>%
+  mutate(num_item_id = paste0("item_", as.character(num_item_id))) %>%
+  left_join(select(animals, item_id, definition), 
+            by = c("num_item_id" = "item_id")) %>%
+  select(-num_item_id) %>%
+  mutate(source = "wordbank") %>%
+  rename(word = definition) %>%
+  mutate(word = case_when(
+    word == "chicken (animal)" ~ "chicken",
+    word == "fish (animal)" ~ "fish",
+    word == "bunny" ~ "rabbit",
+    T ~ word))
+```
+
+```{r load-cycowicz}
+snodgrass_animals <- read_csv(here("corpus_data/cycowicz_data.csv")) %>%
+  clean_names() %>%
+  pull(intentional_name)
+  
+```
+
+```{r load-kuperman}
+kuperman_aoas <- read_excel(
+  here("corpus_data/AoA_ratings_Kuperman_et_al_BRM.xlsx")) %>%
+  clean_names() %>%
+  select(word, rating_mean) %>%
+  filter(word %in% snodgrass_animals) %>%
+  rename(aoa = rating_mean) %>%
+  mutate(source = "kuperman", aoa = as.numeric(aoa))
+```
+
+```{r estimate-aoas}
+joint_aoas <- bind_rows(kuperman_aoas, wordbank_aoas) %>%
+  pivot_wider(names_from = source, values_from = aoa) %>%
+  filter(!is.na(wordbank) | !is.na(kuperman))
+
+aoa_model <- joint_aoas %>%
+  filter(!is.na(wordbank) & !is.na(kuperman)) %>%
+  lm(wordbank ~ kuperman, data = .)
+
+predicted_aoas <- joint_aoas %>%
+  mutate(predicted = predict(aoa_model, 
+                             newdata = select(joint_aoas,kuperman))) %>%
+  mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %>%
+  select(word, aoa) %>%
+  filter(word %in% snodgrass_animals) %>%
+  arrange(aoa)
+
+kable(predicted_aoas)
+```
+
+```{r include = F, eval = F}
+write_csv(predicted_aoas, here("corpus_data/predicted_aoas.csv"))
+```

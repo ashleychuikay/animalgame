@@ -28,4 +28,5 @@ analysis/animalgame_analysis_files
 *.aux
 *.out
 *.fls
-*.latexmk
+*latexmk
+*.ttt
