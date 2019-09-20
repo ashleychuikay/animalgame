@@ -13,6 +13,10 @@ output:
     toc: no
 ---
 
+Wordbank is a large and growing repository of administrations of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007]-- a checklist of words and other items administrered to parents in order to estimate their child's vocabulary. To estimate age of acqusition for each animal, we used the first administration for all children learning American English. We fit a robust general linear separately model for each animal, estimating the proportion of children whose parents reported their knowing it from 16-32 months. Normative age of acqusition was defined to be the first age at which 50% or more children were estimated to know the animal.
+
+Because only a subset of the animals in the @roisson2004 image set are measured on the MCDI, we used self-report norms from @kuperman2012 to derive estimates from the remainder. To do this, we fit a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitons for the N @kuperman2012 animals missing from 
+
 ```{r load-libraries, message=FALSE, warning=FALSE, show = F}
 library(wordbankr)
 library(readxl)
@@ -29,7 +33,7 @@ theme_set(theme_classic(base_size = 14))
 
 ```{r load-wordbank-data}
 administrations <- get_administration_data(language = "English (American)",
-                                           form = "WS", original_ids = TRUE)
+                                           original_ids = TRUE)
 
 first_longitudinals <- administrations %>%
       filter(longitudinal) %>%
@@ -42,17 +46,40 @@ cross_sectional <- administrations %>%
            (longitudinal & (data_id %in% first_longitudinals$data_id))) %>%
   filter(cross_sectional)
 
-animals <- get_item_data(language = "English (American)", form = "WS") %>%
+ws_animals <- get_item_data(language = "English (American)", form = "WS") %>%
   filter(category == "animals")
 
-animal_data <- get_instrument_data(language = "English (American)", form = "WS", 
-                    items = animals$item_id, administrations = cross_sectional) 
+wg_animals <- get_item_data(language = "English (American)", form = "WG") %>%
+  filter(category == "animals")
+
+ws_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WS", 
+                                      items = ws_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WS")) %>%
+  left_join(ws_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value, form, definition)
+
+
+wg_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WG", 
+                                      items = wg_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WG")) %>%
+  left_join(wg_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value,  form, definition)
+
+animal_data <- bind_rows(ws_animal_data, wg_animal_data) %>%
+  group_by(definition) %>%
+  nest() %>%
+  ungroup() %>%
+  mutate(num_item_id = paste0("item_", 1:n())) %>%
+  unnest(cols = c(data))
 
 wordbank_aoas <- fit_aoa(animal_data, method = "glmrob") %>%
   ungroup() %>%
-  mutate(num_item_id = paste0("item_", as.character(num_item_id))) %>%
-  left_join(select(animals, item_id, definition), 
-            by = c("num_item_id" = "item_id")) %>%
   select(-num_item_id) %>%
   mutate(source = "wordbank") %>%
   rename(word = definition) %>%
@@ -77,14 +104,20 @@ kuperman_aoas <- read_excel(
   select(word, rating_mean) %>%
   filter(word %in% snodgrass_animals) %>%
   rename(aoa = rating_mean) %>%
+  mutate(aoa = as.numeric(aoa) * 12) %>%
   mutate(source = "kuperman", aoa = as.numeric(aoa))
 ```
 
-```{r estimate-aoas}
+```{r descriptives}
 joint_aoas <- bind_rows(kuperman_aoas, wordbank_aoas) %>%
   pivot_wider(names_from = source, values_from = aoa) %>%
   filter(!is.na(wordbank) | !is.na(kuperman))
+```
 
+Wordbank and Kuperman together contain `r nrow(joint_aoas)` animals, `r joint_aoas %>% filter(word %in% snodgrass_animals) %>% nrow()` of which are in the Snodgrass set. Final estimates for these `r joint_aoas %>% filter(word %in% snodgrass_animals) %>% nrow()` animals included `r joint_aoas %>% filter(word %in% snodgrass_animals) %>% filter(!is.na(wordbank)) %>% nrow()` estimates from wordbank and came from `r joint_aoas %>% filter(word %in% snodgrass_animals) %>% filter(is.na(wordbank)) %>% nrow()` scaled estimates from Kuperman.
+
+
+```{r estimate-aoas}
 aoa_model <- joint_aoas %>%
   filter(!is.na(wordbank) & !is.na(kuperman)) %>%
   lm(wordbank ~ kuperman, data = .)
@@ -93,7 +126,6 @@ predicted_aoas <- joint_aoas %>%
   mutate(predicted = predict(aoa_model, 
                              newdata = select(joint_aoas,kuperman))) %>%
   mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %>%
-  select(word, aoa) %>%
   filter(word %in% snodgrass_animals) %>%
   arrange(aoa)
 

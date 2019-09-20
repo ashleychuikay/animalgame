@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dan Yurovsky" />
 
-<meta name="date" content="2019-09-19" />
+<meta name="date" content="2019-09-20" />
 
 <title>Animal AoA norms</title>
 
@@ -460,11 +460,13 @@ summary {
 
 <h1 class="title toc-ignore">Animal AoA norms</h1>
 <h4 class="author">Dan Yurovsky</h4>
-<h4 class="date">2019-09-19</h4>
+<h4 class="date">2019-09-20</h4>
 
 </div>
 
 
+<p>Wordbank is a large and growing repository of administrations of the MacArthur-Bates Communicative Development Inventory <span class="citation">[CDI; @fenson2007]</span>– a checklist of words and other items administrered to parents in order to estimate their child’s vocabulary. To estimate age of acqusition for each animal, we used the first administration for all children learning American English. We fit a robust general linear separately model for each animal, estimating the proportion of children whose parents reported their knowing it from 16-32 months. Normative age of acqusition was defined to be the first age at which 50% or more children were estimated to know the animal.</p>
+<p>Because only a subset of the animals in the <span class="citation">@roisson2004</span> image set are measured on the MCDI, we used self-report norms from <span class="citation">@kuperman2012</span> to derive estimates from the remainder. To do this, we fit a general linear model estimating Wordbank age of acquisition from <span class="citation">@kuperman2012</span> age of acquisition for all animals in both sets (). We then used this model to scale age of acquisitons for the N <span class="citation">@kuperman2012</span> animals missing from</p>
 <pre class="r"><code>library(wordbankr)
 library(readxl)
 library(janitor)
@@ -477,7 +479,7 @@ opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
 
 theme_set(theme_classic(base_size = 14))</code></pre>
 <pre class="r"><code>administrations &lt;- get_administration_data(language = &quot;English (American)&quot;,
-                                           form = &quot;WS&quot;, original_ids = TRUE)
+                                           original_ids = TRUE)
 
 first_longitudinals &lt;- administrations %&gt;%
       filter(longitudinal) %&gt;%
@@ -490,17 +492,40 @@ cross_sectional &lt;- administrations %&gt;%
            (longitudinal &amp; (data_id %in% first_longitudinals$data_id))) %&gt;%
   filter(cross_sectional)
 
-animals &lt;- get_item_data(language = &quot;English (American)&quot;, form = &quot;WS&quot;) %&gt;%
+ws_animals &lt;- get_item_data(language = &quot;English (American)&quot;, form = &quot;WS&quot;) %&gt;%
   filter(category == &quot;animals&quot;)
 
-animal_data &lt;- get_instrument_data(language = &quot;English (American)&quot;, form = &quot;WS&quot;, 
-                    items = animals$item_id, administrations = cross_sectional) 
+wg_animals &lt;- get_item_data(language = &quot;English (American)&quot;, form = &quot;WG&quot;) %&gt;%
+  filter(category == &quot;animals&quot;)
+
+ws_animal_data &lt;- get_instrument_data(language = &quot;English (American)&quot;, 
+                                      form = &quot;WS&quot;, 
+                                      items = ws_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == &quot;WS&quot;)) %&gt;%
+  left_join(ws_animals, by = c(&quot;num_item_id&quot;, &quot;language&quot;, &quot;form&quot;)) %&gt;%
+  select(data_id, age, value, form, definition)
+
+
+wg_animal_data &lt;- get_instrument_data(language = &quot;English (American)&quot;, 
+                                      form = &quot;WG&quot;, 
+                                      items = wg_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == &quot;WG&quot;)) %&gt;%
+  left_join(wg_animals, by = c(&quot;num_item_id&quot;, &quot;language&quot;, &quot;form&quot;)) %&gt;%
+  select(data_id, age, value,  form, definition)
+
+animal_data &lt;- bind_rows(ws_animal_data, wg_animal_data) %&gt;%
+  group_by(definition) %&gt;%
+  nest() %&gt;%
+  ungroup() %&gt;%
+  mutate(num_item_id = paste0(&quot;item_&quot;, 1:n())) %&gt;%
+  unnest(cols = c(data))
 
 wordbank_aoas &lt;- fit_aoa(animal_data, method = &quot;glmrob&quot;) %&gt;%
   ungroup() %&gt;%
-  mutate(num_item_id = paste0(&quot;item_&quot;, as.character(num_item_id))) %&gt;%
-  left_join(select(animals, item_id, definition), 
-            by = c(&quot;num_item_id&quot; = &quot;item_id&quot;)) %&gt;%
   select(-num_item_id) %&gt;%
   mutate(source = &quot;wordbank&quot;) %&gt;%
   rename(word = definition) %&gt;%
@@ -518,12 +543,13 @@ wordbank_aoas &lt;- fit_aoa(animal_data, method = &quot;glmrob&quot;) %&gt;%
   select(word, rating_mean) %&gt;%
   filter(word %in% snodgrass_animals) %&gt;%
   rename(aoa = rating_mean) %&gt;%
+  mutate(aoa = as.numeric(aoa) * 12) %&gt;%
   mutate(source = &quot;kuperman&quot;, aoa = as.numeric(aoa))</code></pre>
 <pre class="r"><code>joint_aoas &lt;- bind_rows(kuperman_aoas, wordbank_aoas) %&gt;%
   pivot_wider(names_from = source, values_from = aoa) %&gt;%
-  filter(!is.na(wordbank) | !is.na(kuperman))
-
-aoa_model &lt;- joint_aoas %&gt;%
+  filter(!is.na(wordbank) | !is.na(kuperman))</code></pre>
+<p>Wordbank and Kuperman together contain 64 animals, 51 of which are in the Snodgrass set. Final estimates for these 51 animals included 29 estimates from wordbank and came from 22 scaled estimates from Kuperman.</p>
+<pre class="r"><code>aoa_model &lt;- joint_aoas %&gt;%
   filter(!is.na(wordbank) &amp; !is.na(kuperman)) %&gt;%
   lm(wordbank ~ kuperman, data = .)
 
@@ -531,7 +557,6 @@ predicted_aoas &lt;- joint_aoas %&gt;%
   mutate(predicted = predict(aoa_model, 
                              newdata = select(joint_aoas,kuperman))) %&gt;%
   mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %&gt;%
-  select(word, aoa) %&gt;%
   filter(word %in% snodgrass_animals) %&gt;%
   arrange(aoa)
 
@@ -540,213 +565,369 @@ kable(predicted_aoas)</code></pre>
 <thead>
 <tr class="header">
 <th align="left">word</th>
+<th align="right">kuperman</th>
+<th align="right">wordbank</th>
+<th align="right">predicted</th>
 <th align="right">aoa</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">dog</td>
-<td align="right">16.00000</td>
+<td align="right">33.60000</td>
+<td align="right">15</td>
+<td align="right">17.84294</td>
+<td align="right">15.00000</td>
 </tr>
 <tr class="even">
 <td align="left">bird</td>
-<td align="right">17.00000</td>
+<td align="right">42.24000</td>
+<td align="right">18</td>
+<td align="right">19.98927</td>
+<td align="right">18.00000</td>
 </tr>
 <tr class="odd">
-<td align="left">duck</td>
-<td align="right">17.00000</td>
+<td align="left">cat</td>
+<td align="right">44.16000</td>
+<td align="right">18</td>
+<td align="right">20.46623</td>
+<td align="right">18.00000</td>
 </tr>
 <tr class="even">
-<td align="left">cat</td>
+<td align="left">duck</td>
+<td align="right">42.00000</td>
+<td align="right">18</td>
+<td align="right">19.92965</td>
 <td align="right">18.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">fly</td>
-<td align="right">18.38714</td>
+<td align="right">36.60000</td>
+<td align="right">NA</td>
+<td align="right">18.58820</td>
+<td align="right">18.58820</td>
+</tr>
+<tr class="even">
+<td align="left">fish</td>
+<td align="right">48.60000</td>
+<td align="right">19</td>
+<td align="right">21.56921</td>
+<td align="right">19.00000</td>
+</tr>
+<tr class="odd">
+<td align="left">spider</td>
+<td align="right">41.16000</td>
+<td align="right">NA</td>
+<td align="right">19.72098</td>
+<td align="right">19.72098</td>
 </tr>
 <tr class="even">
 <td align="left">bear</td>
-<td align="right">19.00000</td>
-</tr>
-<tr class="odd">
-<td align="left">fish</td>
-<td align="right">19.00000</td>
-</tr>
-<tr class="even">
-<td align="left">spider</td>
-<td align="right">19.53736</td>
+<td align="right">42.96000</td>
+<td align="right">20</td>
+<td align="right">20.16813</td>
+<td align="right">20.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">cow</td>
+<td align="right">47.28000</td>
+<td align="right">20</td>
+<td align="right">21.24130</td>
 <td align="right">20.00000</td>
-</tr>
-<tr class="even">
-<td align="left">rabbit</td>
-<td align="right">20.00000</td>
-</tr>
-<tr class="odd">
-<td align="left">bee</td>
-<td align="right">21.00000</td>
 </tr>
 <tr class="even">
 <td align="left">horse</td>
+<td align="right">49.80000</td>
+<td align="right">21</td>
+<td align="right">21.86731</td>
 <td align="right">21.00000</td>
 </tr>
 <tr class="odd">
-<td align="left">monkey</td>
+<td align="left">pig</td>
+<td align="right">46.08000</td>
+<td align="right">21</td>
+<td align="right">20.94319</td>
 <td align="right">21.00000</td>
 </tr>
 <tr class="even">
-<td align="left">pig</td>
+<td align="left">rabbit</td>
+<td align="right">47.28000</td>
+<td align="right">21</td>
+<td align="right">21.24130</td>
 <td align="right">21.00000</td>
 </tr>
 <tr class="odd">
+<td align="left">bee</td>
+<td align="right">60.00000</td>
+<td align="right">22</td>
+<td align="right">24.40117</td>
+<td align="right">22.00000</td>
+</tr>
+<tr class="even">
+<td align="left">monkey</td>
+<td align="right">50.52000</td>
+<td align="right">22</td>
+<td align="right">22.04617</td>
+<td align="right">22.00000</td>
+</tr>
+<tr class="odd">
 <td align="left">butterfly</td>
+<td align="right">44.04000</td>
+<td align="right">23</td>
+<td align="right">20.43642</td>
 <td align="right">23.00000</td>
 </tr>
 <tr class="even">
 <td align="left">chicken</td>
+<td align="right">39.12000</td>
+<td align="right">23</td>
+<td align="right">19.21421</td>
 <td align="right">23.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">elephant</td>
+<td align="right">57.60000</td>
+<td align="right">23</td>
+<td align="right">23.80496</td>
 <td align="right">23.00000</td>
 </tr>
 <tr class="even">
 <td align="left">lion</td>
+<td align="right">53.04000</td>
+<td align="right">23</td>
+<td align="right">22.67218</td>
 <td align="right">23.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">mouse</td>
+<td align="right">59.28000</td>
+<td align="right">23</td>
+<td align="right">24.22231</td>
 <td align="right">23.00000</td>
 </tr>
 <tr class="even">
-<td align="left">owl</td>
-<td align="right">24.00000</td>
+<td align="left">sheep</td>
+<td align="right">51.00000</td>
+<td align="right">23</td>
+<td align="right">22.16541</td>
+<td align="right">23.00000</td>
 </tr>
 <tr class="odd">
-<td align="left">sheep</td>
+<td align="left">owl</td>
+<td align="right">74.52000</td>
+<td align="right">24</td>
+<td align="right">28.00819</td>
 <td align="right">24.00000</td>
 </tr>
 <tr class="even">
 <td align="left">tiger</td>
+<td align="right">48.00000</td>
+<td align="right">24</td>
+<td align="right">21.42016</td>
 <td align="right">24.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">fox</td>
-<td align="right">24.34247</td>
+<td align="right">60.20971</td>
+<td align="right">NA</td>
+<td align="right">24.45326</td>
+<td align="right">24.45326</td>
 </tr>
 <tr class="even">
 <td align="left">snake</td>
-<td align="right">24.59226</td>
+<td align="right">61.20000</td>
+<td align="right">NA</td>
+<td align="right">24.69927</td>
+<td align="right">24.69927</td>
 </tr>
 <tr class="odd">
 <td align="left">camel</td>
-<td align="right">24.62253</td>
+<td align="right">61.32000</td>
+<td align="right">NA</td>
+<td align="right">24.72908</td>
+<td align="right">24.72908</td>
 </tr>
 <tr class="even">
 <td align="left">caterpillar</td>
-<td align="right">24.80415</td>
+<td align="right">62.04000</td>
+<td align="right">NA</td>
+<td align="right">24.90794</td>
+<td align="right">24.90794</td>
+</tr>
+<tr class="odd">
+<td align="left">ant</td>
+<td align="right">51.84000</td>
+<td align="right">25</td>
+<td align="right">22.37408</td>
+<td align="right">25.00000</td>
+</tr>
+<tr class="even">
+<td align="left">giraffe</td>
+<td align="right">60.00000</td>
+<td align="right">25</td>
+<td align="right">24.40117</td>
+<td align="right">25.00000</td>
+</tr>
+<tr class="odd">
+<td align="left">squirrel</td>
+<td align="right">53.28000</td>
+<td align="right">25</td>
+<td align="right">22.73180</td>
+<td align="right">25.00000</td>
+</tr>
+<tr class="even">
+<td align="left">zebra</td>
+<td align="right">57.48000</td>
+<td align="right">25</td>
+<td align="right">23.77515</td>
+<td align="right">25.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">goat</td>
-<td align="right">24.92522</td>
-</tr>
-<tr class="even">
-<td align="left">ant</td>
-<td align="right">25.00000</td>
-</tr>
-<tr class="odd">
-<td align="left">giraffe</td>
-<td align="right">25.00000</td>
-</tr>
-<tr class="even">
-<td align="left">squirrel</td>
-<td align="right">25.00000</td>
-</tr>
-<tr class="odd">
-<td align="left">zebra</td>
-<td align="right">25.00000</td>
+<td align="right">62.52000</td>
+<td align="right">NA</td>
+<td align="right">25.02718</td>
+<td align="right">25.02718</td>
 </tr>
 <tr class="even">
 <td align="left">skunk</td>
-<td align="right">25.25818</td>
+<td align="right">63.84000</td>
+<td align="right">NA</td>
+<td align="right">25.35509</td>
+<td align="right">25.35509</td>
 </tr>
 <tr class="odd">
 <td align="left">seal</td>
-<td align="right">25.56087</td>
+<td align="right">65.04000</td>
+<td align="right">NA</td>
+<td align="right">25.65319</td>
+<td align="right">25.65319</td>
 </tr>
 <tr class="even">
-<td align="left">kangaroo</td>
-<td align="right">25.95436</td>
+<td align="left">alligator</td>
+<td align="right">57.36000</td>
+<td align="right">26</td>
+<td align="right">23.74534</td>
+<td align="right">26.00000</td>
 </tr>
 <tr class="odd">
-<td align="left">alligator</td>
-<td align="right">26.00000</td>
+<td align="left">kangaroo</td>
+<td align="right">66.60000</td>
+<td align="right">NA</td>
+<td align="right">26.04072</td>
+<td align="right">26.04072</td>
 </tr>
 <tr class="even">
 <td align="left">gorilla</td>
-<td align="right">26.52947</td>
+<td align="right">68.88000</td>
+<td align="right">NA</td>
+<td align="right">26.60711</td>
+<td align="right">26.60711</td>
 </tr>
 <tr class="odd">
 <td align="left">peacock</td>
-<td align="right">26.60050</td>
+<td align="right">69.16159</td>
+<td align="right">NA</td>
+<td align="right">26.67707</td>
+<td align="right">26.67707</td>
 </tr>
 <tr class="even">
 <td align="left">grasshopper</td>
-<td align="right">26.65055</td>
+<td align="right">69.36000</td>
+<td align="right">NA</td>
+<td align="right">26.72635</td>
+<td align="right">26.72635</td>
 </tr>
 <tr class="odd">
 <td align="left">snail</td>
-<td align="right">26.68082</td>
+<td align="right">69.48000</td>
+<td align="right">NA</td>
+<td align="right">26.75616</td>
+<td align="right">26.75616</td>
 </tr>
 <tr class="even">
 <td align="left">eagle</td>
-<td align="right">26.80189</td>
+<td align="right">69.96000</td>
+<td align="right">NA</td>
+<td align="right">26.87541</td>
+<td align="right">26.87541</td>
 </tr>
 <tr class="odd">
 <td align="left">seahorse</td>
-<td align="right">26.80189</td>
+<td align="right">69.96000</td>
+<td align="right">NA</td>
+<td align="right">26.87541</td>
+<td align="right">26.87541</td>
 </tr>
 <tr class="even">
 <td align="left">deer</td>
+<td align="right">62.04000</td>
+<td align="right">27</td>
+<td align="right">24.90794</td>
 <td align="right">27.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">penguin</td>
+<td align="right">68.16000</td>
+<td align="right">27</td>
+<td align="right">26.42825</td>
 <td align="right">27.00000</td>
 </tr>
 <tr class="even">
 <td align="left">rhinoceros</td>
-<td align="right">27.31646</td>
+<td align="right">72.00000</td>
+<td align="right">NA</td>
+<td align="right">27.38218</td>
+<td align="right">27.38218</td>
 </tr>
 <tr class="odd">
 <td align="left">rooster</td>
+<td align="right">76.92000</td>
+<td align="right">28</td>
+<td align="right">28.60439</td>
 <td align="right">28.00000</td>
 </tr>
 <tr class="even">
 <td align="left">swan</td>
-<td align="right">28.27789</td>
+<td align="right">75.81156</td>
+<td align="right">NA</td>
+<td align="right">28.32904</td>
+<td align="right">28.32904</td>
 </tr>
 <tr class="odd">
 <td align="left">ostrich</td>
-<td align="right">28.58775</td>
+<td align="right">77.04000</td>
+<td align="right">NA</td>
+<td align="right">28.63420</td>
+<td align="right">28.63420</td>
 </tr>
 <tr class="even">
 <td align="left">donkey</td>
+<td align="right">72.00000</td>
+<td align="right">29</td>
+<td align="right">27.38218</td>
 <td align="right">29.00000</td>
 </tr>
 <tr class="odd">
 <td align="left">raccoon</td>
-<td align="right">29.70770</td>
+<td align="right">81.48000</td>
+<td align="right">NA</td>
+<td align="right">29.73718</td>
+<td align="right">29.73718</td>
 </tr>
 <tr class="even">
 <td align="left">leopard</td>
-<td align="right">29.85905</td>
+<td align="right">82.08000</td>
+<td align="right">NA</td>
+<td align="right">29.88623</td>
+<td align="right">29.88623</td>
 </tr>
 <tr class="odd">
 <td align="left">lobster</td>
-<td align="right">31.67518</td>
+<td align="right">89.28000</td>
+<td align="right">NA</td>
+<td align="right">31.67483</td>
+<td align="right">31.67483</td>
 </tr>
 </tbody>
 </table>
