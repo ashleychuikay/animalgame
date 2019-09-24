@@ -698,10 +698,12 @@ target_data %>%
   distinct(subj) %>%
   left_join(qualtrics_ids, by = c("subj"="number")) %>%
   left_join(demo_data, by = c("response_id"="id")) %>%
-  select(subj, age, gender) %>%
+  select(subj, age, gender, race, mom_ed) %>%
   mutate(age = age/365,
          gender = factor(gender, levels = c("f", "m"), 
-                         labels = c("female", "male"))) %>%
+                         labels = c("female", "male")),
+         race = as.factor(race),
+         mom_ed = as.factor(mom_ed)) %>%
   write_feather(here("data/demos.feather"))
 
 ```
