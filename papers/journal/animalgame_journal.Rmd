@@ -59,6 +59,7 @@ library(tidyboot)
 library(broom)
 library(broom.mixed)
 library(kableExtra)
+library(english)
 library(tidyverse)
 
 theme_set(theme_classic(base_size = 14) + theme(legend.position = "none"))
@@ -72,7 +73,15 @@ options(digits=2)
 ```
 
 
-Children learn language at astonishing rates, acquiring thousands of words by the time they are toddlers. How do children learn so many words before they know how to dress themselves? One account for children's rapid language acquisition is statistical learning. Young children can attend to the distributional structure of language, learning to discriminate words and identify word order from speech streams [@saffran1996; @saffran2003]. Statistical learning can be a powerful tool for early language learning, and showcases the ability that children have to harvest information from their surroundings. However, the particular structure of children's language environments may also play a role in supporting language development.
+<!-- Children learn language at astonishing rates, acquiring thousands of words by the time they are toddlers. How do children learn so many words before they know how to dress themselves? One account for children's rapid language acquisition is statistical learning. Young children can attend to the distributional structure of language, learning to discriminate words and identify word order from speech streams [@saffran1996; @saffran2003]. Statistical learning can be a powerful tool for early language learning, and showcases the ability that children have to harvest information from their surroundings. However, the particular structure of children's language environments may also play a role in supporting language development. -->
+
+Variability in input related to variability in output (weisleder, hoff, fernald, hart & risely, etc). Further, not just quanitity but quality (rowe, hoff, etc.)
+
+Where does this variability come from? One possibility is about fit--is the input at the right level of developmentally-appropriate complexity. Some evidence for developmental tuning.
+
+Important distinction: Coarse tuning (e.g. more words to older kids) vs. fine tuning (e.g. more words specifically about what you don't know). Some indirect tests of that hypothesis with corpus data. Closest thing to a direct test is Masur's work, but even then not quite an experiment.
+
+We seek to directly test the fine tuning hypothesis in a referential communication game.
 
 The way we speak to children often differs from the way we speak to adults. Child-directed speech (CDS) exists across cultures, and is characterized by higher pitches and more exaggerated enunciations when compared to adult-directed speech (ADS) [@cooper1990; @grieser1988]. Not only do children prefer CDS over ADS, CDS is also a better predictor for language learning than overheard ADS [@shneidman2013]. CDS does not only differ from ADS in prosodic features- the structural qualities of CDS make speech segmentation and word learning easier [@thiessen2005; @yurovsky2012]. While children live in the same physical environments as adults, their *language environments* contain specific types of input that facilitate early language learning.
 
@@ -88,7 +97,7 @@ We designed an interactive iPad game in which parents verbally guide their child
 
 # Method
 
-```{r load_data}
+```{r load_data, cache = FALSE}
 target_data <- read_feather(here("data/target_data.feather")) %>%
     filter(phase != "during", person == "parent", !is.na(understands)) %>%
     complete(nesting(subj, target, understands,  correct,  appearance),
@@ -105,11 +114,24 @@ qual_data <- read_feather(here("data/qual_data.feather"))
 
 ## Participants
 
-Toddlers (aged 2.0 to 2.5 years) and their parents were recruited from a database of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 46 parent-child pairs were recruited, but data from six pairs were dropped from analysis due to experimental error or failure to complete the study. The final sample consisted of `r nrow(demos)` children aged `r min(demos$age)` to `r max(demos$age)` years ($M =$ `r mean(demos$age)`), `r demos %>% summarise(female = sum(demos == "female")) %>% pull` of whom were girls. While the database used for recruitment was intended to reflect the demographic makeup of the local community, many children in the database are from highly educated, upper-middle class families. In our sample, `r demos %>% summarise(race = sum(demos == "White")` childre were White, and `r demos %>% summarise(mom_ed = sum(mom_ed == c("4-Year College", "Graduate degree"))` parents had a college degree or above. We therefore acknowledge that our sample is WEIRD (Westernized, Educated, Industrialized, Rich, and Democratic; @henrich2010), and thus our findings may not fully generalize to other populations.
+```{r youngest_and_oldest}
+youngest_child <- demos %>%
+  filter(age_years == min(age_years))
+
+oldest_child <- demos %>%
+  filter(age_years == max(age_years))
+
+mean_age <- demos %>%
+  summarise(age_days = mean(age_years * 365)) %>%
+  mutate(age_months = floor(age_days / 30.5),
+         age_extra_days = floor(age_days - (age_months * 30.5)))
+```
+
+Toddlers (aged 2.0 to 2.5 years) and their parents were recruited from a database of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 46 parent-child pairs were recruited, but data from six pairs were dropped from analysis due to experimental error or failure to complete the study. The final sample consisted of `r nrow(demos)` children aged `r youngest_child %>% pull(age_months)` mo.; `r youngest_child %>% pull(age_extra_days)` days to `r oldest_child %>% pull(age_months)` mo.; `r oldest_child %>% pull(age_extra_days)` days ($M =$ `r mean_age %>% pull(age_months)` mo.; `r mean_age %>% pull(age_extra_days)` days), `r demos %>% summarise(female = sum(demos == "female")) %>% pull %>% words` of whom were girls. While the database used for recruitment was intended to reflect the demographic makeup of the local community, many children in the database are from highly educated, upper-middle class families. In our sample, `r demos %>% summarise(race = sum(demos == "White")) %>% pull(race) %>% words` childre were White, and `r demos %>% summarise(mom_ed = sum(mom_ed == c("4-Year College", "Graduate degree"))) %>% pull(mom_ed) %>% words` parents had a college degree or above. We therefore acknowledge that our sample is WEIRD (Westernized, Educated, Industrialized, Rich, and Democratic; @henrich2010), and thus our findings may not fully generalize to other populations.
 
 ## Stimuli
 
-Eighteen animal images were selected from the @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on estiamtes of their age of acquisition (AoA) for American English learning. To obtain these estimates, we used two sources of information: Parent-report estimates of children's age of acqusition from Wordbank [@frank2017], and retrospective self-report estimates of age of acquisition @kuperman2012 (see Supporting Information for details).  The AoA of the selected animals ranged from 16 to 32 months. Half of the animals had lower AoA (12-20 months), and the other half had higher AoA (25-31 months). Each trial featured three animals, all from either the low AoA or high AoA category. 
+Eighteen animal images were selected from the @rossion2004 image set, which is a colored version of the @snodgrass1980 object set. Animals were selected based on estiamtes of their age of acquisition (AoA) for American English learning. To obtain these estimates, we used two sources of information: Parent-report estimates of children's age of acqusition from Wordbank [@frank2017], and retrospective self-report estimates of age of acquisition from adults [@kuperman2012, see Supporting Information for details]. The age of aquisition of the selected animals ranged from 16 to 32 months. Half of the animals had lower age of acquisition (12-20 months), and the other half had higher age of acquisition (25-31 months). Each trial featured three animals, all from either the low AoA or high AoA category. 
 
 A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children’s vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the 85 words in the survey. Two of the animal words--one in the early AOA and one in the late AOA category--were accidentally omitted, so trials for those words were not included in analysis.
 
@@ -140,12 +162,14 @@ mean_word_difficulty <- word_difficulty %>%
   tidyboot_mean(understands) %>%
   arrange(desc(empirical_stat))
 
- difficulty_lmer <- word_difficulty %>%
-   filter(type %in% c("early", "late")) %>%
-   mutate(type = factor(type, levels = c("early", "late"))) %>%
-   glmer(understands ~ type + (1|subj), family = "binomial", data = .) %>%
-   tidy() %>%
-   filter(effect == "fixed")
+difficulty_lmer <- word_difficulty %>%
+  filter(type %in% c("early", "late")) %>%
+  mutate(type = factor(type, levels = c("early", "late"))) %>%
+  glmer(understands ~ type + (type|subj) + (1|word),
+        family = "binomial", data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group)
 ```
 
 
@@ -162,10 +186,10 @@ ggplot(plotting_words, aes(x = word, y = empirical_stat, ymin = ci_lower,
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         text = element_text(size = 10)) +
   geom_pointrange(size = .3) +
-  labs(y = "Parents report known", x = "") 
+  labs(y = "Parents report child knows", x = "") 
 ```
 
-The difference between these groups was confirmed statistically with a logistic mixed effects regression with a fixed effect of AoA type and random effects of participants. The late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(estimate)`, $t =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(statistic)`, $p$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(p.value) %>% printp()`). Parents' judgments for each target word are shown in Figure \ref{fig:difficulty-fig}.
+The difference between these groups was confirmed statistically with a logistic mixed effects regression (\texttt{correct $\sim$ type + (type | subject) + (1 | word)}). The late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(estimate)`, $t =$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(statistic)`, $p$ `r difficulty_lmer %>% filter(term == "typelate") %>% pull(p.value) %>% printp()`). Parents' judgments for each target word are shown in Figure \ref{fig:difficulty-fig}.
 
 ### Length of referring expressions.
 
@@ -188,10 +212,12 @@ mean_known_data <- trial_known_data %>%
 known_lmer <- trial_known_data %>%
   ungroup() %>%
   mutate(length = log(length+1)) %>%
-  lmer(length ~ phase * understands + (1|subj) + (1|trial_target), 
+  lmer(length ~ phase * understands + (phase + understands | subj) + 
+         (1 | trial_target), control = lmerControl(optimizer = "bobyqa"), 
        data = .) %>%
   tidy() %>%
-  filter(effect == "fixed")
+  filter(effect == "fixed") %>%
+  select(-effect, -group)
 
 known_difficulty_lmer <- trial_known_data %>%
   ungroup() %>% 
@@ -200,10 +226,12 @@ known_difficulty_lmer <- trial_known_data %>%
   mutate(difficulty = 1 - difficulty, 
          understands = factor(understands, levels = c("known animal", 
                                                       "unknown animal"))) %>%
-  lmer(length ~ difficulty + understands + (1|subj) + (1|trial_target), 
+  lmer(length ~ difficulty + understands + (difficulty + understands |subj) +
+         (1|trial_target), 
        data = .) %>%
   tidy() %>%
-  filter(effect == "fixed")
+  filter(effect == "fixed") %>%
+  select(-effect, -group)
 ```
 
 If parents calibrate their referential expressions to their children's linguistic knowledge, they should provide more information to children for whom a simple bare noun (e.g. "leopard") would be insufficient to identify the target. Parents did this in a number of ways: With one or more adjectives (e.g., "the spotted, yellow leopard"), with similes (e.g., "the one that's like a cat"), and with allusions to familiar animal exemplars of the category. In all of these cases, parents would be required to produce more words. Thus, we analyzed the length of parents' referential expressions as a theory-agnostic proxy for informativeness.
@@ -347,7 +375,7 @@ model_table <- test_lmer %>%
   rename(`t-value` = statistic,
          `p-value` = p.value) %>%
   xtable(caption = "Coefficient estimates for a mixed-effects logistic regression predicting children's success in selecting the target animal. The model was specified as \\texttt{correct $\\sim$ log(length) * unknown + appearance + trial + (1|subj) + (1|animal)}.",
-         label = "tab:test_model")
+         label = "tab:test-model")
 
 print(model_table, type = "latex", comment = F, table.placement = "tb",
       include.rownames = FALSE)

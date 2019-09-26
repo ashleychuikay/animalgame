@@ -86,7 +86,7 @@ dev.off()
 ```
 
 ```{r wordbank_plot, eval = F}
-items <- read_csv("item_trajectory_table.csv") %>%
+items <- read_csv(here("analysis/item_trajectory_table.csv")) %>%
   select(-skip) %>%
   gather(animal, prop, dog, cow) %>%
   group_by(animal, age) %>%
@@ -699,11 +699,16 @@ target_data %>%
   left_join(qualtrics_ids, by = c("subj"="number")) %>%
   left_join(demo_data, by = c("response_id"="id")) %>%
   select(subj, age, gender, race, mom_ed) %>%
-  mutate(age = age/365,
+  mutate(age_months = floor(age / 30.5),
+         age_extra_days = floor(age - (age_months * 30.5)),
+         age_years = age/365,
          gender = factor(gender, levels = c("f", "m"), 
                          labels = c("female", "male")),
          race = as.factor(race),
          mom_ed = as.factor(mom_ed)) %>%
+  left_join(tidy_vocab %>% group_by(subj) %>% 
+              summarise(vocab = sum(understands)), by = "subj") %>%
+  select(-age) %>%
   write_feather(here("data/demos.feather"))
 
 ```
