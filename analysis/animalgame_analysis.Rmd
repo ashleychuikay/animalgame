@@ -37,76 +37,6 @@ theme_set(theme_classic(base_size = 20))
 ```
 
 
-```{r masu_plot}
-masur_data <- data_frame(age = c(10, 13, 17, 21), 
-           novel_mean= c(97, 93, 92, 97), 
-           comprehended_mean = c(NA, 92, 87, 76), 
-           familiar_mean = c(NA, 90, 78, 58),
-           novel_sd = c(8, 16, 13, 11),
-           comprehended_sd = c(NA, 15, 25, 24),
-           familiar_sd = c(NA, 8, 27, 24),
-           n = c(17, 20, 17, 17 )) %>%
-  gather(type, value, novel_mean:familiar_sd) %>%
-  separate(type, into = c("type", "measure")) %>%
-  mutate(value = value / 100) %>%
-  spread(measure, value) %>%
-  mutate(se = sd / sqrt(n)) %>%
-  rowwise() %>%
-  mutate(ci_upper = min(mean + 1.96 * se, 1),
-         ci_lower = max(mean - 1.96 * se, 0)) %>%
-  select(age, n, type, mean, ci_upper, ci_lower) %>%
-  mutate(type = factor(type, levels = c("comprehended", "familiar", "novel")))
-
-jpeg("masur_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
-ggplot(masur_data, aes(x = age, y = mean, ymin = ci_lower, ymax = ci_upper,
-       color = type, label = type)) + 
-  geom_pointrange(position = position_dodge(.25)) +
-  geom_smooth(method = "lm", se = F) +
-  geom_dl(method = list(dl.trans(x=x +.2), "last.qp", cex=1)) +
-  scale_color_ptol() + 
-  scale_x_continuous(name = "age (months)", limits = c(10, 26), 
-                     breaks = c(10, 13, 17, 21)) +
-  scale_y_continuous(name = "prop. labeled in first mention") +
-  theme(legend.position = "none")
-dev.off()
-
-jpeg("masur_plot.jpeg", width = 6, height = 4, units = "in", res = 600)
-ggplot(masur_data, aes(x = age, y = mean, ymin = ci_lower, ymax = ci_upper,
-       color = type, label = type)) + 
-  geom_pointrange(position = position_dodge(.5)) +
-  geom_smooth(method = "lm", se = F) +
-  geom_dl(method = list(dl.trans(x=x +.5), "last.qp", cex=1.2)) +
-  scale_color_ptol() + 
-  scale_x_continuous(name = "age (months)", limits = c(10, 26), 
-                     breaks = c(10, 13, 17, 21)) +
-  scale_y_continuous(name = "labeled on first mention") +
-  theme(legend.position = "none")
-dev.off()
-
-```
-
-```{r wordbank_plot, eval = F}
-items <- read_csv(here("analysis/item_trajectory_table.csv")) %>%
-  select(-skip) %>%
-  gather(animal, prop, dog, cow) %>%
-  group_by(animal, age) %>%
-  summarise(prop = mean(prop, na.rm = T))
-
-
-#jpeg("wordbank_plot.jpg", width = 6, height = 4, units = "in", res = 600)
-ggplot(items, aes(x = age, y = prop, color = animal, label = animal)) +
-  geom_point() + 
-  geom_smooth(se = F) +
-  geom_dl(method = list(dl.trans(x=x +.5), "last.qp", cex=1.2)) +
-  geom_hline(aes(yintercept = .5), lty = 2, size = 1) + 
-  scale_color_ptol() + 
-  scale_x_continuous(name = "age (months)", limits = c(8, 32), 
-                     breaks = seq(8, 30, 4)) +
-  scale_y_continuous(name = "prop. producing", limits = c(0, 1)) +
-  theme(legend.position = "none")
-#dev.off()
-```
-
 Read in vocab data
 
 ```{r read_data, message=F}
@@ -147,6 +77,7 @@ tidy_vocab <- vocab_data %>%
   complete(subj, word, fill = list(understands = F)) %>%
   left_join(select(vocab_data, -q1), by = "subj")
 ```
+
 Read in response data
 ```{r read_response}
 child_response <- read_csv(here("raw_data/animalgame_data.csv")) %>%
@@ -215,38 +146,20 @@ practice_targets <- c("artichoke", "apple")
 The unique targets were: `r targets`
 
 ```{r word_difficulty}
-
 word_difficulty <- tidy_vocab %>%
   filter(word %in% targets, video_id %in% tidy_data$id) %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
-  rename(understands = empirical_stat) %>%
-  arrange(desc(understands)) %>%
-  rename(difficulty = understands) %>%
+  rename(avg_known = empirical_stat) %>%
+  arrange(desc(avg_known)) %>%
   select(-mean)
-
-tidy_vocab %>%
-  select(subj, word, understands) %>%
-  filter(word %in% targets) %>%
-  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
-         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
-                 "early", "late")))%>%
-  left_join(word_difficulty) %>%
-  write_feather(here("data/word_difficulty.feather"))
-
-#word_difficulty %>%
-#  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
-#         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", "horse", "elephant"),
-#                 "early", "late"))) %>%
-#  write_feather(here("data/word_difficulty.feather"))
 
 
 plotting_words <- word_difficulty %>%
-  mutate(word = factor(word, levels = unique(word))) %>%
-  rename(understands = difficulty)
+  mutate(word = factor(word, levels = unique(word)))
 
 #jpeg("word_diff.jpeg", width = 8, height = 6, units = "in", res = 600)
-ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower, 
+ggplot(plotting_words, aes(x = word, y = avg_known, ymin = ci_lower, 
                             ymax = ci_upper)) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         text = element_text(size = 20)) +
@@ -255,15 +168,35 @@ ggplot(plotting_words, aes(x = word, y = understands, ymin = ci_lower,
 #dev.off()
 
 ##ascending order for prop. known
+# 
+# jpeg("word_diff_ascend.jpeg", width = 10, height = 8, units = "in", res = 600)
+# ggplot(plotting_words, aes(x = reorder(word, understands), y = understands, ymin = ci_lower, 
+#                             ymax = ci_upper)) + 
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), 
+#         text = element_text(size = 20)) +
+#   geom_pointrange() +
+#   labs(y = "Proportion of children reported knowing the word", x = "") 
+# dev.off()
 
-jpeg("word_diff_ascend.jpeg", width = 10, height = 8, units = "in", res = 600)
-ggplot(plotting_words, aes(x = reorder(word, understands), y = understands, ymin = ci_lower, 
-                            ymax = ci_upper)) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), 
-        text = element_text(size = 20)) +
-  geom_pointrange() +
-  labs(y = "Proportion of children reported knowing the word", x = "") 
-dev.off()
+```
+
+```{r write_word_difficulty, eval = F}
+total_vocab <- tidy_vocab %>%
+  group_by(subj) %>%
+  summarise(vocab = sum(understands),
+            possible_vocab = n())
+
+subj_vocab <- tidy_vocab %>%
+  select(subj, word, understands) %>%
+  filter(word %in% targets) %>%
+  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
+         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", 
+                             "horse", "elephant"),
+                 "early", "late")))%>%
+  left_join(word_difficulty, by = "word") %>%
+  left_join(total_vocab, by = "subj") 
+
+write_feather(subj_vocab, here("data/subj_vocab.feather"))
 ```
 
 Munge transcript data
@@ -325,7 +258,7 @@ target_data_gaps <- parent_data %>%
  # rename(difficulty = understands) %>%
   left_join(tidy_vocab, by = c("id" = "video_id", "trial_target" = "word")) %>%
  # filter(phase != "during") %>%
-  group_by(phase, difficulty, understands, appearance, trial_target, id)
+  group_by(phase, avg_known, understands, appearance, trial_target, id)
 
 ids <- target_data_gaps %>%
   ungroup() %>%
@@ -335,12 +268,13 @@ ids <- target_data_gaps %>%
 target_data <- target_data_gaps %>%
   select(-subj) %>%
   left_join(ids) %>%
-  left_join(response_data, by = c("subj", "trial_target" = "target", "trial" = "trial_num")) %>%
+  left_join(response_data, by = c("subj", "trial_target" = "target", 
+                                  "trial" = "trial_num")) %>%
   filter(trial_type != "practice")
 
 target_data %>%
   ungroup() %>%
-  select(subj, person, target, trial, phase, trial_target, appearance, length, difficulty, understands, correct, trial_type, game_trial) %>%
+  select(subj, person, target, trial, phase, trial_target, appearance, length, avg_known, understands, correct, trial_type, game_trial) %>%
   write_feather(here("data/target_data.feather"))
 
 ```
@@ -350,15 +284,16 @@ test_data <- target_data %>%
   ungroup() %>%
   filter(phase == "pre", !is.na(understands)) %>%
   group_by(id, trial_target, appearance, correct, 
-         trial, difficulty, understands) %>%
+         trial, avg_known, understands) %>%
   summarise(length = log(sum(length)),
             num_canonical = sum(!is.na(num_canonical)) > 0,
             num_descriptors = sum(!is.na(num_descriptors)) > 0,
             num_anaphoric = sum(!is.na(num_anaphoric)) > 0,
             num_comparison = sum(!is.na(num_comparison)) > 0,
             num_subordinate = sum(!is.na(num_subordinate)) > 0,
-            num_superordinate = sum(!is.na(num_superordinate)) > 0) %>%
-  rename(ease = difficulty) %>%
+            num_superordinate = sum(!is.na(num_superordinate)) > 0) 
+
+%>%
   write_feather(here("data/qual_data.feather"))
 
 test_data %>%
@@ -706,8 +641,6 @@ target_data %>%
                          labels = c("female", "male")),
          race = as.factor(race),
          mom_ed = as.factor(mom_ed)) %>%
-  left_join(tidy_vocab %>% group_by(subj) %>% 
-              summarise(vocab = sum(understands)), by = "subj") %>%
   select(-age) %>%
   write_feather(here("data/demos.feather"))
 
