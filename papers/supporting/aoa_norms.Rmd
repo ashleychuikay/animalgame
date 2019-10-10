@@ -1,0 +1,165 @@
+---
+title: "\\LARGE{Estimating ages of acqusition for animal words}"
+author: "\\large{\\emph{Ashley Leung, Alexandra Tunkel, and Daniel Yurovsky}}"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+documentclass: article
+bibliography: animalgame-si.bib
+csl: apa6.csl
+---
+
+
+
+```{r load-libraries, message=FALSE, warning=FALSE, include = F}
+library(wordbankr)
+library(readxl)
+library(janitor)
+library(here)
+library(knitr)
+library(papaja)
+library(kableExtra)
+library(tidyverse)
+
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+               error = FALSE, cache = TRUE, tidy = FALSE)
+
+theme_set(theme_classic(base_size = 14))
+
+set.seed(42)
+options(digits=2)
+```
+
+In designing the stimuli for our experiment, our goal was to use a set of target animals that varied in their average age of acquisition (AoA). To do this, we used two sources of information: (1) Concurrent parent-report estimates of their children's vocabularies [Wordbank; @frank2017], and (2) Retrospective self-report estimates from a large group of adults on Amazon Mechanical Turk [@kuperman2012].
+
+```{r load-wordbank-data, include = F}
+administrations <- get_administration_data(language = "English (American)",
+                                           original_ids = TRUE)
+
+first_longitudinals <- administrations %>%
+      filter(longitudinal) %>%
+      arrange(original_id, age) %>%
+      group_by(original_id) %>%
+      slice(1)
+
+cross_sectional <- administrations %>%
+  mutate(cross_sectional = !longitudinal |
+           (longitudinal & (data_id %in% first_longitudinals$data_id))) %>%
+  filter(cross_sectional)
+```
+
+Wordbank is a large and growing repository of administrations of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007]--a checklist of words and other items administrered to parents in order to estimate their child's vocabulary. Because Wordbank contains a mixture of cross-sectional and longitudinal data, and we wanted to ensure independence of data across measurements, we used only the first administration for each American English-learning child in the database, yielding `r cross_sectional %>% distinct(original_id) %>% nrow()` children. For each animal word, we fit a separate  robust general linear model, estimating the proportion of children whose parents reported their producing the word from eight to 30 months (including data from both the Words and Gestures and Words and Sentences forms). Each word's normative age of acqusition was defined to be the first month of age at which 50% or more children were estimated to know the animal.
+
+```{r wordbank-animals, include = F}
+ws_animals <- get_item_data(language = "English (American)", form = "WS") %>%
+  filter(category == "animals")
+
+wg_animals <- get_item_data(language = "English (American)", form = "WG") %>%
+  filter(category == "animals")
+
+ws_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WS", 
+                                      items = ws_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WS")) %>%
+  left_join(ws_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value, form, definition)
+
+
+wg_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WG", 
+                                      items = wg_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WG")) %>%
+  left_join(wg_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value,  form, definition)
+
+animal_data <- bind_rows(ws_animal_data, wg_animal_data) %>%
+  group_by(definition) %>%
+  nest() %>%
+  ungroup() %>%
+  mutate(num_item_id = paste0("item_", 1:n())) %>%
+  unnest(cols = c(data))
+
+wordbank_aoas <- fit_aoa(animal_data, method = "glmrob") %>%
+  ungroup() %>%
+  select(-num_item_id) %>%
+  mutate(source = "wordbank") %>%
+  rename(word = definition) %>%
+  mutate(word = case_when(
+    word == "chicken (animal)" ~ "chicken",
+    word == "fish (animal)" ~ "fish",
+    word == "bunny" ~ "rabbit",
+    T ~ word))
+```
+
+```{r load-snodgrass, include = F}
+snodgrass_animals <- read_csv(here("corpus_data/cycowicz_data.csv")) %>%
+  clean_names() %>%
+  pull(intentional_name)
+```
+
+```{r load-kuperman, include = F}
+kuperman_aoas <- read_excel(
+  here("corpus_data/AoA_ratings_Kuperman_et_al_BRM.xlsx")) %>%
+  clean_names() %>%
+  select(word, rating_mean) %>%
+  filter(word %in% snodgrass_animals) %>%
+  rename(aoa = rating_mean) %>%
+  mutate(aoa = as.numeric(aoa) * 12) %>%
+  mutate(source = "kuperman", aoa = as.numeric(aoa))
+```
+
+```{r descriptives, include = F}
+joint_aoas <- bind_rows(kuperman_aoas, wordbank_aoas) %>%
+  pivot_wider(names_from = source, values_from = aoa) %>%
+  filter(!is.na(wordbank) | !is.na(kuperman))
+
+correlation <- cor.test(joint_aoas$kuperman, joint_aoas$wordbank)
+```
+
+Because only a subset of the animals in the @rossion2004 image set are included on the MacArthur-Bates Child Development Inventory, and thus available in Wordbank, we also used adult self-report norms from @kuperman2012 to derive estimates for the remaining animals. Typically, adult self-report estimates of age of acquisition are highly correlated with parent-report estimates, and they were for the `r correlation$parameter + 1` animals in both data sources ($r =$ `r correlation$estimate`, $t =$ `r correlation$statistic`, $p$ `r correlation$p.value %>% printp()`). However, self-report estimates reliably overestimate any given word's age of acqusition by several years. 
+
+```{r estimate-aoas, include = F}
+aoa_model <- joint_aoas %>%
+  filter(!is.na(wordbank) & !is.na(kuperman)) %>%
+  lm(wordbank ~ kuperman, data = .)
+
+predicted_aoas <- joint_aoas %>%
+  mutate(predicted = predict(aoa_model, 
+                             newdata = select(joint_aoas,kuperman))) %>%
+  mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %>%
+  filter(word %in% snodgrass_animals) %>%
+  arrange(aoa)
+
+```
+
+
+```{r aoa-table, results="asis", echo = F}
+predicted_aoas %>%
+    rename(animal = word, Wordbank = wordbank, Kuperman = kuperman, 
+           `model estimate` = predicted, AoA = aoa) %>%
+  arrange(animal) %>%
+  select(animal, Wordbank, Kuperman, `model estimate`, AoA) %>%
+  apa_table(format.args = list(na_string = ""), font_size = "footnotesize",
+            caption = "Estimated age of acqusition (AoA) for each animal in months.")
+```
+In order to estimate the age of acquisitions for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitons for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimates from Worbank, @kuperman2012, and our regression models.
+
+```{r include = F, eval = F}
+write_csv(predicted_aoas, here("corpus_data/predicted_aoas.csv"))
+```
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+\noindent
+
+<div id = "refs"></div>
+\endgroup
