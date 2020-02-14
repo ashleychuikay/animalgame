@@ -75,11 +75,13 @@ set.seed(42)
 options(digits=3)
 ```
 
+# Intro
+
 In just a few short years, children develop a striking mastery of their native language. Undoubtedly, a large share of the credit for this remarkable feat is due to the powerful learning mechanisms that children bring to bear on their input [@decasper1980; @saffran1996]. But, part of the credit may also may also be due to the structure of the language input itself. Indeed, individual differences in the quantity and quality of language children hear reliably related to individual differences in language learning [@hart1995; @huttenlocher2010; @rowe2012]. Further, ambient speech in the child's environment has little predictive power; the child-directed speech that occurs in children's interactions with their caregivers appears to be speech that matters [@weisleder2013; @romeo2018]. What makes child-directed speech so powerful?
 
 Child-directed speech differs from adult-directed along a number of dimension, the majority of which are characterized by simplification [@nelson1989; @snow1977]. But, child-directed speech changes over development, with parents' producing longer and more complex utterances as their children grow older [@huttenlocher2010]. Thus, child-directed speech may support learning not because it is simpler, but instead because it changes as children change: Caregivers may tune their speech to just the right level of complexity for children's ongoing language development [@snow1972; @vygotsky1978]. One possibility is that this tuning might happen at a *coarse* level: Parents might calibrate the global complexity of their speech to their estimate of their child's global linguistic development. Alternatively, parents might *fine*-tune their speech, calibrating the way they talk about specific lexical items to what their children know about those same specific items. Fine-tuned speech would be a much more powerful vehicle for learning.
 
-To date, almost all of the evidence of tuning has been found at a coarse level. For instance, the lengths of parents utterances, their articulation of parents' vowels, and the diversity of clauses in parents' speech change as children's speech changes [@moerk1976; @bernstein-ratner1984; @huttenlocher2010]. The only evidence for fine tuning comes from two corpus studies: One showing that parents are more likely to proivde their child with labels for novel as compared to familiar toys [@masur1997], and the second showing that the lengths of parents utterances in a high-density longitudinal recording dropped to their shortest just before the target child first produced those words.
+To date, almost all of the evidence of tuning has been found at a coarse level. For instance, the lengths of parents utterances, their articulation of parents' vowels, and the diversity of clauses in parents' speech change as children's speech changes [@moerk1976; @bernstein-ratner1984; @huttenlocher2010]. The only evidence for fine tuning comes from two observational studies: One showing that parents are more likely to proivde their child with labels for novel as compared to familiar toys [@masur1997], and the second showing that the lengths of parents utterances in a high-density longitudinal recording dropped to their shortest just before the target child first produced those words [@roy2009].
 
 In this paper, we present the first experimental evidence that parents fine-tune their speech for individual lexical items. Parents played a reference game with their children in which their goal was to get them to pick the correct target animal from a set of three. The length of parents' utterances reflected independent contributions from (1) the difficulty of the target animal word, (2) their global estimate of their child's vocabulary, and (3) their estimate of their child's knowledge of that particular animal. Further, parents sensitively adapted over the course of the reference game, providing more information on subsequent trials when they discovered that their child did not know an animal.
 
@@ -263,9 +265,116 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the Early AoA category were judged to be understood by `r early_understood`% of parents, and items in the Late AoA category were judged understood by `r late_understood`%.
+We first confirm that the animals predicted be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the Early AoA category were judged to be understood by `r early_understood`% of parents, and items in the Late AoA category were judged understood by `r late_understood`%. We confirmed this difference statistically with a mixed effects logistic regression, predicting success on each trial from a fixed effect of type and a random intercept ans slope of type by subject as well as a ranom intercept for each animal. The Late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_type_estimate`, $t =$ `r difficulty_type_statistic`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in Figure \ref{fig:difficulty-fig}A.
 
-The difference between these groups was confirmed statistically with a logistic mixed effects regression (\texttt{correct $\sim$ type + (type | subject) + (1 | word)}). The Late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_type_estimate`, $t =$ `r difficulty_type_statistic`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in Figure \ref{fig:difficulty-fig}A.
+## Children's accuracy at selection
+
+```{r test-data}
+test_data <- target_data %>%
+  ungroup() %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know"))) %>%
+  filter(phase == "pre", !is.na(understands)) %>%
+  group_by(understands, correct,  subj, trial, trial_target, appearance) %>%
+  summarise(length = log(sum(length))+1)  %>%
+  left_join(select(subj_vocab, subj, vocab), by = "subj")
+
+overall_correct <- test_data %>%
+  group_by(subj, trial_target, appearance) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  mutate(correct = correct * 100) %>%
+  pull()
+
+type_correct <- test_data %>%
+  group_by(understands, subj, trial_target, appearance) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  summarise(correct = mean(correct)) %>%
+  mutate(correct = correct * 100)
+
+known_correct <- type_correct %>% 
+  filter(understands == "Knows") %>%
+  pull()
+
+unknown_correct <- type_correct %>% 
+  filter(understands == "Doesn't Know") %>%
+  pull()
+
+
+overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1|subj) + (1|trial_target),
+      data = test_data %>% mutate(base = log(1/3)), family = "binomial") %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group, -std.error) %>%
+  mutate(p.value = printp(p.value))
+
+overall_acc_estimate <- overall_acc_model %>%
+  pull(estimate)
+
+overall_acc_statistic <- overall_acc_model %>%
+  pull(statistic)
+
+overall_acc_p <- overall_acc_model %>%
+  pull(p.value)
+
+type_acc_model <- test_data %>% 
+  mutate(base = log(1/3)) %>%
+  group_by(understands)  %>%
+  nest() %>%
+  mutate(model = map(data, ~glmer(correct ~ 1 + offset(base) + (1|subj) +
+                                    (1|trial_target),
+                                  data =. , family = "binomial") %>% 
+                       tidy())) %>%
+  select(-data) %>%
+  unnest() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group, -std.error) %>%
+  mutate(p.value = printp(p.value))
+
+
+known_acc_estimate <- type_acc_model %>%
+  filter(understands == "Knows") %>%
+  pull(estimate)
+
+known_acc_statistic <- type_acc_model %>%
+  filter(understands == "Knows") %>%
+  pull(statistic)
+
+known_acc_p <- type_acc_model %>%
+  filter(understands == "Knows") %>%
+  pull(p.value)
+
+unknown_acc_estimate <- type_acc_model %>%
+  filter(understands == "Doesn't Know") %>%
+  pull(estimate)
+
+unknown_acc_statistic <- type_acc_model %>%
+  filter(understands == "Doesn't Know") %>%
+  pull(statistic)
+
+unknown_acc_p <- type_acc_model %>%
+  filter(understands == "Doesn't Know") %>%
+  pull(p.value)
+
+test_lmer <- test_data %>%
+  mutate(length = log(length+1)) %>%
+  glmer(correct ~ length * understands + understands * appearance + 
+          scale(vocab) * understands +
+        (understands | subj) + (1 | trial_target), 
+      family = "binomial", 
+      data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group, -std.error) %>%
+  mutate(p.value = printp(p.value))
+```
+
+On the whole, parents effectively communicated with their children, getting them to select the correct target on `r overall_correct`\% of trials. To determine whether this was reliably greater than we we expect by chance (33\%), we fit a mixed effects logistic regression predicting whether each selection was correct from a fixed intercept, random intercepts for subjects and animals and an offset of log(1/3) so that the intercept estimated difference from chance. The interecept was significantly greater than 0 ($\beta =$  `r overall_acc_estimate`, $t =$  `r overall_acc_statistic`, $p$ `r overall_acc_p`), indiciating that children were selecting the correct animal at greater than chance levels. Children were above chance both for animals that parents thought they knew ($M =$ `r known_correct`, $\beta =$  `r known_acc_estimate`, $t =$  `r known_acc_statistic`, $p$ `r known_acc_p`), and for animals that parents thought their children did not know ($M =$ `r unknown_correct`, $\beta =$  `r unknown_acc_estimate`, $t =$  `r unknown_acc_statistic`, $p =$ `r unknown_acc_p`). Thus, parents successfully communicated the target referent to children, even when parents thought children did not know the name for the animal at the start of the game. 
+
 
 ```{r continuous-plot-data}
 continuous_plot_data <- target_data %>%
@@ -605,36 +714,6 @@ p4 <- ggplot(mean_lag_data, aes(x = phase, y = empirical_stat,
   scale_color_ptol()
 
 ggarrange(p3, p4, nrow = 1, widths = c(1, 1.5), labels = c("a", "b"))
-```
-
-## Children's selections.
-
-```{r test-data}
-test_data <- target_data %>%
-  ungroup() %>%
-  mutate(understands = factor(understands, levels = c(T,F), 
-                              labels = c("Knows", "Doesn't Know"))) %>%
-  filter(phase == "pre", !is.na(understands)) %>%
-  group_by(understands, correct,  subj, trial, trial_target, appearance) %>%
-  summarise(length = log(sum(length))+1) 
-
-mean_test_data <- test_data %>%
-  group_by(understands, subj, trial_target, appearance) %>%
-  summarise(correct = mean(correct)) %>%
-  summarise(correct = mean(correct)) %>%
-  summarise(correct = mean(correct)) %>%
-  tidyboot_mean(correct)
-
-test_lmer <- test_data %>%
-  mutate(length = log(length+1)) %>%
-  glmer(correct ~ length * understands + understands * appearance +
-        (1 | subj) + (1 | trial_target), 
-      family = "binomial", 
-      data = .) %>%
-  tidy() %>%
-  filter(effect == "fixed") %>%
-  select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value))
 ```
 
 ```{r test-model, results="asis", tab.env = "table", eval = F}
