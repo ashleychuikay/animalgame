@@ -468,6 +468,7 @@ On the whole, parents communicated effectively with their children, getting them
 To determine whether variation in parents' utterances impacted children's selections, we fit a mixed effects logistic regression predicting whether children were successful on each trial from the (log) length of parents' referring expression, parents' estimate of whether their child knew the animal, the appearance number of the target animal (first vs. second), the child's (scaled) total vocabulary, and interactions between parents' estimates of whether their children knew the animal and length, apperance, and vocabulary. We began with a maximal random effect structure and removed interactions until the model converged, leading to random intercepts and slopes of whether the child knew the animal for each subject and random intercepts for animals. For known animals, this model showed children were less accurate for longer utterances ($\beta =$  `r test_length_estimate`, $t =$  `r test_length_statistic`, $p$ `r test_length_p`), animals that parents thought they did not know ($\beta =$  `r test_unknown_estimate`, $t =$  `r test_unknown_statistic`, $p$ `r test_unknown_p`), and on second appearances ($\beta =$  `r test_appearance_estimate`, $t =$  `r test_appearance_statistic`, $p$ `r test_appearance_p`). Children with bigger vocabularies were more accurate ($\beta =$  `r test_vocab_estimate`, $t =$  `r test_vocab_statistic`, $p$ `r test_vocab_p`). For unknown animals, children were more accurate for when parents produced longer utterances ($\beta =$  `r test_length_unknown_estimate`, $t =$  `r test_length_unknown_statistic`, $p$ `r test_length_unknown_p`), on animals' second appearance ($\beta =$  `r test_appearance_unknown_estimate`, $t =$  `r test_appearance_unknown_statistic`, $p$ `r test_appearance_unknown_p`), and the effect of having a larger vocabulary was reduced ($\beta =$  `r test_vocab_unknown_estimate`, $t =$  `r test_vocab_unknown_statistic`, $p =$ `r test_vocab_unknown_p`). Thus, longer utterances were associated with more successful referential communication for animals that children did not know, but were unhelpful for animals that they did know. We next ask whether parents tuned the lengths of their utterances appropriately, producing longer utterances for unknown animals.
 
 
+
 ```{r continuous-plot-data}
 continuous_plot_data <- target_data %>%
   filter(phase == "pre") %>%
@@ -487,17 +488,17 @@ continuous_plot_data <- target_data %>%
 ```
 
 ```{r difficulty-fig, fig.width = 4.5, fig.height = 6, fig.cap = "(A) Proportion of parents who reported that their child understood the word for each of our target animals. Colors indicate a priori categorization of words into Early (blue) and Late (red) age of acquisition. (B) Number of words in parents' referring expressions as a function of the proportion of children reported to know the word for target animal. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
-plotting_words <- mean_word_difficulty %>%
-  mutate(word = factor(word, levels = unique(word)))
+# plotting_words <- mean_word_difficulty %>%
+#   mutate(word = factor(word, levels = unique(word)))
+# 
+# p1 <- ggplot(plotting_words, aes(x = word, y = avg_known, ymin = ci_lower, 
+#                             ymax = ci_upper, color = type)) + 
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+#   geom_pointrange(size = .3) +
+#   labs(y = "Parents reporting child knows", x = "") +
+#   scale_color_ptol()
 
-p1 <- ggplot(plotting_words, aes(x = word, y = avg_known, ymin = ci_lower, 
-                            ymax = ci_upper, color = type)) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-  geom_pointrange(size = .3) +
-  labs(y = "Parents reporting child knows", x = "") +
-  scale_color_ptol()
-
-p2 <- ggplot(continuous_plot_data, aes(x = avg_known, y = length, 
+ggplot(continuous_plot_data, aes(x = avg_known, y = length, 
                                  xmin = avg_known_lower,
                           xmax = avg_known_upper, ymin = length_lower,
                           ymax = length_upper,
@@ -512,7 +513,7 @@ p2 <- ggplot(continuous_plot_data, aes(x = avg_known, y = length,
        y = "Length of referring expressions") +
   scale_color_ptol()
 
-ggarrange(p1, p2, nrow = 2, heights = c(1.1, 1), labels = c("a", "b"))
+#ggarrange(p1, p2, nrow = 2, heights = c(1.1, 1), labels = c("a", "b"))
 ```
 
 ## Tuning
@@ -665,13 +666,28 @@ If parents tune their referring expressions to children's knowledge, they should
 
 Before children selected an animal, parents produced reliably fewer words on the second appearance of each animal ($\beta =$ `r second_appearance_estimate`, $t =$ `r second_appearance_statistic`, $p$ `r second_appearance_p`), reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $t =$ `r avg_known_statistic`, $p$ `r avg_known_p`), and reliably more words for animals that they believed their individual child did not know ($\beta =$ `r unknown_animal_estimate`, $t =$ `r unknown_animal_statistic`, $p =$ `r unknown_animal_p`). Children's total vocabularies did not reliably affect the number of words parents produced ($\beta =$ `r vocab_estimate`, $t =$ `r vocab_statistic`, $p =$ `r vocab_p`). After children selected an animal, parents produced reliably fewer words ($\beta =$ `r after_selection_estimate`, $t =$ `r after_selection_statistic`, $p$ `r after_selection_p`), but this reduction was smaller on an animal's second appearance ($\beta =$ `r after_selection_second_appearance_estimate`, $t =$ `r after_selection_second_appearance_statistic`, $p$ `r after_selection_second_appearance_p`), smaller for animals known by more children ($\beta =$ `r after_selection_avg_known_estimate`, $t =$ `r after_selection_avg_known_statistic`, $p$ `r after_selection_avg_known_p`), and bigger for children who knew more words ($\beta =$ `r after_selection_vocab_estimate`, $t =$ `r after_selection_vocab_statistic`, $p$ `r after_selection_vocab_p`). The number of words produced after selection did not vary with parents' beliefs about their child's knowledge of that individual animal ($\beta =$ `r after_selection_unknown_estimate`, $t =$ `r after_selection_unknown_statistic`, $p =$ `r after_selection_unknown_p`). Thus, when parents were trying to get their children to select the correct target animal, they provided more information for animals that were generally known by fewer children (coarse tuning; Figure \ref{fig:difficulty-fig}B), but over and above that provided more information for animals that they believed their individual child did not know (fine tuning; Figure \ref{fig:known-fig}). In addition, parents produced fewer words after selection for children who knew more words, perhaps because they needed less support and reinforcement.
 
+```{r individual-plot-data}
+individual_data <- target_data %>%
+  filter(phase == "pre", appearance == "first") %>%
+  group_by(understands, subj, trial_target) %>%
+  summarise(length = sum(length)) %>%
+  summarise(length = mean(length)) %>%
+  mutate(type = "First appearance")
+
+group_data <- individual_data %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  mutate(subj = "mean") %>%
+  mutate(type = "First appearance")
+```
+
 ```{r lag-data}
 setup_lag_data <- target_data %>%
   filter(phase == "pre") %>%
   ungroup() %>%
-  mutate(understands = factor(understands, levels = c(F, T), 
-                              labels = c("unknown\nanimal", 
-                                         "known\nanimal"))) %>%
   mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
                           labels = c("correct", "incorrect"))) %>%
   group_by(subj, understands, target, appearance, correct) %>%
@@ -683,23 +699,23 @@ setup_lag_data <- target_data %>%
   group_by(subj, understands, target) %>%
   mutate(lag_correct = lag(correct)) 
 
-lag_data <- setup_lag_data %>%
-  filter(appearance == "second", !is.na(lag_correct)) %>%
-  group_by(understands, lag_correct, subj, target) 
 
-mean_lag_data <- setup_lag_data %>%
-  filter(appearance == "second" | is.na(lag_correct)) %>%
-  mutate(type = if_else(is.na(lag_correct), "first", 
-                        as.character(lag_correct)),
-         type = factor(type, levels = c("first", "correct", "incorrect"),
-                       labels = c("first\nappearance", "following\ncorrect",
-                                  "following\nincorrect"))) %>%
-  group_by(type, understands, subj, target) %>%
-  summarise(length = sum(length, na.rm = T)) %>%
-  summarise(length = mean(length, na.rm = T)) %>%
-  tidyboot_mean(length)
+indiv_lag_data <- setup_lag_data %>%
+    filter(appearance == "second", !is.na(lag_correct)) %>%
+  group_by(understands, lag_correct, subj, target) %>%
+  summarise(length = sum(length)) %>%
+  summarise(length = mean(length)) %>%
+  rename(type = lag_correct)
 
+group_lag_data <- indiv_lag_data %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  mutate(subj = "mean")
 ```
+
 
 ```{r lag-lmer}
 lag_lmer <- lag_data %>%
@@ -754,17 +770,31 @@ We found that parents' referring expressions on the second appearance of each an
 
 Together, these two sets of analyses suggest that parents tune their referring expressions not just coarsely to their knowledge about how hard individual animal words are, or how much language their children generally know, but also finely to their beliefs about their children's knowledge of individual lexical items. Further, when they discover that they have incorrect beliefs about their children's knowledge, they update these beliefs in real-time and leverage them on subsequent references to the same lexical item.
 
-```{r known-fig, fig.width = 4, fig.height = 4, fig.env = "figure", fig.cap = "Length of parents' referring expressions on the first appearance each animal, and on the second appearance following correct vs. incorrect selections on the first appearance. When parents thought their child knew an animal, but they were incorrect on its first appearance, they provided more information on the second appearance. Points show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
-ggplot(mean_lag_data, aes(x = type, y = empirical_stat, 
-           ymin = ci_lower, ymax = ci_upper, color = understands, 
-           label = understands)) +
-  geom_pointrange(position = position_dodge(.5), show.legend = F) +
+```{r known-fig, fig.width = 6, fig.height = 2.5, fig.env = "figure", fig.cap = "Length of parents' referring expressions on the first appearance each animal, and on the second appearance following correct vs. incorrect selections on the first appearance. When parents thought their child knew an animal, but they were incorrect on its first appearance, they provided more information on the second appearance. Points show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
+individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
+  mutate(type = factor(type, 
+                       levels = c("First appearance", "correct", "incorrect"),
+                       labels = c("First appearance", "Following correct", 
+                                  "Following incorrect")))
+
+group_plot_data <- bind_rows(group_data, group_lag_data) %>%
+  mutate(type = factor(type, 
+                       levels = c("First appearance", "correct", "incorrect"),
+                       labels = c("First appearance", "Following correct", 
+                                  "Following incorrect")))
+
+ggplot(individual_plot_data, aes(x = understands, y = length, group = subj)) + 
+  geom_point(alpha = .5, position=position_dodge(0.06), color = "light gray") +
+  geom_line(alpha = .5, color = "light gray", position=position_dodge(0.06)) +
+  scale_x_discrete(labels= c("Unknown Animal", "Known Animal"), expand = c(.1, .1)) + 
   labs(x ="", y = "Length of referring expressions") +
-  theme(strip.text.x = element_text(size = 7), aspect.ratio = 1 / 1.66)+
-  geom_dl(method = list(dl.trans(x=x - .25), "first.points", cex=.8),
-                        position = position_dodge(.5)) +
-  scale_color_ptol()
+  facet_wrap(~type) +
+  geom_pointrange(aes(ymin = length_lower, ymax = length_upper), 
+                  data = group_plot_data) + 
+  geom_line(data = group_plot_data) +
+  scale_y_continuous(limits = c(2, 15))
 ```
+
 
 ## Content of referring expressions
 
