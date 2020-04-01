@@ -1,15 +1,15 @@
 ---
-title: "\\LARGE{Estimating ages of acqusition for animal words}"
+title: "\\LARGE{Estimating ages of acquisition for animal words}"
 author: "\\large{\\emph{Ashley Leung, Alexandra Tunkel, and Daniel Yurovsky}}"
 output: 
   pdf_document:
     latex_engine: xelatex
 documentclass: article
 bibliography: animalgame-si.bib
+fontsize: 11pt
 geometry: margin=1in
 csl: apa6.csl
 ---
-
 
 
 ```{r load-libraries, message=FALSE, warning=FALSE, include = F}
