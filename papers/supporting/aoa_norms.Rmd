@@ -6,6 +6,7 @@ output:
     latex_engine: xelatex
 documentclass: article
 bibliography: animalgame-si.bib
+geometry: margin=1in
 csl: apa6.csl
 ---
 
@@ -20,11 +21,13 @@ library(knitr)
 library(papaja)
 library(kableExtra)
 library(tidyverse)
+library(tidyboot)
+library(feather)
 
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
 
-theme_set(theme_classic(base_size = 14))
+theme_set(theme_classic(base_size = 12))
 
 set.seed(42)
 options(digits=2)
@@ -120,7 +123,7 @@ joint_aoas <- bind_rows(kuperman_aoas, wordbank_aoas) %>%
 correlation <- cor.test(joint_aoas$kuperman, joint_aoas$wordbank)
 ```
 
-Because only a subset of the animals in the @rossion2004 image set are included on the MacArthur-Bates Child Development Inventory, and thus available in Wordbank, we also used adult self-report norms from @kuperman2012 to derive estimates for the remaining animals. Typically, adult self-report estimates of age of acquisition are highly correlated with parent-report estimates, and they were for the `r correlation$parameter + 1` animals in both data sources ($r =$ `r correlation$estimate`, $t =$ `r correlation$statistic`, $p$ `r correlation$p.value %>% printp()`). However, self-report estimates reliably overestimate any given word's age of acqusition by several years. 
+Because only a subset of the animals in the @rossion2004 image set are included on the MacArthur-Bates Child Development Inventory, and thus available in Wordbank, we also used adult self-report norms from @kuperman2012 to derive estimates for the remaining animals. Typically, adult self-report estimates of age of acquisition are highly correlated with parent-report estimates, and they were for the `r correlation$parameter + 1` animals in both data sources ($r =$ `r correlation$estimate`, $t =$ `r correlation$statistic`, $p$ `r correlation$p.value %>% printp()`). However, self-report estimates were made on a 1-7 Likert scale rather than on the scale of months. 
 
 ```{r estimate-aoas, include = F}
 aoa_model <- joint_aoas %>%
@@ -133,7 +136,13 @@ predicted_aoas <- joint_aoas %>%
   mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %>%
   filter(word %in% snodgrass_animals) %>%
   arrange(aoa)
+```
 
+```{r animalgame-data, include = F}
+word_difficulty <- read_feather(here("data/word_difficulty.feather")) %>%
+  left_join(predicted_aoas, by = c("word"))
+
+animalgame_cor <- cor.test(word_difficulty$difficulty, word_difficulty$aoa)
 ```
 
 
@@ -146,7 +155,26 @@ predicted_aoas %>%
   apa_table(format.args = list(na_string = ""), font_size = "footnotesize",
             caption = "Estimated age of acqusition (AoA) for each animal in months.")
 ```
-In order to estimate the age of acquisitions for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitons for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimates from Worbank, @kuperman2012, and our regression models.
+
+In order to estimate the age of acquisitions for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitons for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimates from Worbank, @kuperman2012, and our regression models. For comparison, Figure \ref{fig:difficulty-fig} shows the proportion of parents of 2-2.5-year-olds in our study who reported that their child knew each of the tested animals. These proportions were highly correlated with the model-predicted ages of acquisition (($r =$ `r animalgame_cor$estimate`, $t =$ `r animalgame_cor$statistic`, $p$ `r animalgame_cor$p.value %>% printp()`).
+
+```{r difficulty-fig, fig.height = 2.5, fig.width = 4, echo = F, fig.cap = "\\label{fig:difficulty-fig}Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap."}
+mean_word_difficulty <- word_difficulty %>%
+  group_by(word) %>%
+  tidyboot_mean(understands) %>%
+  arrange(desc(empirical_stat))
+
+plotting_words <- mean_word_difficulty %>%
+  mutate(word = factor(word, levels = unique(word)))
+
+ggplot(plotting_words, aes(x = word, y = empirical_stat, ymin = ci_lower, 
+                            ymax = ci_upper)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        text = element_text(size = 10)) +
+  geom_pointrange(size = .3) +
+  labs(y = "Parents report known", x = "") 
+```
+
 
 ```{r include = F, eval = F}
 write_csv(predicted_aoas, here("corpus_data/predicted_aoas.csv"))
