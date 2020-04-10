@@ -66,7 +66,7 @@ library(english)
 library(ggthemes)
 library(tidyverse)
 
-theme_set(theme_few(base_size = 12) + theme(legend.position = "none"))
+theme_set(theme_few(base_size = 10) + theme(legend.position = "none"))
 
 knitr::opts_chunk$set(fig.pos = 'tb', echo = FALSE, cache = TRUE, 
                       warning = FALSE, message = FALSE, 
@@ -76,13 +76,13 @@ set.seed(42)
 options(digits=3)
 ```
 
-In just a few short years, children develop a striking mastery of their native language. Undoubtedly, a large share of the credit for this remarkable feat is due to the powerful learning mechanisms that children bring to bear on their input [@kuhl2004; @saffran1996]. However, part of the credit may also be due to the structure of the language input itself. In line with this hypothesis, individual differences in the quantity and quality of language children hear are reliably related to individual differences in language learning [@hart1995; @huttenlocher2010; @rowe2012]. Critically, this relationship is driven by speech directed to children in interactions with their caregivers; differences in overheard speech do not predict differences in language learning even in communities where child-directed speech is relatively rare [@weisleder2013; @romeo2018; @shneidman2012]. What makes child-directed speech so powerful?
+In just a few short years, children develop a striking mastery of their native language. Undoubtedly, a large share of the credit for this remarkable feat is due to the powerful learning mechanisms that children bring to bear on their input [@kuhl2004; @saffran1996]. However, a share of the credit may be due to the structure of linguistic input itself. In line with this hypothesis, individual differences in the quantity and quality of the language children hear are associated with individual differences in language learning [@hart1995; @huttenlocher2010; @rowe2012]. Critically, this association is driven by speech directed to children in interactions with their caregivers; differences in overheard speech do not predict differences in language learning, even in communities where child-directed speech is relatively rare [@weisleder2013; @romeo2018; @shneidman2012]. What makes child-directed speech so powerful?
 
-Child-directed speech differs from adult-directed speech along a number of dimensions, the majority of which are characterized by simplification [@nelson1989; @snow1972]. Importantly, child-directed speech also changes over development, with parents producing longer and more complex utterances as children develop [@huttenlocher2010]. Child-directed speech may scaffold learning not because it is simpler, but because it is adaptive--Caregivers may tune their speech to the right level of complexity for children's ongoing language development [@snow1972; @vygotsky1978]. One possibility is that parents *coarse-tune* their speech, calibrating global complexity to children's global linguistic development. Alternatively, parents could *fine-tune* their speech, calibrating the complexity of language containing specific lexical items to children's knowledge of those same lexical items. Fine-tuned speech would be a particulary powerful vehicle for language learning, and thus an important part of the explanation for rapid children's rapid language learning [@bruner1983].
+Child-directed speech differs from adult-directed speech along a number of dimensions, the majority of which are characterized by simplification [@nelson1989; @snow1972]. But, child-directed speech also changes over development: Parents direct longer and more complex utterances to their older children [@huttenlocher2010]. Child-directed speech may thus scaffold learning not because it is simpler, but because it is adaptive--Caregivers may tune their speech to the right level of complexity for children's ongoing language development [@snow1972; @vygotsky1978]. One possibility is that parents *coarse-tune* their speech, calibrating global complexity to children's global linguistic development. Alternatively, parents could *fine-tune* their speech, calibrating the complexity of language containing specific lexical items to children's knowledge of those same lexical items. Fine-tuned speech would be a particulary powerful vehicle for language learning, and thus an important part of the explanation for children's rapid language learning [@bruner1983].
 
-Parents have been shown to coarse-tune several aspects of child-directed speech: the lengths of utterances, the articulation of vowels, and the diversity of clauses in parents' speech change over children's language development. [@moerk1976; @bernstein-ratner1984; @huttenlocher2010]. However, the only evidence for fine-tuning comes from two observational studies, one showing that parents are more likely to provide their child with labels for novel as compared to familiar toys [@masur1997], and the second showing that the lengths of caregivers' utterances containing a particular word are shortest just before the target child first produces that word [@roy2009].
+Parents have been shown to coarse-tune several aspects of child-directed speech: the lengths of utterances, the articulation of vowels, and the diversity of clauses in parents' speech change over children's language development. [@moerk1976; @bernstein-ratner1984; @huttenlocher2010]. However, the only evidence for fine-tuning comes from two observational studies, one showing that parents are more likely to provide their child with labels for novel as compared to familiar toys [@masur1997], and the second showing that the lengths of three caregivers' utterances containing a particular word are shortest just before their child first produces that word [@roy2009].
 
-Here, we present the first experimental evidence for fine-tuning. We asked parents and their children to play a reference game in which the parent's goal was to guide their child to select a target animal from a set of three. Parents tuned the amount of information in their utterances not just to the average difficulty of each animal word, but to their prior estimates of their individual child's knowledge of that animal. Further, parents sensitively adapted over the course of the reference game, providing more information on subsequent trials when they discovered that their child did not know an animal. Together, these results show that parents leverage their considerable knowledge of their children's language development to fine-tune the information they provide.
+Here, we present the first experimental evidence for fine-tuning. We asked children and their parents to play a reference game in which the parent's goal was to guide their child to select a target animal from a set of three. Parents tuned the amount of information in their utterances not just to the average difficulty of each animal word, but to their prior estimates of their individual child's knowledge of that animal. Further, parents sensitively adapted over the course of the reference game, providing more information on subsequent trials when they discovered that their child did not know an animal. Together, these results show that parents leverage their considerable knowledge of their children's language development to fine-tune the information they provide.
 
 # Method
 
@@ -139,6 +139,16 @@ white_pct <- demos %>%
   pull(race) %>% 
   percent()
 
+black_pct <- demos %>% 
+  summarise(race = mean(race == "Black or African American")) %>% 
+  pull(race) %>% 
+  percent()
+
+hispanic_pct <- demos %>% 
+  summarise(hispanic = mean(hispanic == "yes", na.rm = TRUE)) %>% 
+  pull(hispanic) %>% 
+  percent()
+
 degree_pct <- demos %>% 
   summarise(mom_ed = mean(mom_ed %in% c("4-Year College", 
                                         "Graduate degree"))) %>% 
@@ -148,7 +158,7 @@ degree_pct <- demos %>%
 
 Toddlers (aged 2-2.5 years) and their parents were recruited from a database of families in the local community or approached on the floor of a local science museum in order to achieve a planned sample of 40 parent-child dyads. A total of 48 parent-child pairs were recruited, but data from 7 pairs were dropped from analysis because of failure to complete the experiment as designed. The final sample consisted of `r nrow(demos)` children aged `r youngest_chid_months` mo.; `r youngest_child_days` days to `r oldest_child_months` mo.; `r oldest_child_days` days ($M =$ `r mean_months` mo.; `r mean_days` days), `r n_girls` of whom were girls. 
 
-In our recruitment, we made an effort to sample children from a variety of racial and socio-economic groups. Our final sample was broadly representative of the racial composition of the Chicago Area and the US more broadly (`r white_pct` White). However, our sample was significantly more educated than the broader community (`r degree_pct` of mothers had a College or Graduate Degree).
+In our recruitment, we made an effort to sample children from a variety of racial and socio-economic groups. Our final sample was roughly representative of the racial composition of the Chicago Area and the US more broadly (`r white_pct` White, `r black_pct` Black, `r hispanic_pct` Hispanic). However, our sample was significantly more educated than the broader community (`r degree_pct` of mothers had a College or Graduate Degree).
 
 ## Stimuli
 
@@ -203,7 +213,7 @@ total_vocab <- subj_vocab %>%
 
 Eighteen animal images were selected from the @rossion2004 image set, a colorized version of the @snodgrass1980 object set. Animals were selected based on estimates of their age of acquisition (AoA) for American English learners. To obtain these estimates, we used two sources of information: parent-report estimates of children's age of acqusition from Wordbank [@frank2017], and retrospective self-report estimates of AoA from adults [@kuperman2012, see Supporting Information for details]. The AoA of the selected animals ranged from `r min_aoa` to `r max_aoa` months. Half of the animals were chosen to have an Early age of acquisition (`r early_min_aoa`-`r early_max_aoa` months), and the other half were chosen to have a Late age of acquisition (`r late_min_aoa`-`r late_max_aoa` months). Each trial featured three animals, all from either the low AoA or high AoA category. This separation was designed to lower the likelihood that children could use knowledge of low AoA animals to infer the correct target on high AoA trials.
 
-A modified version of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007], a parent-reported measure of children's vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the `r total_vocab` in the survey. Two of the animal words--one in the early AOA (pig) and one in the late AOA category (rooster)--were accidentally omitted, so trials for those words were not included in analysis as we could not obtain individual-level estimates of children's knowledge.
+A modified version of the MacArthur-Bates Communicative Development Inventory Short Form [CDI; @fenson2007], a parent-reported measure of children's vocabulary, was administered before the testing session via an online survey. The selected animal words were embedded among the `r total_vocab` in the survey. Two of the animal words--one in the early AOA (pig) and one in the late AOA category (rooster)--were accidentally omitted, so trials for those words were not included in analyses as we could not obtain individual-level estimates of children's knowledge.
 
 ## Design and Procedure
 
@@ -274,7 +284,7 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the animals predicted to be later learned were less likely to be marked known by the parents of children in our studies. As predicted, animals in the Early AoA category were judged to be understood by `r early_understood`% of parents, and items in the Late AoA category were judged understood by `r late_understood`%. We confirmed this difference statistically with a mixed effects logistic regression, predicting success on each trial from a fixed effect of type and a random intercept and slope of type by subject as well as a random intercept for each animal. The Late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_type_estimate`, $t =$ `r difficulty_type_statistic`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supporting Information.
+We first confirm that the animals predicted to be later learned were less likely to be marked known by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the Early AoA category, and `r late_understood`% of the animals in the Late AoA category. We confirmed this difference statistically with a mixed effects logistic regression, predicting knowledge judgments for each animal from a fixed effect of type (Early/Late) and a random intercept and slope of type by subject as well as a random intercept for each animal. The Late AoA items were judged known by a significantly smaller proportion of parents ($\beta =$ `r difficulty_type_estimate`, $t =$ `r difficulty_type_statistic`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supporting Information.
 
 ## Selection accuracy
 
@@ -467,9 +477,9 @@ test_vocab_unknown_p <- test_lmer %>%
   pull(p.value)
 ```
 
-On the whole, parents communicated effectively with their children, such that children selected the correct target on `r overall_correct`\% of trials. To determine whether this was reliably greater than we would expect by chance (33\%), we fit a mixed effects logistic regression predicting whether each selection was correct from a fixed intercept, random intercepts for subjects and animals, and an offset of log(1/3) so that the intercept estimated difference from chance. The intercept was significantly greater than 0 ($\beta =$  `r overall_acc_estimate`, $t =$  `r overall_acc_statistic`, $p$ `r overall_acc_p`), indiciating that children were selecting the correct animal at greater than chance levels. Children were above chance both for animals that parents thought they knew ($M =$ `r known_correct`, $\beta =$  `r known_acc_estimate`, $t =$  `r known_acc_statistic`, $p$ `r known_acc_p`), and for animals that parents thought their children did not know ($M =$ `r unknown_correct`, $\beta =$  `r unknown_acc_estimate`, $t =$  `r unknown_acc_statistic`, $p =$ `r unknown_acc_p`). Thus, parents successfully communicated the target referent to children, even when parents thought their children did not know the name for the animal at the start of the game. 
+On the whole, parents communicated effectively with their children, such that children selected the correct target on `r overall_correct`\% of trials. To determine whether this was reliably greater than we would expect by chance (33\%), we fit a mixed effects logistic regression predicting whether each selection was correct from a fixed intercept, random intercepts for subjects and animals, and an offset of log(1/3) so that the intercept estimated difference from chance. The intercept was significantly greater than 0 ($\beta =$  `r overall_acc_estimate`, $t =$  `r overall_acc_statistic`, $p$ `r overall_acc_p`), indiciating that children chose the correct animal at greater than chance levels. Children were above chance both for animals that parents thought they knew ($M =$ `r known_correct`, $\beta =$  `r known_acc_estimate`, $t =$  `r known_acc_statistic`, $p$ `r known_acc_p`), and for animals that parents thought their children did not know ($M =$ `r unknown_correct`, $\beta =$  `r unknown_acc_estimate`, $t =$  `r unknown_acc_statistic`, $p =$ `r unknown_acc_p`). Thus, parents successfully communicated the target referent to children, even when parents thought their children did not know the name for the animal at the start of the game. 
 
-To determine whether variation in parents' utterances impacted children's selections, we fit a mixed effects logistic regression predicting whether children were successful on each trial from the (log) length of parents' referring expression, parents' estimate of whether their child knew the animal, the appearance number of the target animal (first vs. second), the child's (scaled) total vocabulary, and interactions between parents' estimates of whether their children knew the animal and length, apperance, and vocabulary. We began with a maximal random effect structure and removed interactions until the model converged, leading to random intercepts and slopes of whether the child knew the animal for each subject and random intercepts for animals. For known animals, this model showed children were less accurate for longer utterances ($\beta =$  `r test_length_estimate`, $t =$  `r test_length_statistic`, $p$ `r test_length_p`), animals that parents thought they did not know ($\beta =$  `r test_unknown_estimate`, $t =$  `r test_unknown_statistic`, $p$ `r test_unknown_p`), and on second appearances ($\beta =$  `r test_appearance_estimate`, $t =$  `r test_appearance_statistic`, $p$ `r test_appearance_p`). Children with bigger vocabularies were more accurate ($\beta =$  `r test_vocab_estimate`, $t =$  `r test_vocab_statistic`, $p$ `r test_vocab_p`). For unknown animals, children were more accurate when parents produced longer utterances ($\beta =$  `r test_length_unknown_estimate`, $t =$  `r test_length_unknown_statistic`, $p$ `r test_length_unknown_p`), on an animal's second appearance ($\beta =$  `r test_appearance_unknown_estimate`, $t =$  `r test_appearance_unknown_statistic`, $p$ `r test_appearance_unknown_p`), and the effect of having a larger vocabulary was reduced ($\beta =$  `r test_vocab_unknown_estimate`, $t =$  `r test_vocab_unknown_statistic`, $p =$ `r test_vocab_unknown_p`). Thus, longer utterances were associated with more successful referential communication for animals that children did not know, but were unhelpful for animals that they did know. We next ask whether parents tuned the lengths of their utterances appropriately, producing longer utterances for unknown animals.
+To determine whether variation in parents' utterances impacted children's selections, we fit a mixed effects logistic regression predicting whether children were successful on each trial from the (log) length of parents' referring expression, parents' estimate of whether their child knew the animal, the appearance number of the target animal (first vs. second), the child's (scaled) total vocabulary, and interactions between parents' estimates of whether their children knew the animal and length, apperance, and vocabulary. We began with a maximal random effect structure and removed interactions until the model converged, leading to random intercepts and slopes of whether the child knew the animal for each subject and random intercepts for animals. For known animals, this model showed that children were less accurate for longer utterances ($\beta =$  `r test_length_estimate`, $t =$  `r test_length_statistic`, $p$ `r test_length_p`), and on second appearances ($\beta =$  `r test_appearance_estimate`, $t =$  `r test_appearance_statistic`, $p$ `r test_appearance_p`). Children with bigger vocabularies were more accurate ($\beta =$  `r test_vocab_estimate`, $t =$  `r test_vocab_statistic`, $p$ `r test_vocab_p`). Children were less accurate for animals that parents thought they did not know ($\beta =$  `r test_unknown_estimate`, $t =$  `r test_unknown_statistic`, $p$ `r test_unknown_p`), and for these animals, children were more accurate for longer utterances ($\beta =$  `r test_length_unknown_estimate`, $t =$  `r test_length_unknown_statistic`, $p$ `r test_length_unknown_p`), and on second appearances ($\beta =$  `r test_appearance_unknown_estimate`, $t =$  `r test_appearance_unknown_statistic`, $p$ `r test_appearance_unknown_p`). The benefit of having a larger vocabulary was also reduced for unknown animals ($\beta =$  `r test_vocab_unknown_estimate`, $t =$  `r test_vocab_unknown_statistic`, $p =$ `r test_vocab_unknown_p`). Thus, longer utterances were associated with more successful referential communication for animals that children did not know, but were unhelpful for animals that they did know. We next ask whether parents tuned the lengths of their utterances appropriately, producing longer utterances for unknown animals.
 
 
 
@@ -491,17 +501,7 @@ continuous_plot_data <- target_data %>%
                                    trial_target, as.character(NA)))
 ```
 
-```{r difficulty-fig-setup}
-# plotting_words <- mean_word_difficulty %>%
-#   mutate(word = factor(word, levels = unique(word)))
-# 
-# p1 <- ggplot(plotting_words, aes(x = word, y = avg_known, ymin = ci_lower, 
-#                             ymax = ci_upper, color = type)) + 
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-#   geom_pointrange(size = .3) +
-#   labs(y = "Parents reporting child knows", x = "") +
-#   scale_color_ptol()
-
+```{r difficulty-fig-setup, cache = FALSE}
 p1 <- ggplot(continuous_plot_data, aes(x = avg_known, y = length, 
                                  xmin = avg_known_lower,
                           xmax = avg_known_upper, ymin = length_lower,
@@ -511,14 +511,95 @@ p1 <- ggplot(continuous_plot_data, aes(x = avg_known, y = length,
   geom_smooth(method = "lm", formula = "y ~ x", se = F, color = "black") +
   geom_pointrange()+ 
   geom_errorbarh() + 
-  geom_label_repel() +
+  geom_label_repel(size = 2.5) +
   theme(legend.position = "none") +
   labs(x = "Proportion of children reported knowing target word", 
-       y = "Length of referring expression") +
+       y = "Referring expression length") +
   scale_color_ptol()
-
-#ggarrange(p1, p2, nrow = 2, heights = c(1.1, 1), labels = c("a", "b"))
 ```
+
+
+```{r individual-plot-data}
+individual_data <- target_data %>%
+  filter(phase == "pre", appearance == "first") %>%
+  group_by(understands, subj, trial_target) %>%
+  summarise(length = sum(length)) %>%
+  summarise(length = mean(length)) %>%
+  mutate(type = "First appearance")
+
+group_data <- individual_data %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  mutate(subj = "mean") %>%
+  mutate(type = "First appearance")
+```
+
+```{r lag-data}
+setup_lag_data <- target_data %>%
+  filter(phase == "pre") %>%
+  ungroup() %>%
+  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
+                          labels = c("correct", "incorrect"))) %>%
+  group_by(subj, understands, target, appearance, correct) %>%
+  summarise(length = sum(length)) %>%
+  ungroup() %>%
+  complete(nesting(subj, target, understands,  correct,  appearance),
+           fill = list(length = 0)) %>%
+  arrange(subj, understands, target,appearance, correct) %>%
+  group_by(subj, understands, target) %>%
+  mutate(lag_correct = lag(correct)) 
+
+
+indiv_lag_data <- setup_lag_data %>%
+    filter(appearance == "second", !is.na(lag_correct)) %>%
+  group_by(understands, lag_correct, subj, target) %>%
+  summarise(length = sum(length)) %>%
+  summarise(length = mean(length)) %>%
+  rename(type = lag_correct)
+
+group_lag_data <- indiv_lag_data %>%
+  tidyboot_mean(length) %>%
+  rename(length = empirical_stat,
+         length_upper = ci_upper,
+         length_lower = ci_lower) %>%
+  select(-mean, -n) %>%
+  mutate(subj = "mean")
+```
+
+
+```{r known-fig, fig.width = 5, fig.height = 5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions to communicate about animals that children were less lkely to know. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap. (B) Parents produced longer referring expressions for words that they thought their child did not know (left panel). When children selected correctly in response to these expressions, parents continued to produce longer expressions for animals they thought their children did not know. However, if children selected incorrectly for animals that parents thought they knew, parents produced longer expressions on their second appearance (right 2 panels). Gray points and lines represent individual participants, Colored points and  lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap.", cache = FALSE}
+
+
+individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
+  mutate(type = factor(type, 
+                       levels = c("First appearance", "correct", "incorrect"),
+                       labels = c("First appearance", "Following correct", 
+                                  "Following incorrect")))
+
+group_plot_data <- bind_rows(group_data, group_lag_data) %>%
+  mutate(type = factor(type, 
+                       levels = c("First appearance", "correct", "incorrect"),
+                       labels = c("First appearance", "Following correct", 
+                                  "Following incorrect")))
+
+p2 <- ggplot(individual_plot_data, aes(x = understands, y = length, group = subj)) + 
+  geom_point(alpha = .5, position=position_dodge(0.06), color = "light gray") +
+  geom_line(alpha = .5, color = "light gray", position=position_dodge(0.06)) +
+  scale_x_discrete(labels= c("Unknown\nanimal", "Known\nanimal"), expand = c(.1, .1)) + 
+  labs(x ="", y = "Referring expression length") +
+  facet_wrap(~ type) +
+  geom_pointrange(aes(ymin = length_lower, ymax = length_upper), 
+                  data = group_plot_data) + 
+  geom_line(data = group_plot_data) +
+  scale_y_continuous(limits = c(2, 15))
+
+ggarrange(p1, p2, nrow = 2, heights = c(1, 1), labels = c("a", "b"))
+```
+
+
 
 ## Tuning
 
@@ -670,59 +751,10 @@ If parents tune their referring expressions to children's knowledge, they should
 
 Before children selected an animal, parents produced reliably fewer words on the second appearance of each animal ($\beta =$ `r second_appearance_estimate`, $t =$ `r second_appearance_statistic`, $p$ `r second_appearance_p`), reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $t =$ `r avg_known_statistic`, $p$ `r avg_known_p`), and reliably more words for animals that they believed their individual child did not know ($\beta =$ `r unknown_animal_estimate`, $t =$ `r unknown_animal_statistic`, $p =$ `r unknown_animal_p`). Children's total vocabularies did not reliably affect the number of words parents produced ($\beta =$ `r vocab_estimate`, $t =$ `r vocab_statistic`, $p =$ `r vocab_p`). After children selected an animal, parents produced reliably fewer words ($\beta =$ `r after_selection_estimate`, $t =$ `r after_selection_statistic`, $p$ `r after_selection_p`), but this reduction was smaller on an animal's second appearance ($\beta =$ `r after_selection_second_appearance_estimate`, $t =$ `r after_selection_second_appearance_statistic`, $p$ `r after_selection_second_appearance_p`), smaller for animals known by more children ($\beta =$ `r after_selection_avg_known_estimate`, $t =$ `r after_selection_avg_known_statistic`, $p$ `r after_selection_avg_known_p`), and bigger for children who knew more words ($\beta =$ `r after_selection_vocab_estimate`, $t =$ `r after_selection_vocab_statistic`, $p$ `r after_selection_vocab_p`). The number of words produced after selection did not vary with parents' beliefs about their child's knowledge of that individual animal ($\beta =$ `r after_selection_unknown_estimate`, $t =$ `r after_selection_unknown_statistic`, $p =$ `r after_selection_unknown_p`). Thus, when parents were trying to get their children to select the correct target animal, they provided more information for animals that were generally known by fewer children (coarse tuning; Figure \ref{fig:known-fig}A), but over and above that provided more information for animals that they believed their individual child did not know (fine tuning; Figure \ref{fig:known-fig}B). In addition, parents produced fewer words after selection for children who knew more words, perhaps because they needed less support and reinforcement.
 
-```{r individual-plot-data}
-individual_data <- target_data %>%
-  filter(phase == "pre", appearance == "first") %>%
-  group_by(understands, subj, trial_target) %>%
-  summarise(length = sum(length)) %>%
-  summarise(length = mean(length)) %>%
-  mutate(type = "First appearance")
-
-group_data <- individual_data %>%
-  tidyboot_mean(length) %>%
-  rename(length = empirical_stat,
-         length_upper = ci_upper,
-         length_lower = ci_lower) %>%
-  select(-mean, -n) %>%
-  mutate(subj = "mean") %>%
-  mutate(type = "First appearance")
-```
-
-```{r lag-data}
-setup_lag_data <- target_data %>%
-  filter(phase == "pre") %>%
-  ungroup() %>%
-  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
-                          labels = c("correct", "incorrect"))) %>%
-  group_by(subj, understands, target, appearance, correct) %>%
-  summarise(length = sum(length)) %>%
-  ungroup() %>%
-  complete(nesting(subj, target, understands,  correct,  appearance),
-           fill = list(length = 0)) %>%
-  arrange(subj, understands, target,appearance, correct) %>%
-  group_by(subj, understands, target) %>%
-  mutate(lag_correct = lag(correct)) 
-
-
-indiv_lag_data <- setup_lag_data %>%
-    filter(appearance == "second", !is.na(lag_correct)) %>%
-  group_by(understands, lag_correct, subj, target) %>%
-  summarise(length = sum(length)) %>%
-  summarise(length = mean(length)) %>%
-  rename(type = lag_correct)
-
-group_lag_data <- indiv_lag_data %>%
-  tidyboot_mean(length) %>%
-  rename(length = empirical_stat,
-         length_upper = ci_upper,
-         length_lower = ci_lower) %>%
-  select(-mean, -n) %>%
-  mutate(subj = "mean")
-```
-
 
 ```{r lag-lmer}
-lag_lmer <- lag_data %>%
+lag_lmer <- setup_lag_data %>%
+  filter(!is.na(lag_correct)) %>%
   mutate(length = log(length+1)) %>%
   lmer(length ~ lag_correct * understands + 
          ( understands | subj) + (1 | target), 
@@ -770,39 +802,11 @@ lag_incorrect_known_p <- lag_lmer  %>%
   pull(p.value)
 ```
 
-We found that parents' referring expressions on the second appearance of each animal were affected by both measures of coarse tuning: The child's total vocabulary and the proportion of all children who knew that animal. They were not, however, affected by parents' beliefs about their child's knowledge of that animal. Why not? One possibility is that parents obtain information from the first appearance of each animal: they may have thought their child knew "leopard," but discovered from their incorrect choice that they did not. If so, they might produce a longer referring expression for the leopard the second time around. To test this hypothesis, we fit a mixed effects model predicting the length of parents' referring expressions on the second appearance of each animal from success on first appearance, whether parents thought their child knew the animal prior to the experiment, and their interaction. We followed the same approach with random effects, beginning with a maximal model and pruning effects until the model converged. The final model included random intercepts and slopes of prior belief by subject and a random intercept for each animal. Parents produced marginally shorter referring expressions when children were incorrect on the first appearance of each animal ($\beta =$ `r lag_incorrect_estimate`, $t =$ `r lag_incorrect_statistic`, $p =$ `r lag_incorrect_p`), and shorter referring expressions for animals that they believed their child knew ($\beta =$ `r lag_known_estimate`, $t =$ `r lag_known_statistic`, $p =$ `r lag_known_p`). However, they produced longer referring expressions following an incorrect response for animals they thought their children knew ($\beta =$ `r lag_incorrect_known_estimate`, $t =$ `r lag_incorrect_known_statistic`, $p$ `r lag_incorrect_known_p`). Thus, when parents thought their children knew an animal, but then observed evidence to the contrary, they provided more information in their referring expressions for children to make the correct selection the second time. Importantly, this same pattern was not found in unknown animals--Parents' referring expressions did not differ in length for known and unknown animals when children had incorrectly selected on the first appearance (Figure \ref{fig:known-fig}). 
+We found that parents' referring expressions on the second appearance of each animal were affected by both measures of coarse tuning: The child's total vocabulary and the proportion of all children who knew that animal. They were not, however, affected by parents' beliefs about their child's knowledge of that animal. Why not? One possibility is that parents obtain information from the first appearance of each animal: they may have thought their child knew "leopard," but discovered from their incorrect choice that they did not. If so, they might produce a longer referring expression for the leopard the second time around. 
+
+To test this hypothesis, we fit a mixed effects model predicting the length of parents' referring expressions on the second appearance of each animal from success on first appearance, whether parents thought their child knew the animal prior to the experiment, and their interaction. We followed the same approach with random effects, beginning with a maximal model and pruning effects until the model converged. The final model included random intercepts and slopes of prior belief by subject and a random intercept for each animal. Parents produced marginally shorter referring expressions when children were incorrect on the first appearance of each animal ($\beta =$ `r lag_incorrect_estimate`, $t =$ `r lag_incorrect_statistic`, $p =$ `r lag_incorrect_p`), and shorter referring expressions for animals that they believed their child knew ($\beta =$ `r lag_known_estimate`, $t =$ `r lag_known_statistic`, $p =$ `r lag_known_p`). However, they produced longer referring expressions following an incorrect response for animals they thought their children knew ($\beta =$ `r lag_incorrect_known_estimate`, $t =$ `r lag_incorrect_known_statistic`, $p$ `r lag_incorrect_known_p`). Thus, when parents thought their children knew an animal, but then observed evidence to the contrary, they provided more information in their referring expressions for children to make the correct selection the second time. Importantly, this same pattern was not found in unknown animals--Parents' referring expressions did not differ in length for known and unknown animals when children had incorrectly selected on the first appearance (Figure \ref{fig:known-fig}B). 
 
 Together, these two sets of analyses suggest that parents tune their referring expressions not just coarsely to their knowledge about how hard individual animal words are, or how much language their children generally know, but also finely to their beliefs about their children's knowledge of individual lexical items. Further, when they discover that they have incorrect beliefs about their children's knowledge, they update these beliefs in real-time and leverage them on subsequent references to the same lexical item.
-
-```{r known-fig, fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions to communicate about animals that children were less lkely to know. Points show group averaged proportions, error bars show 95\\% confidence intervals computed by non-parametric bootstrap. (B) Parents produced longer referring expressions for words that they thought their child did not know (left panel). When children selected correctly in response to these expressions, parents continued to produce longer expressions for animals they thought their children did not know. However, if children selected incorrectly for animals that parents thought they knew, parents produced longer expressions on their second appearance (right 2 panels). Gray points and lines represent individual participants, Colored points and  lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
-
-
-individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
-  mutate(type = factor(type, 
-                       levels = c("First appearance", "correct", "incorrect"),
-                       labels = c("First appearance", "Following correct", 
-                                  "Following incorrect")))
-
-group_plot_data <- bind_rows(group_data, group_lag_data) %>%
-  mutate(type = factor(type, 
-                       levels = c("First appearance", "correct", "incorrect"),
-                       labels = c("First appearance", "Following correct", 
-                                  "Following incorrect")))
-
-p2 <- ggplot(individual_plot_data, aes(x = understands, y = length, group = subj)) + 
-  geom_point(alpha = .5, position=position_dodge(0.06), color = "light gray") +
-  geom_line(alpha = .5, color = "light gray", position=position_dodge(0.06)) +
-  scale_x_discrete(labels= c("Unknown\nanimal", "Known\nanimal"), expand = c(.1, .1)) + 
-  labs(x ="", y = "Length of referring expression") +
-  facet_wrap(~ type) +
-  geom_pointrange(aes(ymin = length_lower, ymax = length_upper), 
-                  data = group_plot_data) + 
-  geom_line(data = group_plot_data) +
-  scale_y_continuous(limits = c(2, 15))
-
-ggarrange(p1, p2, nrow = 2, heights = c(1, 1), labels = c("a", "b"))
-```
-
 
 ## Content of referring expressions
 
@@ -999,7 +1003,7 @@ qual_data %>%
 # Discussion
 
 
-Parents have a wealth of knowledge about their children's linguistic development [@fenson2007]. Do they draw on this knowledge when they communicate? In a referential communication task, we showed that parents' references are tuned to their children in three ways: (1) they produce longer, more informative referring expressions for later-learned animals, (2) over and above this coarse tuning, the lengths of parents' utterances are calibrated to their individual children's knowledge of specific animals, and (3) when children do not know an animal that parents thought they did, parents' subsequent references reflect this updated belief. We further found that more informative referring expressions were associated with increased likelihood of successful communication: Children were more likely to correctly select animals whose names they did not know if their parents produced longer utterances to refer to them. Finally, we found that references to unknown animals are rich with descriptors and comparisons, helping children select the correct animal and potentially also serving as a source of learning input.
+Parents have a wealth of knowledge about their children's linguistic development [@fenson2007]. We show that they draw on this knowledge to tune their utterances to their children in three ways: (1) they produce longer, more informative referring expressions for later-learned animals, (2) over and above this coarse tuning, the lengths of parents' utterances are tuned to their individual children's knowledge of specific animals, and (3) when children do not know an animal that parents thought they did, parents' subsequent references reflect this updated belief. We further found that more informative referring expressions were associated with increased likelihood of successful communication: Children were more likely to correctly select animals whose names they did not know if their parents produced longer utterances to refer to them. Finally, we found that references to unknown animals are rich with descriptors and comparisons, helping children select the correct animal and potentially also serving as a source of learning input.
 
 These data are consistent with a strong form of the linguistic tuning hypothesis, in which parents fine-tune the information in their speech to children's language knowledge at the individual-word level. Why should this happen? Although parents' speech to children is unlikely to reflect a goal to teach, it is nonetheless goal-oriented: Parents want to communicate successfully [@bruner1983]. Fortunately, learning may piggyback on this optimization because of the inherent synergy between communication and learning--it is easier to learn from input that you understand [@yurovsky2018]. Our work thus highlights the importance of studying the parent-child dyad as a unit, rather than viewing children as isolated learners. Children bring powerful learning mechanisms to language acquisition, but these mechanisms are supported by an ecological niche designed for their success [@west1987].
 

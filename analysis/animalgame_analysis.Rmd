@@ -633,14 +633,16 @@ target_data %>%
   distinct(subj) %>%
   left_join(qualtrics_ids, by = c("subj"="number")) %>%
   left_join(demo_data, by = c("response_id"="id")) %>%
-  select(subj, age, gender, race, mom_ed) %>%
+  select(subj, age, gender, race, hispanic_latino, mom_ed) %>%
+  rename(hispanic = hispanic_latino) %>%
   mutate(age_months = floor(age / 30.5),
          age_extra_days = floor(age - (age_months * 30.5)),
          age_years = age/365,
          gender = factor(gender, levels = c("f", "m"), 
                          labels = c("female", "male")),
          race = as.factor(race),
-         mom_ed = as.factor(mom_ed)) %>%
+         mom_ed = as.factor(mom_ed),
+         hispanic = factor(hispanic, levels = c("n", "y"), labels = c("no", "yes"))) %>%
   select(-age) %>%
   write_feather(here("data/demos.feather"))
 
