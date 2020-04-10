@@ -4,6 +4,7 @@ video/*
 raw_data/*
 analysis/animalgame_analysis_cache
 analysis/animalgame_analysis_files
+node_modules/*
 
 # knitr and R markdown default cache directories
 */*_cache/
