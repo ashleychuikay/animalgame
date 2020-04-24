@@ -55,7 +55,6 @@ library(lme4)
 library(lmerTest)
 library(directlabels)
 library(ggrepel)
-library(feather)
 library(here)
 library(scales)
 library(tidyboot)
@@ -89,18 +88,25 @@ Here, we present the first *experimental* evidence for fine-tuning. We asked chi
 # Method
 
 ```{r load_data}
-target_data <- read_feather(here("data/target_data.feather")) %>%
-    filter(phase != "during", person == "parent", !is.na(understands)) %>%
-    complete(nesting(subj, target, understands,  correct,  appearance),
-           fill = list(length = 0))
+demos <- read_csv(here("data/demographics.csv"))
 
-subj_vocab <- read_feather(here("data/subj_vocab.feather"))
+subj_vocab <- read_csv(here("data/subj_vocab.csv"))
 
-demos <- read_feather(here("data/demos.feather"))
+test_data <- read_csv(here("data/test_data.csv"))
 
-tidy_test_data <- read_feather(here("data/qual_model.feather"))
+target_data <- read_csv(here("data/transcripts.csv")) %>%
+  left_join(subj_vocab, by = c("subj", "trial_target" = "word")) %>%
+  filter(phase != "during", !is.na(understands)) %>%
+  complete(nesting(subj, target, understands, appearance),
+           fill = list(length = 0)) %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know")))
 
-qual_data <- read_feather(here("data/qual_data.feather"))
+
+
+#tidy_test_data <- read_feather(here("data/qual_model.feather"))
+
+#qual_data <- read_feather(here("data/qual_data.feather"))
 ```
 
 ## Participants
@@ -291,17 +297,17 @@ We first confirm that the animals predicted to be later learned were less likely
 ## Selection accuracy
 
 ```{r test-data}
-test_data <- target_data %>%
-  ungroup() %>%
-  mutate(understands = factor(understands, levels = c(T,F), 
-                              labels = c("Knows", "Doesn't Know"))) %>%
-  filter(phase == "pre", !is.na(understands)) %>%
-  group_by(understands, correct,  subj, trial, trial_target, appearance) %>%
-  summarise(length = log(sum(length))+1)  %>%
-  left_join(select(subj_vocab, subj, vocab), by = "subj")
+test_prediction_data <- target_data %>%
+  filter(phase == "pre", !is.na(understands), !is.na(target)) %>%
+  group_by(understands, subj, trial, target, appearance) %>%
+  summarise(length = sum(length)) %>%
+  mutate(log_length = log(length)) %>%
+  left_join(select(test_data, subj, trial_num, target, correct), 
+            by = c("subj", "trial" = "trial_num", "target")) %>%
+  left_join(select(subj_vocab, subj, vocab) %>% distinct(), by = c("subj"))
 
-overall_correct <- test_data %>%
-  group_by(subj, trial_target, appearance) %>%
+overall_correct <- test_prediction_data %>%
+  group_by(subj, target, appearance) %>%
   summarise(correct = mean(correct)) %>%
   summarise(correct = mean(correct)) %>%
   summarise(correct = mean(correct)) %>%
@@ -309,8 +315,8 @@ overall_correct <- test_data %>%
   mutate(correct = correct * 100) %>%
   pull()
 
-type_correct <- test_data %>%
-  group_by(understands, subj, trial_target, appearance) %>%
+type_correct <- test_prediction_data %>%
+  group_by(understands, subj, target, appearance) %>%
   summarise(correct = mean(correct)) %>%
   summarise(correct = mean(correct)) %>%
   summarise(correct = mean(correct)) %>%
@@ -326,8 +332,9 @@ unknown_correct <- type_correct %>%
   pull()
 
 
-overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1|subj) + (1|trial_target),
-      data = test_data %>% mutate(base = log(1/3)), family = "binomial") %>%
+overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + (1 | target),
+      data = test_prediction_data %>% mutate(base = log(1/3)), 
+      family = "binomial") %>%
   tidy() %>%
   filter(effect == "fixed") %>%
   select(-effect, -group, -std.error) %>%
@@ -342,16 +349,16 @@ overall_acc_statistic <- overall_acc_model %>%
 overall_acc_p <- overall_acc_model %>%
   pull(p.value)
 
-type_acc_model <- test_data %>% 
+type_acc_model <- test_prediction_data %>% 
   mutate(base = log(1/3)) %>%
   group_by(understands)  %>%
   nest() %>%
-  mutate(model = map(data, ~glmer(correct ~ 1 + offset(base) + (1|subj) +
-                                    (1|trial_target),
+  mutate(model = map(data, ~glmer(correct ~ 1 + offset(base) + (1 | subj) +
+                                    (1 | target),
                                   data =. , family = "binomial") %>% 
                        tidy())) %>%
   select(-data) %>%
-  unnest() %>%
+  unnest(cols = c(model)) %>%
   filter(effect == "fixed") %>%
   select(-effect, -group, -std.error) %>%
   mutate(p.value = printp(p.value))
@@ -381,11 +388,10 @@ unknown_acc_p <- type_acc_model %>%
   filter(understands == "Doesn't Know") %>%
   pull(p.value)
 
-test_lmer <- test_data %>%
-  mutate(length = log(length+1)) %>%
-  glmer(correct ~ length * understands + understands * appearance + 
+test_lmer <- test_prediction_data %>%
+  glmer(correct ~ log_length * understands + understands * appearance + 
           scale(vocab) * understands +
-        (understands | subj) + (1 | trial_target), 
+        (understands | subj) + (1 | target), 
       family = "binomial", 
       data = .) %>%
   tidy() %>%
@@ -492,10 +498,9 @@ continuous_plot_data <- target_data %>%
   summarise(length = sum(length)) %>%
   summarise(length = mean(length)) %>%
   tidyboot_mean(length) %>%
-  rename(length = empirical_stat,
+  rename(length = empirical_mean,
          length_upper = ci_upper,
          length_lower = ci_lower) %>%
-  select(-mean, -n) %>%
   left_join(mean_word_difficulty, by = c("trial_target" = "word")) %>%
   rename(avg_known_lower = ci_lower, avg_known_upper = ci_upper) %>%
   mutate(plotting_target = if_else(trial_target %in% c("squirrel", "cat",
@@ -531,43 +536,34 @@ individual_data <- target_data %>%
 
 group_data <- individual_data %>%
   tidyboot_mean(length) %>%
-  rename(length = empirical_stat,
+  rename(length = empirical_mean,
          length_upper = ci_upper,
          length_lower = ci_lower) %>%
-  select(-mean, -n) %>%
   mutate(subj = "mean") %>%
   mutate(type = "First appearance")
 ```
 
 ```{r lag-data}
-setup_lag_data <- target_data %>%
-  filter(phase == "pre") %>%
-  ungroup() %>%
-  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
-                          labels = c("correct", "incorrect"))) %>%
-  group_by(subj, understands, target, appearance, correct) %>%
-  summarise(length = sum(length)) %>%
-  ungroup() %>%
-  complete(nesting(subj, target, understands,  correct,  appearance),
-           fill = list(length = 0)) %>%
+setup_lag_data <- test_prediction_data %>%
   arrange(subj, understands, target,appearance, correct) %>%
   group_by(subj, understands, target) %>%
+  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
+                          labels = c("correct", "incorrect"))) %>%
   mutate(lag_correct = lag(correct)) 
 
 
 indiv_lag_data <- setup_lag_data %>%
     filter(appearance == "second", !is.na(lag_correct)) %>%
   group_by(understands, lag_correct, subj, target) %>%
-  summarise(length = sum(length)) %>%
-  summarise(length = mean(length)) %>%
-  rename(type = lag_correct)
+  rename(type = lag_correct) %>%
+  group_by(understands, type, subj) %>%
+  summarise(length = mean(length))
 
 group_lag_data <- indiv_lag_data %>%
   tidyboot_mean(length) %>%
-  rename(length = empirical_stat,
+  rename(length = empirical_mean,
          length_upper = ci_upper,
          length_lower = ci_lower) %>%
-  select(-mean, -n) %>%
   mutate(subj = "mean")
 ```
 

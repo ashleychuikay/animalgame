@@ -1,0 +1,42 @@
+subj,gender,race,hispanic,mom_ed,age_months,age_extra_days,age_years
+20,female,White,no,4-Year College,24,10,2.032876712328767
+31,female,White,no,Graduate degree,25,12,2.1232876712328768
+9,male,White,yes,Some college,27,10,2.2849315068493152
+41,male,White,no,Graduate degree,25,14,2.128767123287671
+34,female,Black or African American,NA,4-Year College,24,13,2.041095890410959
+22,male,White,no,4-Year College,25,3,2.0986301369863014
+16,male,White,no,Graduate degree,29,5,2.4383561643835616
+21,female,Black or African American,no,4-Year College,26,7,2.191780821917808
+33,female,Black or African American,no,Graduate degree,26,26,2.243835616438356
+29,female,Other,yes,Graduate degree,27,26,2.328767123287671
+32,male,Black or African American,no,4-Year College,24,20,2.0602739726027397
+30,female,Black or African American,no,Graduate degree,29,4,2.4356164383561643
+37,female,Other,no,Graduate degree,25,14,2.128767123287671
+3,female,White,no,Some college,25,24,2.1561643835616437
+2,male,Black or African American,no,4-Year College,29,20,2.4794520547945207
+4,female,White,no,Graduate degree,25,28,2.1671232876712327
+43,female,White,no,Graduate degree,28,22,2.4
+44,male,White,no,Graduate degree,24,29,2.084931506849315
+18,female,Black or African American,no,Graduate degree,24,13,2.041095890410959
+5,male,Asian,no,Grade school,25,24,2.1561643835616437
+1,female,White,no,Graduate degree,24,6,2.021917808219178
+10,male,Black or African American,no,Graduate degree,25,5,2.1041095890410957
+35,female,Decline to State,NA,Decline to state,24,16,2.0493150684931507
+19,female,Black or African American,no,Graduate degree,25,18,2.1397260273972605
+12,male,White,no,Graduate degree,29,6,2.441095890410959
+42,male,White,no,4-Year College,27,14,2.2958904109589042
+6,female,Black or African American,no,4-Year College,28,1,2.3424657534246576
+24,female,White,no,Graduate degree,25,28,2.1671232876712327
+38,male,White,no,4-Year College,26,13,2.208219178082192
+39,male,White,no,4-Year College,26,7,2.191780821917808
+40,female,White,no,Graduate degree,25,8,2.1123287671232878
+17,male,Black or African American,no,Graduate degree,24,8,2.0273972602739727
+11,male,White,no,Graduate degree,24,27,2.0794520547945203
+25,female,White,no,4-Year College,24,5,2.0191780821917806
+28,female,White,no,Some college,24,20,2.0602739726027397
+36,female,White,no,Graduate degree,24,22,2.0657534246575344
+26,male,Other,no,Graduate degree,25,12,2.1232876712328768
+27,male,Other,yes,4-Year College,26,5,2.186301369863014
+23,male,Other,no,Decline to state,24,13,2.041095890410959
+45,male,White,no,Graduate degree,25,26,2.1616438356164385
+47,male,White,no,4-Year College,26,28,2.249315068493151
