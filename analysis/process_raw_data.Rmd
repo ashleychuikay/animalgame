@@ -1,0 +1,277 @@
+---
+title: "Process raw non-anonymous data into anonymous form"
+author: "Ashley Leung, Alex Tunkel, and Dan Yurovsky"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: show
+    number_sections: no
+    theme: lumen
+    toc: no
+    toc_float: no
+  pdf_document:
+    toc: no
+---
+```{r, message=FALSE, warning=FALSE, show = F}
+library(tidytext)
+library(janitor)
+library(knitr)
+library(here)
+library(tidyboot) #from https://github.com/langcog/tidyboot
+library(qdap)
+library(tidyverse)
+
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+               error = FALSE, cache = TRUE, tidy = FALSE)
+```
+
+This script loads in all of the raw, identifying data and writes it out to minimally-processed CSVs that can be shared publicly.
+
+## Read Transcripts
+
+Read in transcript data. We need to do this first to get the target items to pull out of the survey.
+```{r read-transcripts}
+transcripts <- list.files(here("raw_data/qcoded"), "*.csv", full.names = T)
+
+
+read_transcript <- function(file) {
+  
+  transcript <- read_csv(file) %>%
+    #mutate(id = parse_number(basename(file))) %>%
+    mutate(id = str_split(file, "[//.]")[[1]] %>% tail(2) %>% head(1),
+           id = gsub("q", "", id)) %>%
+    #remove_empty("cols") %>%
+    clean_names()
+    
+    # Pull out either parent or child's data
+    pull_data <- function(person) {
+      transcript %>%
+        select(starts_with(person), descriptors:num_superordinate) %>%
+        select_all(~gsub(paste0(person,"_"), "", .x)) %>%
+        select_all(~gsub("utterance_", "", .x)) %>%
+        mutate(person = person) %>%
+        mutate(id = first(pull(transcript,id)))
+    
+    }
+  
+  # Tidy up
+    pull_data("parent") %>%
+      mutate(target = gsub("\\.", "", target) %>% tolower,
+             utterance = gsub("\\?", " \\? ", utterance),
+             utterance = gsub("\\.", " \\. ", utterance),
+             utterance = gsub("\\!", " \\! ", utterance),
+             utterance = gsub("\\,", " \\, ", utterance),
+             utterance = str_squish(utterance)) 
+}
+
+tidy_data <- map_dfr(transcripts, read_transcript) %>%
+  rename(row = ordinal)
+
+targets <- tidy_data %>%
+  filter(!is.na(target), target != "n/a") %>%
+  distinct(target, .keep_all = T) %>%
+  select(id, target) %>%  pull()
+
+practice_targets <- c("artichoke", "apple") 
+```
+
+## Process vocabulary survey data
+
+Reads in identifiable data from vocabulary surveys and combine with study identifiers 
+```{r read-survey-data}
+# Parent Survey Identifying Ids
+qualtrics_data <- read_csv(here("raw_data/qualtrics_data.csv")) %>%
+  slice(3:nrow(.)) %>%
+  clean_names()
+
+# Mapping between identifiable ids and non-identifiable ids
+qualtrics_ids <- read_csv(here("raw_data/qualtrics_ids.csv")) %>%
+  clean_names()
+
+# Three batches of surveys were sent out
+survey1 <- read_csv(here("raw_data/survey_link1.csv"))
+survey2 <- read_csv(here("raw_data/survey_link2.csv"))
+survey3 <- read_csv(here("raw_data/survey_link3.csv"))
+
+vocab_data <- bind_rows(survey1, survey2, survey3) %>%
+  clean_names() %>%
+  filter(!is.na(response_id)) %>%
+  left_join(qualtrics_data, by = "response_id") %>%
+  select(link, q1) %>%
+  left_join(qualtrics_ids, by = "link") %>%
+  select(q1, response_id, number) %>%
+  rename(video_id = response_id, study_id = number) %>%
+  filter(!is.na(study_id))
+```
+
+Munge vocab data
+```{r munge-vocab}
+tidy_vocab <- vocab_data %>%
+  unnest_tokens(word, q1) %>% 
+  mutate(understands = T) %>%
+  select(-video_id) %>%
+  complete(study_id, word, fill = list(understands = F)) %>%
+  left_join(select(vocab_data, -q1), by = "study_id")
+```
+
+Estimate the difficulty of each target word by computing the proportion of parents who report that their child knows it
+```{r word_difficulty}
+word_difficulty <- tidy_vocab %>%
+  filter(word %in% targets, video_id %in% pull(tidy_data, id)) %>%
+  group_by(word) %>%
+  tidyboot_mean(understands) %>%
+  rename(avg_known = empirical_stat) %>%
+  arrange(desc(avg_known))
+```
+
+Compute total estimated vocabulary for each child (number of words their parent thought they knew), and write out children's vocabularies
+```{r write_word_difficulty,}
+total_vocab <- tidy_vocab %>%
+  group_by(study_id) %>%
+  summarise(vocab = sum(understands),
+            possible_vocab = n())
+
+subj_vocab <- tidy_vocab %>%
+  select(study_id, word, understands) %>%
+  filter(word %in% targets) %>%
+  mutate(type = if_else(word %in% c("apple", "artichoke"), "practice",
+         if_else(word %in% c("cat", "dog", "bird", "cow", "fish", "duck", 
+                             "horse", "elephant"),
+                 "early", "late")))%>%
+  left_join(word_difficulty, by = "word") %>%
+  left_join(total_vocab, by = "study_id") %>%
+  select(-n)
+
+subj_ids <- subj_vocab %>%
+  select(study_id) %>%
+  distinct() %>%
+  mutate(subj = 1:n())
+
+subj_vocab %>%
+  left_join(subj_ids, by = "study_id") %>%
+  select(subj, possible_vocab, vocab, type, word, avg_known, 
+         understands, ci_lower, ci_upper) %>%
+  write_csv(here("data/subj_vocab.csv"))
+```
+
+Read in data from the experiment (which animal was chosen on each trial)
+```{r read-response}
+child_response <- read_csv(here("raw_data/animalgame_data.csv")) %>%
+  filter(!subj %in% c("xx", "Twst", "Test", "test"))
+
+missing_data <- read_csv(here("raw_data/animalgame_missing.csv"))
+
+filled_data <- bind_rows(child_response, missing_data) %>%
+  rename(study_id = subj)
+
+response_data <- left_join(vocab_data, filled_data, by = "study_id") %>%
+  mutate(game_trial = trial_type != "practice") %>%
+  arrange(study_id, game_trial, trial_num) %>%
+  group_by(study_id) %>%
+  mutate(trial_num = 1:n(),
+         correct = correct == "Y")
+```
+
+
+Munge transcript data
+```{r make_target_df}
+# Identify trials by a change in target
+trials <- tidy_data %>%
+  group_by(id) %>%
+  arrange(id, onset) %>%
+  filter(target %in% targets) %>%
+  mutate(new_trial = target != lag(target, default = TRUE),
+         trial = cumsum(new_trial)) %>%
+  select(id, row, target, trial)
+
+# The target animal on each trial
+trial_targets <- trials %>%
+  distinct(id, trial, target) %>%
+  rename(trial_target = target)
+
+parent_data <- tidy_data %>%
+  left_join(trials, by = c( "id", "row", "target")) %>%
+  group_by(id) %>%
+  fill(trial) %>%
+  filter(!is.na(trial)) %>%
+  group_by(id, trial) %>%
+  mutate(selection = max(0, which(str_detect(selection, "selects")),
+                             na.rm = T)) %>%
+  mutate(phase = case_when(row_number() < selection ~ "pre",
+                           row_number() == selection ~ "during",
+                           T ~ "post") %>%
+           factor(levels = c("pre", "during", "post"))) %>%
+  left_join(trial_targets, c("id", "trial")) %>%
+  group_by(id, trial_target) %>%
+  mutate(appearance = factor(trial >= mean(trial))) %>%
+  ungroup() %>%
+  mutate(appearance = factor(appearance, labels = c("first", "second")),
+         id = as.character(id))
+
+target_data_gaps <- parent_data %>%
+  mutate(length = wc(utterance),
+         length = if_else(is.na(length), as.integer(0), length))
+
+target_data <- target_data_gaps %>%
+  left_join(select(vocab_data, video_id, study_id), 
+            by = c("id" = "video_id")) %>%
+  left_join(subj_ids, by = "study_id") %>%
+  filter(phase != "during") %>%
+  mutate(trial_type = if_else(trial_target %in% practice_targets, 
+                              "practice", "game"),
+         target = if_else(target == "n/a", as.character(NA),
+                                target))
+
+target_data %>%
+  select(subj, row, trial_type, trial, phase, appearance, trial_target, target, 
+         utterance, length, num_descriptors:num_superordinate) %>%
+  pivot_longer(cols = num_descriptors:num_superordinate, 
+               names_to = "descriptor", values_to = "descriptor_value") %>%
+  mutate(descriptor_value = if_else(is.na(descriptor_value), 
+                                    0, descriptor_value)) %>%
+  pivot_wider(names_from = "descriptor", values_from = "descriptor_value") %>%
+  select(-row) %>%
+  arrange(subj, desc(trial_type), trial, phase) %>%
+  write_csv(here("data/transcripts.csv"))
+
+```
+
+## Demographic data
+
+Read in Demographic data with identifying information
+```{r demographics}
+demo_data <- read_csv(here("raw_data/animalgame_demo.csv"))
+```
+
+Write demographics out
+```{r write_demos}
+target_data %>%
+  ungroup() %>%
+  distinct(subj, study_id) %>%
+  left_join(qualtrics_ids, by = c("study_id"="number")) %>%
+  left_join(demo_data, by = c("response_id"="id")) %>%
+  select(subj, age, gender, race, hispanic_latino, mom_ed) %>%
+  rename(hispanic = hispanic_latino) %>%
+  mutate(age_months = floor(age / 30.5),
+         age_extra_days = floor(age - (age_months * 30.5)),
+         age_years = age/365,
+         gender = factor(gender, levels = c("f", "m"), 
+                         labels = c("female", "male")),
+         race = as.factor(race),
+         mom_ed = as.factor(mom_ed),
+         hispanic = factor(hispanic, levels = c("n", "y"), labels = c("no", "yes"))) %>%
+  select(-age) %>%
+  write_csv(here("data/demographics.csv"))
+
+```
+
+Test accuracy
+```{r accuracy}
+test_data <- response_data %>%
+  left_join(subj_ids, by = c("study_id")) %>%
+  ungroup() %>%
+  select(subj, trial_num, trial_type, game_trial, target, correct, rt, pic1, 
+         pic2, pic3, side_selected)
+
+write_csv(test_data, here("data/test_data.csv"))
+```
