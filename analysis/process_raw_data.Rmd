@@ -27,6 +27,14 @@ opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
 
 This script loads in all of the raw, identifying data and writes it out to minimally-processed CSVs that can be shared publicly.
 
+
+## Demographic data
+
+Read in Demographic data with identifying information
+```{r demographics}
+demo_data <- read_csv(here("raw_data/animalgame_demo.csv"))
+```
+
 ## Read Transcripts
 
 Read in transcript data. We need to do this first to get the target items to pull out of the survey.
@@ -101,7 +109,7 @@ vocab_data <- bind_rows(survey1, survey2, survey3) %>%
   left_join(qualtrics_ids, by = "link") %>%
   select(q1, response_id, number) %>%
   rename(video_id = response_id, study_id = number) %>%
-  filter(!is.na(study_id))
+  filter(!is.na(study_id), video_id %in% pull(demo_data, id))
 ```
 
 Munge vocab data
@@ -172,7 +180,6 @@ response_data <- left_join(vocab_data, filled_data, by = "study_id") %>%
          correct = correct == "Y")
 ```
 
-
 Munge transcript data
 ```{r make_target_df}
 # Identify trials by a change in target
@@ -236,13 +243,6 @@ target_data %>%
 
 ```
 
-## Demographic data
-
-Read in Demographic data with identifying information
-```{r demographics}
-demo_data <- read_csv(here("raw_data/animalgame_demo.csv"))
-```
-
 Write demographics out
 ```{r write_demos}
 target_data %>%
@@ -262,7 +262,6 @@ target_data %>%
          hispanic = factor(hispanic, levels = c("n", "y"), labels = c("no", "yes"))) %>%
   select(-age) %>%
   write_csv(here("data/demographics.csv"))
-
 ```
 
 Test accuracy
