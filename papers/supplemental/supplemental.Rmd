@@ -1,0 +1,332 @@
+---
+title: "\\LARGE Parents fine-tune their speech to children's vocabularies (SOM-R)"
+author: "\\large \\emph{Ashley Leung, Alexandra Tunkel, and Daniel Yurovsky} "
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    number_sections: true
+documentclass: article
+bibliography: animalgame-si.bib
+fontsize: 11pt
+geometry: margin=1in
+csl: apa6.csl
+---
+
+```{r load-libraries, message=FALSE, warning=FALSE, include = F}
+library(wordbankr)
+library(readxl)
+library(janitor)
+library(here)
+library(knitr)
+library(papaja)
+library(kableExtra)
+library(tidyverse)
+library(tidyboot)
+library(feather)
+library(lme4)
+library(broom)
+opts_chunk$set(message = FALSE, warning = FALSE, error = FALSE, cache = TRUE, 
+               tidy = FALSE, echo = FALSE)
+
+theme_set(theme_classic(base_size = 12))
+
+options(digits=2)
+```
+
+\renewcommand\thesection{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}  
+\renewcommand{\thefigure}{S\arabic{figure}}
+\section{Estimating ages of acquisition for animal words}
+
+In designing the stimuli for our experiment, our goal was to use a set of target animals that varied in their average age of acquisition (AoA). To do this, we used two sources of information: (1) Concurrent parent-report estimates of their children's vocabularies [Wordbank; @frank2017], and (2) Retrospective self-report estimates from a large group of adults on Amazon Mechanical Turk [@kuperman2012].
+
+```{r load-wordbank-data}
+administrations <- get_administration_data(language = "English (American)",
+                                           original_ids = TRUE)
+
+first_longitudinals <- administrations %>%
+      filter(longitudinal) %>%
+      arrange(original_id, age) %>%
+      group_by(original_id) %>%
+      slice(1)
+
+cross_sectional <- administrations %>%
+  mutate(cross_sectional = !longitudinal |
+           (longitudinal & (data_id %in% first_longitudinals$data_id))) %>%
+  filter(cross_sectional)
+```
+
+Wordbank is a large and growing repository of administrations of the MacArthur-Bates Communicative Development Inventory [CDI; @fenson2007]--a checklist of words and other items administered to parents in order to estimate their child's vocabulary. Because Wordbank contains a mixture of cross-sectional and longitudinal data, and we wanted to ensure independence of data across measurements, we used only the first administration for each American English-learning child in the database, yielding `r cross_sectional %>% distinct(original_id) %>% nrow()` children. For each animal word, we fit a separate  robust general linear model, estimating the proportion of children whose parents reported their producing the word from eight to 30 months (including data from both the Words and Gestures and Words and Sentences forms). Each word's normative age of acquisition was defined to be the first month of age at which 50% or more children were estimated to know the animal.
+
+```{r wordbank-animals}
+ws_animals <- get_item_data(language = "English (American)", form = "WS") %>%
+  filter(category == "animals")
+
+wg_animals <- get_item_data(language = "English (American)", form = "WG") %>%
+  filter(category == "animals")
+
+ws_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WS", 
+                                      items = ws_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WS")) %>%
+  left_join(ws_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value, form, definition)
+
+
+wg_animal_data <- get_instrument_data(language = "English (American)", 
+                                      form = "WG", 
+                                      items = wg_animals$item_id, 
+                                      administrations = 
+                                        filter(cross_sectional, 
+                                               form == "WG")) %>%
+  left_join(wg_animals, by = c("num_item_id", "language", "form")) %>%
+  select(data_id, age, value,  form, definition)
+
+animal_data <- bind_rows(ws_animal_data, wg_animal_data) %>%
+  group_by(definition) %>%
+  nest() %>%
+  ungroup() %>%
+  mutate(num_item_id = paste0("item_", 1:n())) %>%
+  unnest(cols = c(data))
+
+wordbank_aoas <- fit_aoa(animal_data, method = "glmrob") %>%
+  ungroup() %>%
+  select(-num_item_id) %>%
+  mutate(source = "wordbank") %>%
+  rename(word = definition) %>%
+  mutate(word = case_when(
+    word == "chicken (animal)" ~ "chicken",
+    word == "fish (animal)" ~ "fish",
+    word == "bunny" ~ "rabbit",
+    T ~ word))
+```
+
+```{r load-snodgrass}
+snodgrass_animals <- read_csv(here("corpus_data/cycowicz_data.csv")) %>%
+  clean_names() %>%
+  pull(intentional_name)
+```
+
+```{r load-kuperman}
+kuperman_aoas <- read_excel(
+  here("corpus_data/AoA_ratings_Kuperman_et_al_BRM.xlsx")) %>%
+  clean_names() %>%
+  select(word, rating_mean) %>%
+  filter(word %in% snodgrass_animals) %>%
+  rename(aoa = rating_mean) %>%
+  mutate(aoa = as.numeric(aoa) * 12) %>%
+  mutate(source = "kuperman", aoa = as.numeric(aoa))
+```
+
+```{r descriptives}
+joint_aoas <- bind_rows(kuperman_aoas, wordbank_aoas) %>%
+  pivot_wider(names_from = source, values_from = aoa) %>%
+  filter(!is.na(wordbank) | !is.na(kuperman))
+
+correlation <- cor.test(joint_aoas$kuperman, joint_aoas$wordbank)
+```
+
+Because only a subset of the animals in the @rossion2004 image set are included on the MacArthur-Bates Child Development Inventory, and thus available in Wordbank, we also used adult self-report norms from @kuperman2012 to derive estimates for the remaining animals. Typically, adult self-report estimates of age of acquisition are highly correlated with parent-report estimates, and they were for the `r correlation$parameter + 1` animals in both data sources ($r =$ `r correlation$estimate`, $t =$ `r correlation$statistic`, $p$ `r correlation$p.value %>% printp()`). However, self-report estimates were made on a 1-7 Likert scale rather than on the scale of months. 
+
+```{r estimate-aoas}
+aoa_model <- joint_aoas %>%
+  filter(!is.na(wordbank) & !is.na(kuperman)) %>%
+  lm(wordbank ~ kuperman, data = .)
+
+predicted_aoas <- joint_aoas %>%
+  mutate(predicted = predict(aoa_model, 
+                             newdata = select(joint_aoas,kuperman))) %>%
+  mutate(aoa = if_else(is.na(wordbank), predicted, wordbank)) %>%
+  filter(word %in% snodgrass_animals) %>%
+  arrange(aoa)
+```
+
+```{r animalgame-data}
+subj_vocab <- read_csv(here("data/subj_vocab.csv")) 
+
+word_difficulty <- subj_vocab %>%
+  distinct(word, avg_known) %>%
+  left_join(predicted_aoas, by = c("word"))
+
+animalgame_cor <- cor.test(word_difficulty$avg_known, word_difficulty$aoa)
+```
+
+```{r aoa-table, results="asis"}
+predicted_aoas %>%
+    rename(animal = word, Wordbank = wordbank, Kuperman = kuperman, 
+           `model estimate` = predicted, AoA = aoa) %>%
+  arrange(animal) %>%
+  select(animal, Wordbank, Kuperman, `model estimate`, AoA) %>%
+  apa_table(format.args = list(na_string = ""), font_size = "footnotesize",
+            caption = "Estimated age of acqusition (AoA) for each animal in months.")
+```
+
+```{r include = F, eval = F}
+write_csv(predicted_aoas, here("corpus_data/predicted_aoas.csv"))
+```
+
+In order to estimate the age of acquisitions for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitions for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimates from Wordbank, @kuperman2012, and our regression models. For comparison, Figure \ref{fig:difficulty-fig} shows the proportion of parents of 2-2.5-year-olds in our study who reported that their child knew each of the tested animals. These proportions were highly correlated with the model-predicted ages of acquisition ($r =$ `r animalgame_cor$estimate`, $t =$ `r animalgame_cor$statistic`, $p$ `r animalgame_cor$p.value %>% printp()`).
+
+```{r difficulty-fig, fig.height = 2.5, fig.width = 4, fig.cap = "\\label{fig:difficulty-fig}Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap."}
+mean_word_difficulty <- subj_vocab %>%
+  group_by(word) %>%
+  tidyboot_mean(understands) %>%
+  arrange(desc(empirical_stat))
+
+plotting_words <- mean_word_difficulty %>%
+  mutate(word = factor(word, levels = unique(word)))
+
+ggplot(plotting_words, aes(x = word, y = empirical_stat, ymin = ci_lower, 
+                            ymax = ci_upper)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        text = element_text(size = 10)) +
+  geom_pointrange(size = .3) +
+  labs(y = "Parents report known", x = "") 
+```
+
+\section{Model Details}
+
+```{r load-data}
+demos <- read_csv(here("data/demographics.csv"))
+
+test_data <- read_csv(here("data/test_data.csv"))
+
+target_data <- read_csv(here("data/transcripts.csv")) %>%
+  left_join(subj_vocab, by = c("subj", "trial_target" = "word")) %>%
+  filter(phase == "pre", !is.na(understands)) %>%
+  complete(nesting(subj, target, understands, appearance),
+           fill = list(length = 0)) %>%
+  mutate(understands = factor(understands, levels = c(T,F), 
+                              labels = c("Knows", "Doesn't Know")))
+
+possible_vocab <- subj_vocab %>%
+  distinct(possible_vocab) %>%
+  pull()
+```
+
+```{r word-difficulty}
+group_difficulty <- subj_vocab %>%
+  group_by(type, word) %>%
+  summarise(understands = mean(understands)) %>%
+  tidyboot_mean(understands)
+
+mean_word_difficulty <- subj_vocab %>%
+  distinct(word, type, avg_known, ci_upper, ci_lower) %>%
+  arrange(avg_known)
+```
+
+For readability, the main text includes only the key effects for each statistical model rather than a full specification. We include those here. In all cases, we began we the maximal model justified by the design. If the model did not converge, we removed effects iteratively beginning with interactions. We always prioritized random slopes of theoretical importance (e.g. random slopes of word knowledge for each participant) over control variables. Each mode included at least a random intercept for each subject and item. Models were estimated using version 1.1-23 of the `lme4` package [@bates2015].
+
+\subsection{Target animal difficulty}
+
+To validate that parents were more likely to say that their children knew early age of acquisition animals than late age of acquisition animals, we fit a mixed-effects model predicting parents' judgments from *a priori* early and late categories (defined above). The model specification and output are shown in Table \ref{tab:difficulty-lmer}.
+
+```{r difficulty-lmer, results = "asis"}
+difficulty_lmer <- subj_vocab %>%
+  mutate(type = factor(type, levels = c("early", "late"))) %>%
+  glmer(understands ~ type + (type|subj) + (1|word),
+        family = "binomial", data = .) %>%
+  tidy() %>%
+  filter(group == "fixed") %>%
+  select(-group) %>%
+  mutate(term = c("intercept", "type late"),
+         p.value = printp(p.value)) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+
+apa_table(difficulty_lmer,
+          caption = "Model was specified as \\texttt{understands $\\sim$ type + (type | subj) + (1 | animal)}",
+          escape = FALSE)
+
+```
+
+
+\subsection{Selection accuracy}
+
+To confirm that parent-child dyads communicated successfully in the reference game, we analyzed children's choices. We fit 2 models. First, we asked whether children selected the target animal on each trial above chance levels (33\%). To do fit a mixed-effects model in which the only fixed effect was an intercept, and we used an offset of $log(\frac{1}{3})$ so that an intercept different from zero would indicate above chance performance. The results of this model are presented in Table \ref{tab:overall-acc-model}. We then repeated the same analysis separately for animals that parents judged that their children knew, and animals that they judged that their children did not (Table \ref{tab:type-acc-model}).
+
+After confirming that parents were successfully communicated, we asked what predicted children's success at picking the correct animal on each trial. We predicted success on each trial from (Table \ref{tab:test-lmer}).
+
+```{r test-data}
+test_prediction_data <- target_data %>%
+  filter(phase == "pre", !is.na(understands), !is.na(target)) %>%
+  group_by(understands, subj, trial, target, appearance) %>%
+  summarise(length = sum(length)) %>%
+  mutate(log_length = log(length)) %>%
+  left_join(select(test_data, subj, trial_num, target, correct), 
+            by = c("subj", "trial" = "trial_num", "target")) %>%
+  left_join(select(subj_vocab, subj, vocab) %>% distinct(), by = c("subj"))
+```
+
+```{r overall-acc-model, results = "asis"}
+overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + (1 | target),
+      data = test_prediction_data %>% mutate(base = log(1/3)), 
+      family = "binomial") %>%
+  tidy() %>%
+  filter(group == "fixed") %>%
+  select(-group) %>%
+  mutate(p.value = printp(p.value)) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
+  mutate(term = "intercept")
+
+apa_table(overall_acc_model,
+          caption = "Model was specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
+          escape = FALSE)
+```
+
+```{r type-acc-model, results = "asis"}
+type_acc_model <- test_prediction_data %>% 
+  mutate(base = log(1/3)) %>%
+  group_by(understands)  %>%
+  nest() %>%
+  mutate(model = map(data, ~glmer(correct ~ 1 + offset(base) + (1 | subj) +
+                                    (1 | target),
+                                  data =. , family = "binomial") %>% 
+                       tidy())) %>%
+  select(-data) %>%
+  unnest(cols = c(model)) %>%
+  ungroup() %>%
+  filter(group == "fixed") %>%
+  select(-group, -understands) %>%
+  mutate(p.value = printp(p.value)) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
+  mutate(term = c("known intercept", "unknown intercept"))
+
+apa_table(type_acc_model,
+          caption = "Models were specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)} separately for known and unknown animals",
+          escape = FALSE)
+```
+
+```{r test-lmer, results = "asis"}
+test_lmer <- test_prediction_data %>%
+    mutate(base = log(1/3)) %>%
+  glmer(correct ~  offset(base) + log_length * understands + vocab + understands +
+        (1 | subj) + (1 | target), 
+      family = "binomial",
+      data = .) %>%
+  tidy() %>%
+  filter(group == "fixed") %>%
+  select(-group) %>%
+  mutate(p.value = printp(p.value)) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
+  mutate(term = c("intercept", "(log) length", "unknown animal", "vocab size", "(log) length $\\cdot$ unknown animal"))
+
+apa_table(test_lmer,
+          caption = "",
+          #caption = "Models were specified as \\texttt{correct $\\sim$ log_length $\\cdot$ unknown + vocab +offset(log(1/3)) + (1 | subj) + (1 | animal)}",
+          escape = FALSE)
+```
+```
+
+\newpage
+
+\section*{References}
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+
+\noindent
+
+<div id = "refs"></div>
+\endgroup

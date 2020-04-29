@@ -1,6 +1,6 @@
 ---
-title             : "Parents Fine-tune Their Speech to Children's Vocabularies"
-shorttitle        : "Parents Fine-tune speech"
+title             : "Parents fine-tune their speech to children's vocabularies"
+shorttitle        : "Parents fine-tune speech"
 
 author: 
   - name          : "Ashley Leung"
@@ -222,7 +222,7 @@ total_vocab <- subj_vocab %>%
   mean()
 ```
 
-Eighteen animal images were selected from the @rossion2004 image set, a colorized version of the @snodgrass1980 object set. Animals were selected based on estimates of their age of acquisition (AoA) for American English learners. To obtain these estimates, we used two sources of information: parent-report estimates of children's age of acquisition from Wordbank [@frank2017], and retrospective self-report estimates of AoA from adults [@kuperman2012, see Supporting Information for details]. The AoA of the selected animals ranged from `r min_aoa` to `r max_aoa` months. Half of the animals were chosen to have an early age of acquisition (`r early_min_aoa`-`r early_max_aoa` months), and the other half were chosen to have a late age of acquisition (`r late_min_aoa`-`r late_max_aoa` months). Each trial featured three animals, all from either the early AoA or late AoA category. This separation was designed to lower the likelihood that children could use knowledge of early AoA animals to infer the correct target on late AoA trials.
+Eighteen animal images were selected from the @rossion2004 image set, a colorized version of the @snodgrass1980 object set. Animals were selected based on estimates of their age of acquisition (AoA) for American English learners. To obtain these estimates, we used two sources of information: parent-report estimates of children's age of acquisition from Wordbank [@frank2017], and retrospective self-report estimates of AoA from adults [@kuperman2012, see Supplemental Materials for details]. The AoA of the selected animals ranged from `r min_aoa` to `r max_aoa` months. Half of the animals were chosen to have an early age of acquisition (`r early_min_aoa`-`r early_max_aoa` months), and the other half were chosen to have a late age of acquisition (`r late_min_aoa`-`r late_max_aoa` months). Each trial featured three animals, all from either the early AoA or late AoA category. This separation was designed to lower the likelihood that children could use knowledge of early AoA animals to infer the correct target on late AoA trials.
 
 A modified version of the MacArthur-Bates Communicative Development Inventory Short Form [CDI; @fenson2007], a parent-reported measure of children's vocabulary, was administered before the testing session via an online survey. The selected animal words were added to the standard words, producing a the `r total_vocab` word survey. Two of the animal words--one in the early AOA (pig) and one in the late AOA category (rooster)--were accidentally omitted, so trials for those words were not included in analyses as we could not obtain individual-level estimates of children's knowledge.
 
@@ -240,7 +240,7 @@ Our primary quantity of interest was the amount of information that parents prov
 
 Our second source of data was the vocabulary questionnaire that parents filled out prior to participation. Parents indicated whether their child produced each of the `r possible_vocab` words on the survey. In addition to analyzing parents' judgments for the animals in the task, we also computed the total number of words judged to be known for each child as a proxy for total vocabulary.
 
-All of our analyses were done using mixed-effects models. In all cases we began with maximal random effects structures and pruned random effects until the models converged. We removed interaction terms before removing main effects, and opted to keep the most-theory relevant random effects when only a subset of main effects could be kept. For clarity, we present only the key findings and statistics here, but full model details can be found in the Supporting Information.
+All of our analyses were done using mixed-effects models. In all cases we began with maximal random effects structures and pruned random effects until the models converged. We removed interaction terms before removing main effects, and opted to keep the most-theory relevant random effects when only a subset of main effects could be kept. For clarity, we present only the key findings and statistics here, but full model details can be found in the Supplemental Materials.
 
 # Results
 
@@ -295,7 +295,7 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the animals early age of acquisition (AoA) animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supporting Information.
+We first confirm that the animals early age of acquisition (AoA) animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supplemental Materials.
 
 ## Selection accuracy
 
