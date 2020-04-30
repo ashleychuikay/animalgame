@@ -1,6 +1,11 @@
 ---
-title: "\\LARGE Parents fine-tune their speech to children's vocabularies (SOM-R)"
-author: "\\large \\emph{Ashley Leung, Alexandra Tunkel, and Daniel Yurovsky} "
+title: "\\LARGE Parents fine-tune their speech to children's vocabulary knowledge (SOM-R)"
+author: "\\large \\emph{XXXXX, XXXXX, and XXXXX}"
+header-includes:
+  - \usepackage[section]{placeins}
+  - \usepackage{float}
+  - \floatplacement{figure}{h!} # make every figure with caption = t
+  - \raggedbottom
 output: 
   pdf_document:
     latex_engine: xelatex
@@ -24,7 +29,9 @@ library(tidyverse)
 library(tidyboot)
 library(feather)
 library(lme4)
+library(lmerTest)
 library(broom)
+library(broom.mixed)
 opts_chunk$set(message = FALSE, warning = FALSE, error = FALSE, cache = TRUE, 
                tidy = FALSE, echo = FALSE)
 
@@ -226,19 +233,18 @@ To validate that parents were more likely to say that their children knew early 
 ```{r difficulty-lmer, results = "asis"}
 difficulty_lmer <- subj_vocab %>%
   mutate(type = factor(type, levels = c("early", "late"))) %>%
-  glmer(understands ~ type + (type|subj) + (1|word),
+  glmer(understands ~ type + (1 | subj) + (1|word),
         family = "binomial", data = .) %>%
   tidy() %>%
-  filter(group == "fixed") %>%
-  select(-group) %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group) %>%
   mutate(term = c("intercept", "type late"),
          p.value = printp(p.value)) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value)
 
 apa_table(difficulty_lmer,
-          caption = "Model was specified as \\texttt{understands $\\sim$ type + (type | subj) + (1 | animal)}",
-          escape = FALSE)
-
+          caption = "Late age of acquisition (AoA) animals were less likely to be known. Model was specified as \\texttt{understands $\\sim$ type + (1 | subj) + (1 | animal)}",
+          escape = FALSE, placement = "h")
 ```
 
 
@@ -246,7 +252,7 @@ apa_table(difficulty_lmer,
 
 To confirm that parent-child dyads communicated successfully in the reference game, we analyzed children's choices. We fit 2 models. First, we asked whether children selected the target animal on each trial above chance levels (33\%). To do fit a mixed-effects model in which the only fixed effect was an intercept, and we used an offset of $log(\frac{1}{3})$ so that an intercept different from zero would indicate above chance performance. The results of this model are presented in Table \ref{tab:overall-acc-model}. We then repeated the same analysis separately for animals that parents judged that their children knew, and animals that they judged that their children did not (Table \ref{tab:type-acc-model}).
 
-After confirming that parents were successfully communicated, we asked what predicted children's success at picking the correct animal on each trial. We predicted success on each trial from (Table \ref{tab:test-lmer}).
+After confirming that parents were successfully communicated, we asked what predicted children's success at picking the correct animal on each trial. We predicted success on each trial from the number of words in the child's vocabulary (as estimated by the pre-experiment survey), the (log) length of parents' referring expressions, whether they parents believed their child knew the target animal, and the interaction between length and whether the animal was known. Children with larger vocabularies were more accurate, children were more accurate for known animals, and longer utterances lead to lower success for known animals and higher success for unknown animals (Table \ref{tab:test-lmer}).
 
 ```{r test-data}
 test_prediction_data <- target_data %>%
@@ -259,20 +265,20 @@ test_prediction_data <- target_data %>%
   left_join(select(subj_vocab, subj, vocab) %>% distinct(), by = c("subj"))
 ```
 
-```{r overall-acc-model, results = "asis"}
+```{r overall-acc-model, results = "asis", fig.pos = "H"}
 overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + (1 | target),
       data = test_prediction_data %>% mutate(base = log(1/3)), 
       family = "binomial") %>%
   tidy() %>%
-  filter(group == "fixed") %>%
-  select(-group) %>%
+  filter(effect == "fixed") %>%
+  select(-group, -effect) %>%
   mutate(p.value = printp(p.value)) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
   mutate(term = "intercept")
 
 apa_table(overall_acc_model,
-          caption = "Model was specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
-          escape = FALSE)
+          caption = "Overall accuracy on each trial. Model specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
+          escape = FALSE, placement = "h")
 ```
 
 ```{r type-acc-model, results = "asis"}
@@ -287,18 +293,18 @@ type_acc_model <- test_prediction_data %>%
   select(-data) %>%
   unnest(cols = c(model)) %>%
   ungroup() %>%
-  filter(group == "fixed") %>%
-  select(-group, -understands) %>%
+  filter(effect == "fixed") %>%
+  select(-group, -effect, -understands) %>%
   mutate(p.value = printp(p.value)) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
   mutate(term = c("known intercept", "unknown intercept"))
 
 apa_table(type_acc_model,
-          caption = "Models were specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)} separately for known and unknown animals",
-          escape = FALSE)
+          caption = "Accuracy for known and unknown animals. Models specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)} separately for known and unknown animals",
+          escape = FALSE, placement = "h")
 ```
 
-```{r test-lmer, results = "asis"}
+```{r test-lmer, results = "asis", }
 test_lmer <- test_prediction_data %>%
     mutate(base = log(1/3)) %>%
   glmer(correct ~  offset(base) + log_length * understands + vocab + understands +
@@ -306,17 +312,138 @@ test_lmer <- test_prediction_data %>%
       family = "binomial",
       data = .) %>%
   tidy() %>%
-  filter(group == "fixed") %>%
-  select(-group) %>%
+  filter(effect == "fixed") %>%
+  select(-group, -effect) %>%
   mutate(p.value = printp(p.value)) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
   mutate(term = c("intercept", "(log) length", "unknown animal", "vocab size", "(log) length $\\cdot$ unknown animal"))
 
 apa_table(test_lmer,
-          caption = "",
-          #caption = "Models were specified as \\texttt{correct $\\sim$ log_length $\\cdot$ unknown + vocab +offset(log(1/3)) + (1 | subj) + (1 | animal)}",
-          escape = FALSE)
+           caption = "Predicting accuracy on each trial from referring expressions. Model specified as \\texttt{correct $\\sim$ log(length) $\\cdot$ unknown + vocab + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
+          escape = FALSE, placement = "h")
 ```
+
+\section{Tuning}
+
+Our key analyses concerned the relationship between the length of parents' referring expressions and their children's lexical knowledge. If parents tune the information in their utterances to children's language knowledge, they should produce longer referring expressions for unknown animals. To test this, we fit a model predicting the (log) length of parents' referential expressions on each trial from the child's vocabulary, the proportion of parents who reported that their child knew the target animal, whether the parent reported that their individual child knew the target animal, whether this was the first or second appearance of the target, and the interaction of appearance and the child's target knowledge. We found that both the proportion of total children who knew the animal and the parent's belief about their individual child's knowledge affected the length of parents' referring expressions. However, the effect of the individual child's knowledge was reduced on the second appearance of the animal (Table \ref{tab:primary-lmer}). 
+
+One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this hypothesis, we analyzed the second appearance of each animal, predicting (log) length 
+
+```{r trial-known-data}
+trial_known_data <- target_data %>%
+  mutate(phase = factor(phase, levels = c("pre", "post")),
+         understands = factor(understands, labels = c("unknown animal", 
+                                                      "known animal"))) %>%
+  group_by(phase, avg_known, understands, subj, appearance, trial, trial_target) %>%
+  summarise(length = sum(length)) %>%
+  left_join(select(subj_vocab, subj, vocab), by = "subj") %>%
+  mutate(log_length = log(length))
+```
+
+```{r primary-lmer, results = "asis"}
+primary_lmer <- trial_known_data %>%
+  lmer(log_length ~ appearance * understands + avg_known + vocab +
+         (understands | subj) + 
+         (appearance | trial_target),
+       data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group) %>%
+  mutate(p.value = printp(p.value),
+         term = c("intercept", "second appearance", "known animal", 
+                  "prop. known", "vocab size", "second $\\cdot$ known")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+
+apa_table(primary_lmer,
+           caption = "Predicting length of referring expressions. Model specified as \\texttt{log(length) $\\sim$ appearance $\\cdot$ known + prop. know + vocab +  (known | subj) + (appearance | animal)}",
+          escape = FALSE, placement = "h")
+```
+
+
+```{r lag-data}
+setup_lag_data <- test_prediction_data %>%
+  arrange(subj, understands, target,appearance, correct) %>%
+  group_by(subj, understands, target) %>%
+  mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
+                          labels = c("correct", "incorrect"))) %>%
+  mutate(lag_correct = lag(correct)) 
+```
+
+
+```{r lag-lmer, results = "asis"}
+lag_lmer <- setup_lag_data %>%
+  ungroup() %>%
+  mutate(understands = fct_relevel(understands, 
+                                    "Doesn't Know", "Knows")) %>%
+  filter(!is.na(lag_correct)) %>%
+  lmer(log_length ~ lag_correct * understands + 
+         ( understands | subj) + (1 | target), data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group) %>%
+  mutate(p.value = printp(p.value),
+         term = c("intercept", "first accuracy", "known animal", 
+                  "first accuracy $\\cdot$ known animal")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+
+apa_table(lag_lmer,
+           caption = "Predicting length on an animal's second appearance. \\texttt{log(length) $\\sim$ first accuracy $\\cdot$ known + (known | subj) + (1 | animal)}",
+          escape = FALSE, placement = "h")
+```
+
+\section{Content of referring expressions}
+
+In our primary analyses, we focused on the length of parents' referring expressions as a theory-agnostic proxy for the amount of information in them. To assess how the content of these utterances changed in accord with parents' estimates of their children's animal knowledge, we manually coded utterances for the following features: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Because the rates of usage of each of these kinds of reference varied widely, we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal (Table \ref{tab:qual-lmer}). We also coded two other features: the use of anaphora (e.g. "the spotted one") and use of animal sounds (e.g. "moo"). However, these were so rare that they could not be analyzed quantitatively.
+
+```{r qual-coding}
+tidy_qual_data <- target_data %>%
+  select(-num_anaphoric, -num_animal_sounds) %>%
+  group_by(understands, appearance, target, target, subj) %>%
+  summarise_at(vars(length, num_descriptors:num_superordinate), sum) %>%
+  pivot_longer(cols = num_descriptors:num_superordinate, 
+               names_to = "qual_measure", 
+               values_to = "used") %>%
+  mutate(qual_measure = factor(qual_measure, 
+                                levels = c("num_canonical", "num_comparison",
+                                           "num_descriptors", "num_superordinate",
+                                           "num_subordinate"))) %>%
+  rowwise() %>%
+  mutate(used = min(used, 1)) %>%
+  ungroup()
+```
+
+```{r qual-lmer, results = "asis"}
+qual_lmer <- tidy_qual_data %>%
+  group_by(qual_measure) %>%
+  nest() %>%
+  mutate(model = map(data, 
+                     ~glmer(used ~ understands + (1 | subj) + (1 | target), 
+                    family = "binomial", data = . ) %>% tidy())) %>%
+  select(-data) %>%
+  unnest(cols = c(model)) %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group) %>%
+  ungroup() %>%
+  mutate(p.value = printp(p.value),
+         qual_measure = case_when(qual_measure == 
+                                    "num_descriptors" ~ "descriptor",
+                                  qual_measure == 
+                                    "num_canonical" ~ "canonical name",
+                                  qual_measure == 
+                                    "num_comparison" ~ "comparison",
+                                  qual_measure == 
+                                    "num_subordinate" ~ "subordinate",
+                                  qual_measure == 
+                                    "num_superordinate" ~ "suoperordinate"),
+         term = case_when(term == "(Intercept)" ~ "intercept",
+                          T ~ "unknown animal")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value, 
+         measure = qual_measure)
+
+apa_table(qual_lmer,
+           caption = "Qualitative analysis of referential expressions. Models were specified as \\texttt{usage $\\sim$ unknown animal + (1 | subj) + (1 | animal)}",
+          escape = FALSE, placement = "h")
+
 ```
 
 \newpage
