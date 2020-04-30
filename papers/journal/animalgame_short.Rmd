@@ -27,7 +27,7 @@ abstract: |
    The pace at which children learn language is one of the most impressive feats of early cognitive development. One possible explanation for this rapid pace is that the language caregivers produce is tuned to children's developing linguistic knowledge, maintaining just the right level of complexity to support rapid learning. We present the first experimental evidence of just how precise this tuning is, showing that parents tune not just to children's holistic language development, but their knowledge of individual words. We developed a new method in which we experimentally controlled what parents talked about, but not how they could talk or what they could say, increasing the chance that these  results will generalize outside the lab. This work points to the importance of studying the parent-child dyad as a unit instead of focusing on children as isolated learners, both in the domain of language and in social learning more broadly.
    
 authornote: |
-  Parts of this work were presented at the Annual Conference of the Cognitive Science Society: Leung et al. (2019). All data and code for these analyses are available at https://osf.io/vkug8/.
+  All data and code for these analyses are available at https://osf.io/vkug8/.
 
 keywords          : "parent-child interaction; language development; communication"
 wordcount         : "749"

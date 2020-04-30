@@ -45,7 +45,7 @@ options(digits=2)
 \renewcommand{\thefigure}{S\arabic{figure}}
 \section{Estimating ages of acquisition for animal words}
 
-In designing the stimuli for our experiment, our goal was to use a set of target animals that varied in their average age of acquisition (AoA). To do this, we used two sources of information: (1) Concurrent parent-report estimates of their children's vocabularies [Wordbank; @frank2017], and (2) Retrospective self-report estimates from a large group of adults on Amazon Mechanical Turk [@kuperman2012].
+In designing the stimuli for our experiment, our goal was to use a set of target animals that varied in their average age of acquisition (AoA). To do this, we used two sources of information: (1) Concurrent parent-report estimates of children's vocabularies [Wordbank; @frank2017], and (2) Retrospective self-report estimates from a large group of adults on Amazon Mechanical Turk [@kuperman2012].
 
 ```{r load-wordbank-data}
 administrations <- get_administration_data(language = "English (American)",
@@ -174,9 +174,9 @@ predicted_aoas %>%
 write_csv(predicted_aoas, here("corpus_data/predicted_aoas.csv"))
 ```
 
-In order to estimate the age of acquisitions for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitions for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimates from Wordbank, @kuperman2012, and our regression models. For comparison, Figure \ref{fig:difficulty-fig} shows the proportion of parents of 2-2.5-year-olds in our study who reported that their child knew each of the tested animals. These proportions were highly correlated with the model-predicted ages of acquisition ($r =$ `r animalgame_cor$estimate`, $t =$ `r animalgame_cor$statistic`, $p$ `r animalgame_cor$p.value %>% printp()`).
+In order to estimate the ages of acquisition for animals missing from Wordbank, the fit a a general linear model estimating Wordbank age of acquisition from @kuperman2012 age of acquisition for all animals in both sets (\texttt{Wordbank $\sim$ Kuperman + 1}). We then used this model to scale age of acquisitions for the `r joint_aoas %>% filter(!is.na(kuperman), is.na(wordbank)) %>% nrow()` animals in the @kuperman2012 set missing from Wordbank. Table \ref{tab:aoa-table} shows the final estimated ages of acquisition for each animal in the @rossion2004 set as estimated from Wordbank, @kuperman2012, and our regression model. For comparison, Figure \ref{fig:difficulty-fig} shows the proportion of parents of 2-2.5-year-olds in our study who reported that their child knew each of the tested animals. These proportions were highly correlated with the model-predicted ages of acquisition ($r =$ `r animalgame_cor$estimate`, $t =$ `r animalgame_cor$statistic`, $p$ `r animalgame_cor$p.value %>% printp()`).
 
-```{r difficulty-fig, fig.height = 2.5, fig.width = 4, fig.cap = "\\label{fig:difficulty-fig}Proportion of parents who reported that their child understood the word for each of our target animals. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap."}
+```{r difficulty-fig, fig.height = 2.5, fig.width = 4, fig.cap = "\\label{fig:difficulty-fig}Proportion of parents who reported that their child knew the canonical word for each target animal. Error bars indicate 95\\% confidence intervals computed by non-parametric bootstrap."}
 mean_word_difficulty <- subj_vocab %>%
   group_by(word) %>%
   tidyboot_mean(understands) %>%
@@ -224,11 +224,11 @@ mean_word_difficulty <- subj_vocab %>%
   arrange(avg_known)
 ```
 
-For readability, the main text includes only the key effects for each statistical model rather than a full specification. We include those here. In all cases, we began we the maximal model justified by the design. If the model did not converge, we removed effects iteratively beginning with interactions. We always prioritized random slopes of theoretical importance (e.g. random slopes of word knowledge for each participant) over control variables. Each mode included at least a random intercept for each subject and item. Models were estimated using version 1.1-23 of the `lme4` package [@bates2015].
+For readability, the main text includes only the key effects for each statistical model rather than a full specification. We include those here. In all cases, we began with the maximal model justified by the design. If this model did not converge, we removed effects iteratively beginning with interactions. We always prioritized random slopes of theoretical importance (e.g. random slopes of word knowledge for each participant) over control variables. Each model included at least a random intercept for each subject and item. Models were estimated using version 1.1-23 of the `lme4` package [@bates2015].
 
 \subsection{Target animal difficulty}
 
-To validate that parents were more likely to say that their children knew early age of acquisition animals than late age of acquisition animals, we fit a mixed-effects model predicting parents' judgments from *a priori* early and late categories (defined above). The model specification and output are shown in Table \ref{tab:difficulty-lmer}.
+To validate that parents were more likely to say that their children knew early age of acquisition animals than late age of acquisition animals, we fit a mixed-effects model predicting parents' judgments from *a priori* early and late categories (see paper). The model specification and output are shown in Table \ref{tab:difficulty-lmer}.
 
 ```{r difficulty-lmer, results = "asis"}
 difficulty_lmer <- subj_vocab %>%
@@ -250,9 +250,8 @@ apa_table(difficulty_lmer,
 
 \subsection{Selection accuracy}
 
-To confirm that parent-child dyads communicated successfully in the reference game, we analyzed children's choices. We fit 2 models. First, we asked whether children selected the target animal on each trial above chance levels (33\%). To do fit a mixed-effects model in which the only fixed effect was an intercept, and we used an offset of $log(\frac{1}{3})$ so that an intercept different from zero would indicate above chance performance. The results of this model are presented in Table \ref{tab:overall-acc-model}. We then repeated the same analysis separately for animals that parents judged that their children knew, and animals that they judged that their children did not (Table \ref{tab:type-acc-model}).
+To confirm that parent-child dyads communicated successfully in the reference game, we analyzed children's choices. We fit 2 models. First, we asked whether children selected the target animal on each trial above chance levels (33\%). To do this we fit a mixed-effects model in which the only fixed effect was an intercept, and we used an offset of $log(\frac{1}{3})$ so that an intercept different from zero would indicate above chance performance. The results of this model are presented in Table \ref{tab:overall-acc-model}. We then repeated the same analysis separately for animals that parents judged that their children knew, and animals that they judged that their children did not (Table \ref{tab:type-acc-model}).
 
-After confirming that parents were successfully communicated, we asked what predicted children's success at picking the correct animal on each trial. We predicted success on each trial from the number of words in the child's vocabulary (as estimated by the pre-experiment survey), the (log) length of parents' referring expressions, whether they parents believed their child knew the target animal, and the interaction between length and whether the animal was known. Children with larger vocabularies were more accurate, children were more accurate for known animals, and longer utterances lead to lower success for known animals and higher success for unknown animals (Table \ref{tab:test-lmer}).
 
 ```{r test-data}
 test_prediction_data <- target_data %>%
@@ -304,6 +303,9 @@ apa_table(type_acc_model,
           escape = FALSE, placement = "h")
 ```
 
+
+After confirming that parents were communicating successfully overall, we asked what predicted children's success at picking the correct animal on each trial. We predicted success on each trial from the number of words in the child's vocabulary (as estimated by the pre-experiment survey), the (log) length of parents' referring expressions, whether parents believed their child knew the target animal, and the interaction between length and whether the animal was known. Children with larger vocabularies were more accurate, children were more accurate for known animals, and longer utterances lead to lower success for known animals and higher success for unknown animals (Table \ref{tab:test-lmer}).
+
 ```{r test-lmer, results = "asis", }
 test_lmer <- test_prediction_data %>%
     mutate(base = log(1/3)) %>%
@@ -325,9 +327,7 @@ apa_table(test_lmer,
 
 \section{Tuning}
 
-Our key analyses concerned the relationship between the length of parents' referring expressions and their children's lexical knowledge. If parents tune the information in their utterances to children's language knowledge, they should produce longer referring expressions for unknown animals. To test this, we fit a model predicting the (log) length of parents' referential expressions on each trial from the child's vocabulary, the proportion of parents who reported that their child knew the target animal, whether the parent reported that their individual child knew the target animal, whether this was the first or second appearance of the target, and the interaction of appearance and the child's target knowledge. We found that both the proportion of total children who knew the animal and the parent's belief about their individual child's knowledge affected the length of parents' referring expressions. However, the effect of the individual child's knowledge was reduced on the second appearance of the animal (Table \ref{tab:primary-lmer}). 
-
-One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this hypothesis, we analyzed the second appearance of each animal, predicting (log) length 
+Our key analyses concerned the relationship between the length of parents' referring expressions and their children's lexical knowledge. If parents tune the information in their utterances to children's language knowledge, they should produce longer referring expressions for unknown animals. To test this, we fit a model predicting the (log) length of parents' referential expressions on each trial from the child's vocabulary, the proportion of parents who reported that their child knew the target animal, whether the parent reported that their individual child knew the target animal, whether this was the first or second appearance of the target, and the interaction of appearance and the child's target animal knowledge. We found that both the proportion of all children who knew the animal and the parent's belief about their individual child's knowledge affected the length of parents' referring expressions. However, the effect of the individual child's knowledge was reduced on the second appearance of each animal (Table \ref{tab:primary-lmer}). 
 
 ```{r trial-known-data}
 trial_known_data <- target_data %>%
@@ -359,6 +359,7 @@ apa_table(primary_lmer,
           escape = FALSE, placement = "h")
 ```
 
+One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this hypothesis, we analyzed the second appearance of each animal, predicting (log) length of referring expressions from accuracy on the first appearance, the parents' belief about the child's knowledge of that animal, and the interaction. We found that parents who thought their child knew an animal, but discovered that they did not, used a longer referring expressions in its second appearance (Table \ref{tab:lag-lmer}).
 
 ```{r lag-data}
 setup_lag_data <- test_prediction_data %>%
@@ -393,7 +394,7 @@ apa_table(lag_lmer,
 
 \section{Content of referring expressions}
 
-In our primary analyses, we focused on the length of parents' referring expressions as a theory-agnostic proxy for the amount of information in them. To assess how the content of these utterances changed in accord with parents' estimates of their children's animal knowledge, we manually coded utterances for the following features: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Because the rates of usage of each of these kinds of reference varied widely, we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal (Table \ref{tab:qual-lmer}). We also coded two other features: the use of anaphora (e.g. "the spotted one") and use of animal sounds (e.g. "moo"). However, these were so rare that they could not be analyzed quantitatively.
+In our primary analyses, we focused on the length of parents' referring expressions as a theory-agnostic proxy for the amount of information in them. To assess how the content of these utterances changed in accord with parents' estimates of their children's animal knowledge, we manually coded utterances for the following features: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Because the rates of usage of each of these kinds of reference varied widely, we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal (Table \ref{tab:qual-lmer}). We also coded two other features: use of anaphora (e.g. "the spotted one") and use of animal sounds (e.g. "moo"). However, these were so rare that they could not be analyzed quantitatively.
 
 ```{r qual-coding}
 tidy_qual_data <- target_data %>%
