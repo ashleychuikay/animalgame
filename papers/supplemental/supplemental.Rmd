@@ -309,7 +309,7 @@ After confirming that parents were communicating successfully overall, we asked 
 ```{r test-lmer, results = "asis", }
 test_lmer <- test_prediction_data %>%
     mutate(base = log(1/3)) %>%
-  glmer(correct ~  offset(base) + log_length * understands + vocab + understands +
+  glmer(correct ~  offset(base) + log_length * understands + scale(vocab) + understands +
         (1 | subj) + (1 | target), 
       family = "binomial",
       data = .) %>%
@@ -318,10 +318,10 @@ test_lmer <- test_prediction_data %>%
   select(-group, -effect) %>%
   mutate(p.value = printp(p.value)) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
-  mutate(term = c("intercept", "(log) length", "unknown animal", "vocab size", "(log) length $\\cdot$ unknown animal"))
+  mutate(term = c("intercept", "(log) length", "unknown animal", "scaled(vocab size)", "(log) length $\\cdot$ unknown animal"))
 
 apa_table(test_lmer,
-           caption = "Predicting accuracy on each trial from referring expressions. Model specified as \\texttt{correct $\\sim$ log(length) $\\cdot$ unknown + vocab + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
+           caption = "Predicting accuracy on each trial from referring expressions. Model specified as \\texttt{correct $\\sim$ log(length) $\\cdot$ unknown + scaled(vocab) + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
           escape = FALSE, placement = "h")
 ```
 
@@ -342,7 +342,7 @@ trial_known_data <- target_data %>%
 
 ```{r primary-lmer, results = "asis"}
 primary_lmer <- trial_known_data %>%
-  lmer(log_length ~ appearance * understands + avg_known + vocab +
+  lmer(log_length ~ appearance * understands + avg_known + scale(vocab) +
          (understands | subj) + 
          (appearance | trial_target),
        data = .) %>%
@@ -351,11 +351,11 @@ primary_lmer <- trial_known_data %>%
   select(-effect, -group) %>%
   mutate(p.value = printp(p.value),
          term = c("intercept", "second appearance", "known animal", 
-                  "prop. known", "vocab size", "second $\\cdot$ known")) %>%
+                  "prop. known", "scaled(vocab size)", "second $\\cdot$ known")) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value)
 
 apa_table(primary_lmer,
-           caption = "Predicting length of referring expressions. Model specified as \\texttt{log(length) $\\sim$ appearance $\\cdot$ known + prop. know + vocab +  (known | subj) + (appearance | animal)}",
+           caption = "Predicting length of referring expressions. Model specified as \\texttt{log(length) $\\sim$ appearance $\\cdot$ known + prop. know + scaled(vocab) +  (known | subj) + (appearance | animal)}",
           escape = FALSE, placement = "h")
 ```
 

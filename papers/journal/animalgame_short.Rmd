@@ -232,7 +232,7 @@ Each parent-child pair played an interactive reference game using two iPads (Fig
 
 ## Data analysis
 
-Our primary quantity of interest was the amount of information that parents provided in each of their utterances. To approximate this, we measured the length of parents' referring expressions--the number of words they produced on each trial before their child selected an animal. Length is an imperfect proxy for information, but it is easy to quantify and theory-agnostic. Because utterance length is highly right-skewed (i.e. most utterances are short), we log-transformed length in all analyses. However, to facilitate interpretability, we show raw utterances length in our figures. Subsequently, utterances were manually coded for the following: (1) Use of an animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Parent utterances irrelevant to the game (e.g. asking the child to sit down) were not analyzed. Children's utterances were coded when audible, but were not analyzed. 
+Our primary quantity of interest was the amount of information that parents provided in each of their utterances. To approximate this, we measured the length of parents' referring expressions--the number of words they produced on each trial before their child selected an animal. Length is an imperfect proxy for information, but it is easy to quantify and theory-agnostic. Because utterance length is highly right-skewed (i.e. most utterances are short), we log-transformed length in all analyses. However, to facilitate interpretability, we show raw utterance length in our figures. Subsequently, utterances were manually coded for the following: (1) Use of an animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Parent utterances irrelevant to the game (e.g. asking the child to sit down) were not analyzed. Children's utterances were coded when audible, but were not analyzed. 
 
 Our second source of data was the vocabulary questionnaire that parents filled out prior to participation. Parents indicated whether their child produced each of the `r possible_vocab` words on the survey. In addition to analyzing parents' judgments for the animals in the task, we also computed the total number of words judged to be known for each child as a proxy for total vocabulary.
 
@@ -291,7 +291,7 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the animals early age of acquisition (AoA) animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supplemental Materials.
+We first confirm that the early age of acquisition (AoA) animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supplemental Materials.
 
 ## Selection accuracy
 
@@ -388,7 +388,7 @@ unknown_acc_p <- type_acc_model %>%
   pull(p.value)
 
 test_lmer <- test_prediction_data %>%
-  glmer(correct ~ log_length * understands + vocab + understands +
+  glmer(correct ~ log_length * understands + scale(vocab) + understands +
         (1 | subj) + (1 | target), 
       family = "binomial",
       data = .) %>%
@@ -423,15 +423,15 @@ test_unknown_p <- test_lmer %>%
   pull(p.value)
 
 test_vocab_estimate <- test_lmer %>%
-  filter(term == "vocab") %>%
+  filter(term == "scale(vocab)") %>%
   pull(estimate)
 
 test_vocab_statistic <- test_lmer %>%
-  filter(term == "vocab") %>%
+  filter(term == "scale(vocab)") %>%
   pull(statistic)
 
 test_vocab_p <- test_lmer %>%
-  filter(term == "vocab") %>%
+  filter(term == "scale(vocab)") %>%
   pull(p.value)
 
 test_length_unknown_estimate <- test_lmer %>%
@@ -595,7 +595,7 @@ mean_known_data <- trial_known_data %>%
 
 ```{r primary-lmer}
 primary_lmer <- trial_known_data %>%
-  lmer(log_length ~ appearance * understands + avg_known + vocab +
+  lmer(log_length ~ appearance * understands + avg_known + scale(vocab) +
          (understands | subj) + 
          (appearance | trial_target),
        data = .) %>%
@@ -629,15 +629,15 @@ avg_known_p <- primary_lmer %>%
   pull(p.value)
 
 vocab_estimate <- primary_lmer %>% 
-  filter(term == "vocab") %>% 
+  filter(term == "scale(vocab)") %>% 
   pull(estimate)
 
 vocab_statistic <- primary_lmer %>% 
-  filter(term == "vocab") %>% 
+  filter(term == "scale(vocab)") %>% 
   pull(statistic)
 
 vocab_p <- primary_lmer %>% 
-  filter(term == "vocab") %>% 
+  filter(term == "scale(vocab)") %>% 
   pull(p.value)
 
 known_animal_estimate <- primary_lmer %>% 
