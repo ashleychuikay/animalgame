@@ -363,11 +363,39 @@ One possible explanation for the smaller effect of parents' a priori beliefs abo
 
 ```{r lag-data}
 setup_lag_data <- test_prediction_data %>%
-  arrange(subj, understands, target,appearance, correct) %>%
+  arrange(subj, understands, target, appearance, correct) %>%
   group_by(subj, understands, target) %>%
   mutate(correct = factor(correct, levels = c(TRUE, FALSE), 
                           labels = c("correct", "incorrect"))) %>%
   mutate(lag_correct = lag(correct)) 
+```
+
+trinary lag correct
+```{r}
+lag_lmer <- setup_lag_data %>%
+  ungroup() %>%
+  mutate(understands = fct_relevel(understands, 
+                                    "Doesn't Know", "Knows")) %>%
+  mutate(lag_correct_trinary = case_when(
+    appearance == "first" ~ "first",
+    lag_correct == "incorrect" ~ "incorrect",
+    T ~ "correct"),
+    lag_correct_trinary = factor(lag_correct_trinary, 
+                                 levels = c("first", "incorrect", 
+                                            "correct")))%>%
+  lmer(log_length ~ lag_correct_trinary * understands + avg_known + 
+         scale(vocab) + ( understands | subj) + (1 | target), data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select(-effect, -group) %>%
+  mutate(p.value = printp(p.value))
+  
+  
+  
+  ,
+         term = c("intercept", "first inaccurate", "known animal", 
+                  "first inaccurate $\\cdot$ known animal")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value)
 ```
 
 
@@ -383,8 +411,8 @@ lag_lmer <- setup_lag_data %>%
   filter(effect == "fixed") %>%
   select(-effect, -group) %>%
   mutate(p.value = printp(p.value),
-         term = c("intercept", "first accuracy", "known animal", 
-                  "first accuracy $\\cdot$ known animal")) %>%
+         term = c("intercept", "first inaccurate", "known animal", 
+                  "first inaccurate $\\cdot$ known animal")) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value)
 
 apa_table(lag_lmer,
@@ -394,7 +422,7 @@ apa_table(lag_lmer,
 
 \section{Content of referring expressions}
 
-In our primary analyses, we focused on the length of parents' referring expressions as a theory-agnostic proxy for the amount of information in them. To assess how the content of these utterances changed in accord with parents' estimates of their children's animal knowledge, we manually coded utterances for the following features: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a subordinate category label (e.g., "Limelight Larry" for peacock), and (5) Use of a superordinate level category label (e.g., "bird" for peacock). Because the rates of usage of each of these kinds of reference varied widely, we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal (Table \ref{tab:qual-lmer}). We also coded two other features: use of anaphora (e.g. "the spotted one") and use of animal sounds (e.g. "moo"). However, these were so rare that they could not be analyzed quantitatively.
+In our primary analyses, we focused on the length of parents' referring expressions as a theory-agnostic proxy for the amount of information in them. To assess how the content of these utterances changed in accord with parents' estimates of their children's animal knowledge, we manually coded utterances for the following features: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"),  (4) Use of a superordinate level category label (e.g., "bird" for peacock), and (5) Use of a subordinate level category label (e.g., "Limelight Larry" for peacock). Because the rates of usage of each of these kinds of reference varied widely, we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal (Table \ref{tab:qual-lmer}). We also coded two other features: use of anaphora (e.g. "the spotted one") and use of animal sounds (e.g. "moo"). However, these were so rare that they could not be analyzed quantitatively.
 
 ```{r qual-coding}
 tidy_qual_data <- target_data %>%
