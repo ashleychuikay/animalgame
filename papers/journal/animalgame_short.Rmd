@@ -68,10 +68,11 @@ library(kableExtra)
 library(english)
 library(ggthemes)
 library(tidyverse)
+library(effectsize)
 
 theme_set(theme_few(base_size = 10) + theme(legend.position = "none"))
 
-knitr::opts_chunk$set(fig.pos = 'tb', echo = FALSE, cache = TRUE, 
+knitr::opts_chunk$set(fig.pos = '!tb', echo = FALSE, cache = TRUE, 
                       warning = FALSE, message = FALSE, 
                       sanitize = TRUE, fig.path='figs/', fig.width = 3,
                       fig.height = 3)
@@ -253,12 +254,14 @@ mean_word_difficulty <- subj_vocab %>%
 
 difficulty_lmer <- subj_vocab %>%
   mutate(type = factor(type, levels = c("early", "late"))) %>%
-  glmer(understands ~ type + (type|subj) + (1|word),
+  glmer(understands ~ type + (1|subj) + (1|word),
         family = "binomial", data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group)
-
+  select(-effect, -group) %>%
+  mutate(d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE))
 
 difficulty_type_estimate <- difficulty_lmer %>% 
   filter(term == "typelate") %>% 
@@ -272,6 +275,18 @@ difficulty_type_p <- difficulty_lmer %>%
   filter(term == "typelate") %>% 
   pull(p.value) %>% 
   printp()
+
+difficulty_type_d <- difficulty_lmer %>%
+  filter(term == "typelate") %>% 
+  pull(d)
+
+difficulty_type_d_high <- difficulty_lmer %>%
+  filter(term == "typelate") %>% 
+  pull(d_high)
+
+difficulty_type_d_low <- difficulty_lmer %>%
+  filter(term == "typelate") %>% 
+  pull(d_low)
 ```
 
 ## Target animal difficulty
@@ -290,7 +305,7 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the early AoA animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`). Parents' judgments for each target word are shown in the Supplemental Materials.
+We first confirm that the early AoA animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`, $d$ = `r difficulty_type_d` [`r difficulty_type_d_low`,  `r difficulty_type_d_high`]). Parents' judgments for each target word are shown in the Supplemental Materials.
 
 ## Selection accuracy
 
@@ -468,7 +483,7 @@ continuous_plot_data <- target_data %>%
                                    trial_target, as.character(NA)))
 ```
 
-```{r difficulty-fig-setup, cache = FALSE}
+```{r difficulty-fig, fig.width = 4.5, fig.height = 2.5, fig.env = "figure", fig.cap = "Parents produced longer referring expressions to communicate about animals that children were generally less likely to know."}
 p1_annotations <- tibble(avg_known = c(.25, .85),
                          length = c(12.5, 11),
                          avg_known_lower = as.numeric(c(NA, NA)),
@@ -479,7 +494,7 @@ p1_annotations <- tibble(avg_known = c(.25, .85),
                          type = c("late", "early"))
 
 
-p1 <- ggplot(continuous_plot_data, aes(x = avg_known, y = length, 
+ggplot(continuous_plot_data, aes(x = avg_known, y = length, 
                                  xmin = avg_known_lower,
                           xmax = avg_known_upper, ymin = length_lower,
                           ymax = length_upper,
@@ -538,9 +553,7 @@ group_lag_data <- indiv_lag_data %>%
   mutate(subj = "mean")
 ```
 
-
-```{r known-fig, fig.width = 4.5, fig.height = 5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions to communicate about animals that children were generally less likely to know. (B) Parents produced longer referring expressions for words that they thought their child did not know (left panel). When children selected correctly in response to these expressions, parents continued to produce longer expressions for animals they thought their children did not know. However, if parents thought their child knew an animal, and they chose incorrectly, parents produced longer expressions on its second appearance (rightmost panel). Gray points and lines represent individual participants, colored points and  lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap.", cache = FALSE}
-
+```{r known-fig, fig.width = 5, fig.height = 2.5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions for words that they thought their child did not know on their first apperance. (B) When children selected correctly in response to these expressions, parents continued to produce longer expressions for animals they thought their children did not know (left). However, if parents thought their child knew an animal, and they chose incorrectly, parents produced longer expressions on its second appearance (right). Gray points and lines represent individual participants, colored points and  lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 
 individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
   mutate(type = factor(type, 
@@ -554,7 +567,8 @@ group_plot_data <- bind_rows(group_data, group_lag_data) %>%
                        labels = c("First appearance", "Following correct", 
                                   "Following incorrect")))
 
-p2 <- ggplot(individual_plot_data, aes(x = understands, y = length, 
+p1 <- ggplot(individual_plot_data %>% filter(type == "First appearance"),
+             aes(x = understands, y = length, 
                                        group = subj)) + 
   geom_point(alpha = .5, position=position_dodge(0.06), color = "light gray") +
   geom_line(alpha = .5, color = "light gray", position=position_dodge(0.06)) +
@@ -563,10 +577,31 @@ p2 <- ggplot(individual_plot_data, aes(x = understands, y = length,
   labs(x ="", y = "Referring expression length") +
   facet_wrap(~ type) +
   geom_pointrange(aes(ymin = length_lower, ymax = length_upper), 
-                  data = group_plot_data) + 
+                  data = group_plot_data %>% 
+                    filter(type == "First appearance")) + 
   #geom_line(data = group_plot_data) +
-  scale_y_continuous(limits = c(2, 15))
-ggarrange(p1, p2, nrow = 2, heights = c(1, 1), labels = c("a", "b"))
+  scale_y_continuous(limits = c(2, 15)) + 
+  theme(strip.background = element_rect(color = "black"),
+        plot.margin = unit(c(6, 12, 6, 6), "points"))
+
+p2 <- ggplot(individual_plot_data %>% filter(type != "First appearance"),
+             aes(x = understands, y = length, 
+                                       group = subj)) + 
+  geom_point(alpha = .5, position=position_dodge(0.06), color = "light gray") +
+  geom_line(alpha = .5, color = "light gray", position=position_dodge(0.06)) +
+  scale_x_discrete(labels= c("Known\nanimal", "Unknown\nanimal"), 
+                   expand = c(.1, .1)) + 
+  labs(x ="", y = "Referring expression length") +
+  facet_wrap(~ type) +
+  geom_pointrange(aes(ymin = length_lower, ymax = length_upper), 
+                  data = group_plot_data %>% 
+                    filter(type != "First appearance")) + 
+  #geom_line(data = group_plot_data) +
+  scale_y_continuous(limits = c(2, 15)) +
+  theme(strip.background = element_rect(color = "black"),
+        plot.margin = unit(c(6, 6, 6, 12), "points"))
+
+ggarrange(p1, p2, nrow = 1, widths = c(1, 2), labels = c("a", "b"), padding = 2)
 ```
 
 
@@ -730,7 +765,7 @@ Together, these two sets of analyses suggest that parents tune their referring e
 ```{r qual-coding}
 tidy_qual_data <- target_data %>%
   select(-num_anaphoric, -num_animal_sounds) %>%
-  group_by(understands, appearance, target, target, subj) %>%
+  group_by(understands, appearance, trial_target, target, subj) %>%
   summarise_at(vars(length, num_descriptors:num_superordinate), sum) %>%
   pivot_longer(cols = num_descriptors:num_superordinate, 
                names_to = "qual_measure", 
@@ -756,7 +791,7 @@ qual_knowledge_means <- tidy_qual_data %>%
   summarise(used = mean(used)) %>%
   summarise(used = mean(used)) %>%
   summarise(used = mean(used)) %>%
-  summarise(used = mean(used))
+  tidyboot_mean(used)
 
 canonical_used <- qual_means %>%
   filter(qual_measure == "num_canonical") %>%
@@ -783,53 +818,53 @@ qual_lmer <- tidy_qual_data %>%
 
 canonical_known <- qual_knowledge_means %>%
   filter(qual_measure == "num_canonical", understands == "Knows") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 canonical_unknown <- qual_knowledge_means %>%
   filter(qual_measure == "num_canonical", understands == "Doesn't Know") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 comparison_known <- qual_knowledge_means %>%
   filter(qual_measure == "num_comparison", understands == "Knows") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 comparison_unknown <- qual_knowledge_means %>%
   filter(qual_measure == "num_comparison", understands == "Doesn't Know") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 descriptors_known <- qual_knowledge_means %>%
   filter(qual_measure == "num_descriptors", understands == "Knows") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 descriptors_unknown <- qual_knowledge_means %>%
   filter(qual_measure == "num_descriptors", understands == "Doesn't Know") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 subordinate_known <- qual_knowledge_means %>%
   filter(qual_measure == "num_subordinate", understands == "Knows") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 subordinate_unknown <- qual_knowledge_means %>%
   filter(qual_measure == "num_subordinate", understands == "Doesn't Know") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 superordinate_known <- qual_knowledge_means %>%
   filter(qual_measure == "num_superordinate", understands == "Knows") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 superordinate_unknown <- qual_knowledge_means %>%
   filter(qual_measure == "num_superordinate", understands == "Doesn't Know") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+  mutate(mean = mean * 100) %>%
+  pull(mean)
 
 canonical_estimate <- qual_lmer %>% 
   filter(qual_measure == "num_canonical") %>% 
@@ -892,23 +927,30 @@ subordinate_p <- qual_lmer  %>%
   pull(p.value)
 ```
 
-```{r qual-plot, fig.height = 6, fig.width = 8, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals.", cache = FALSE}
-tidy_qual_data %>%
-  group_by(understands, qual_measure) %>%
-  tidyboot_mean(used, nboot = 10) %>%
+```{r qual-plot, fig.height = 3, fig.width = 4.5, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals."}
+plot_qual_means <- qual_knowledge_means %>%
   mutate(measure = case_when(
     qual_measure == "num_canonical" ~ "Canonical label",
     qual_measure == "num_descriptors" ~ "Descriptors",
     qual_measure =="num_comparison" ~ "Comparison",
     qual_measure =="num_subordinate" ~ "Subordinate",
-    qual_measure =="num_superordinate" ~ "Superordinate"))%>%
-  ggplot(aes(x = understands, y = empirical_stat, 
-             ymin = ci_lower, ymax = ci_upper, color = understands)) + 
-  labs(x = "Parents' belief about animal word", y = "Proportion of trials") +
-  facet_wrap( ~ measure, scales = "free") + 
-  geom_pointrange(position = position_dodge(.5)) + 
-  theme(legend.position = "none") + 
-  scale_color_ptol()
+    qual_measure =="num_superordinate" ~ "Superordinate")) %>%
+  mutate(understands = factor(understands,levels = c("Doesn't Know", "Knows")))
+
+ggplot(plot_qual_means, aes(x = measure, y = empirical_stat, 
+             ymin = ci_lower, ymax = ci_upper, 
+             fill = understands)) + 
+  labs(x = "", y = "Proportion of trials") +
+  geom_col(position = position_dodge(.5), width = .5) + 
+  geom_linerange(position = position_dodge(.5)) + 
+  scale_fill_ptol() +
+  coord_flip() + 
+  annotate(geom = "text", x = 5.2, y = .25, label = "known", 
+           color = ptol_pal()(2)[2], size = 3) +
+  annotate(geom = "text", x = 4.9, y = .25, label = "unknown", 
+           color = ptol_pal()(2)[1], size = 3)
+  
+  
 ```
 
 Parents produced reliably longer referring expressions when trying to communicate about animals that they thought their children did not know. In the analyses presented so far, we used length as a theory-agnostic, quantitative measure of information. *How* did parents successfully refer to animals that their children did not know? As a post-hoc descriptive analysis, we coded five qualitative features of referring expressions: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a superordinate level category label (e.g., "bird" for peacock), and (5) Use of a subordinate level category label (e.g., "Limelight Larry" for peacock). Because the rates of usage of each of these kinds of reference varied widely (e.g. canonical labels were used on `r canonical_used`\% of trials, but subordinates were used on `r subordinate_used`\% of trials), we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal. The results are plotted in Figure \ref{fig:qual-plot}.
