@@ -47,7 +47,7 @@ classoption       : "man"
 output            : papaja::apa6_pdf
 ---
 
-```{r load_packages, include = FALSE}
+```{r load-packages, include = FALSE}
 library(png)
 library(grid)
 library(egg)
@@ -67,8 +67,9 @@ library(broom.mixed)
 library(kableExtra)
 library(english)
 library(ggthemes)
-library(tidyverse)
 library(effectsize)
+library(glue)
+library(tidyverse)
 
 theme_set(theme_few(base_size = 10) + theme(legend.position = "none"))
 
@@ -77,7 +78,7 @@ knitr::opts_chunk$set(fig.pos = '!tb', echo = FALSE, cache = TRUE,
                       sanitize = TRUE, fig.path='figs/', fig.width = 3,
                       fig.height = 3)
 set.seed(42)
-options(digits=3)
+options(digits=3, dplyr.summarise.inform = FALSE)
 ```
 
 In a few short years children master their native language. Undoubtedly, a large share of the credit for this feat is due to powerful learning mechanisms that children bring to their input [@kuhl2004; @saffran1996]. However, a share of the credit may also be due to the linguistic input itself: Individual differences in the quantity and quality of the language children hear are associated with differences in language learning [@hart1995; @huttenlocher2010; @rowe2012]. Further, these associations are driven by speech directed to children. Differences in overheard speech do not predict differences in language learning, even in communities where child-directed speech is relatively rare [@weisleder2013; @romeo2018; @shneidman2012].
@@ -88,9 +89,24 @@ One possibility is that tuning is *coarse*: Caregivers could tune the complexity
 
 Here, we present the first *experimental* evidence for fine-tuning. Children and their parents played a reference game in which the parent's goal was to guide their child to select a target animal from a set of three. Parents tuned the amount of information in their utterances not just to the average difficulty of each animal word, but to their prior estimates of their individual child's knowledge of that animal. Further, parents sensitively adapted over the course of the game, providing more information on subsequent trials when they discovered that their child did not know an animal. Together, these results show that parents leverage their knowledge of their children's language development to fine-tune the linguistic information they provide.
 
-# Method
+```{r make-text-vars}
+make_text_vars <- function(df, term_name, term_filter = NULL) {
+  if(!is.null(term_filter)) {
+    filtered_df <- df %>%
+      filter(term == term_filter) 
+  } else{
+    filtered_df <- df
+  }
+    
+  walk(c("estimate", "statistic", "p.value", "d", "d_low", "d_high"), 
+      ~assign(glue("{term_name}_{.x}"), 
+              filtered_df %>% pull(!!.x), 
+         envir = globalenv()))
+}
+```
 
-```{r load_data}
+# Method
+```{r load-data}
 demos <- read_csv(here("data/demographics.csv"))
 
 subj_vocab <- read_csv(here("data/subj_vocab.csv"))
@@ -112,7 +128,7 @@ possible_vocab <- subj_vocab %>%
 
 ## Participants
 
-```{r youngest_and_oldest}
+```{r youngest-and-oldest}
 youngest_child <- demos %>%
   filter(age_years == min(age_years))
 
@@ -170,7 +186,7 @@ In our recruitment, we made an effort to sample children from a variety of racia
 
 ## Stimuli
 
-```{r aoa_data}
+```{r aoa-data}
 animals <- read_csv(here("corpus_data/predicted_aoas.csv"))%>%
   select(word, aoa) %>%
   left_join(select(subj_vocab, word, type) %>% distinct(), by = "word") %>%
@@ -226,7 +242,7 @@ A modified version of the MacArthur-Bates Communicative Development Inventory Sh
 ## Design and Procedure
 
 ```{r ipads, fig.env = "figure", fig.pos = "tb", fig.align='center', fig.width=6, fig.height=4, set.cap.width=T, num.cols.cap=1, fig.cap = "A parent-child dyad playing the reference game. On each trial, the parent's goal was to use language to communicate to their child which animal to choose."}
-include_graphics("figs/setup.png")
+include_graphics(here("papers/journal/figs/setup.png"))
 ```
 
 Each parent-child pair played an interactive reference game using two iPads (Figure \ref{fig:ipads}). Children began with two warm-up trials in which they tapped on circles that appeared on the iPads. Following these warm-up trials, children and their parents moved on to practice and then experimental trials. On each trial, three images of animals were displayed side by side on the child's screen, and a single word appeared on the parent's screen. Parents were instructed to communicate as they normally would with their child, and to encourage their child to choose the object corresponding to the word on their screen. The child was instructed to listen to their parent for cues. Once the child tapped an animal, the trial ended, and a new trial began. There were a total of 36 experimental trials, such that each animal appeared as the target twice. Trials were randomized for each participant, with the constraint that the same animal could not be the target twice in a row. Practice trials followed the same format as experimental trials, with the exception that images of fruit and vegetables were shown. All sessions were videotaped for transcription and coding.
@@ -258,35 +274,13 @@ difficulty_lmer <- subj_vocab %>%
         family = "binomial", data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group) %>%
-  mutate(d = odds_to_d(estimate, log = TRUE),
+  mutate(p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
          d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
-         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE))
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE)) %>%
+  select(-effect, -group, -std.error)
 
-difficulty_type_estimate <- difficulty_lmer %>% 
-  filter(term == "typelate") %>% 
-  pull(estimate)
-
-difficulty_type_statistic <- difficulty_lmer %>%
-  filter(term == "typelate") %>% 
-  pull(statistic)
-
-difficulty_type_p <- difficulty_lmer %>% 
-  filter(term == "typelate") %>% 
-  pull(p.value) %>% 
-  printp()
-
-difficulty_type_d <- difficulty_lmer %>%
-  filter(term == "typelate") %>% 
-  pull(d)
-
-difficulty_type_d_high <- difficulty_lmer %>%
-  filter(term == "typelate") %>% 
-  pull(d_high)
-
-difficulty_type_d_low <- difficulty_lmer %>%
-  filter(term == "typelate") %>% 
-  pull(d_low)
+make_text_vars(difficulty_lmer, "difficulty_type", "typelate")
 ```
 
 ## Target animal difficulty
@@ -305,7 +299,7 @@ late_understood <- group_difficulty %>%
   round(0)
 ```
 
-We first confirm that the early AoA animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p`, $d$ = `r difficulty_type_d` [`r difficulty_type_d_low`,  `r difficulty_type_d_high`]). Parents' judgments for each target word are shown in the Supplemental Materials.
+We first confirm that the early AoA animals were more likely to be marked "known" by the parents of children in our studies. As predicted, parents judged that their children knew `r early_understood`% of the animals in the early AoA category, and `r late_understood`% of the animals in the late AoA category, which were reliably different from each-other ($\beta =$ `r difficulty_type_estimate`, $p$ `r difficulty_type_p.value`, $d$ = `r difficulty_type_d` [`r difficulty_type_d_low`,  `r difficulty_type_d_high`]). Parents' judgments for each target word are shown in the Supplemental Materials.
 
 ## Selection accuracy
 
@@ -344,23 +338,18 @@ unknown_correct <- type_correct %>%
   filter(understands == "Doesn't Know") %>%
   pull()
 
-
 overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + (1 | target),
       data = test_prediction_data %>% mutate(base = log(1/3)), 
       family = "binomial") %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value))
+  mutate(p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE)) %>%
+  select(-effect, -group, -std.error)
 
-overall_acc_estimate <- overall_acc_model %>%
-  pull(estimate)
-
-overall_acc_statistic <- overall_acc_model %>%
-  pull(statistic)
-
-overall_acc_p <- overall_acc_model %>%
-  pull(p.value)
+make_text_vars(overall_acc_model, "overall_acc")
 
 type_acc_model <- test_prediction_data %>% 
   mutate(base = log(1/3)) %>%
@@ -373,33 +362,15 @@ type_acc_model <- test_prediction_data %>%
   select(-data) %>%
   unnest(cols = c(model)) %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value))
+  mutate(p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE)) %>%
+  select(-effect, -group, -std.error, -term) %>%
+  rename(term = understands)
 
-
-known_acc_estimate <- type_acc_model %>%
-  filter(understands == "Knows") %>%
-  pull(estimate)
-
-known_acc_statistic <- type_acc_model %>%
-  filter(understands == "Knows") %>%
-  pull(statistic)
-
-known_acc_p <- type_acc_model %>%
-  filter(understands == "Knows") %>%
-  pull(p.value)
-
-unknown_acc_estimate <- type_acc_model %>%
-  filter(understands == "Doesn't Know") %>%
-  pull(estimate)
-
-unknown_acc_statistic <- type_acc_model %>%
-  filter(understands == "Doesn't Know") %>%
-  pull(statistic)
-
-unknown_acc_p <- type_acc_model %>%
-  filter(understands == "Doesn't Know") %>%
-  pull(p.value)
+make_text_vars(type_acc_model, "known_acc", "Knows")
+make_text_vars(type_acc_model, "unknown_acc", "Doesn't Know")
 
 test_lmer <- test_prediction_data %>%
   glmer(correct ~ log_length * understands + scale(vocab) + understands +
@@ -408,62 +379,21 @@ test_lmer <- test_prediction_data %>%
       data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value))
+  mutate(p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE)) %>%
+  select(-effect, -group, -std.error)
 
-
-test_length_estimate <- test_lmer %>%
-  filter(term == "log_length") %>%
-  pull(estimate)
-
-test_length_statistic <- test_lmer %>%
-  filter(term == "log_length") %>%
-  pull(statistic)
-
-test_length_p <- test_lmer %>%
-  filter(term == "log_length") %>%
-  pull(p.value)
-
-test_unknown_estimate <- test_lmer %>%
-  filter(term == "understandsDoesn't Know") %>%
-  pull(estimate)
-
-test_unknown_statistic <- test_lmer %>%
-  filter(term == "understandsDoesn't Know") %>%
-  pull(statistic)
-
-test_unknown_p <- test_lmer %>%
-  filter(term == "understandsDoesn't Know") %>%
-  pull(p.value)
-
-test_vocab_estimate <- test_lmer %>%
-  filter(term == "scale(vocab)") %>%
-  pull(estimate)
-
-test_vocab_statistic <- test_lmer %>%
-  filter(term == "scale(vocab)") %>%
-  pull(statistic)
-
-test_vocab_p <- test_lmer %>%
-  filter(term == "scale(vocab)") %>%
-  pull(p.value)
-
-test_length_unknown_estimate <- test_lmer %>%
-  filter(term == "log_length:understandsDoesn't Know") %>%
-  pull(estimate)
-
-test_length_unknown_statistic <- test_lmer %>%
-  filter(term == "log_length:understandsDoesn't Know") %>%
-  pull(statistic)
-
-test_length_unknown_p <- test_lmer %>%
-  filter(term == "log_length:understandsDoesn't Know") %>%
-  pull(p.value)
+walk2(c("test_length", "test_unknown", "test_vocab", "test_length_unknown"),
+      c("log_length", "understandsDoesn't Know", "scale(vocab)", 
+        "log_length:understandsDoesn't Know"), 
+      ~ make_text_vars(test_lmer, .x, .y))
 ```
 
-On the whole, parents communicated effectively with their children, such that children selected the correct target on `r overall_correct`\% of trials, reliably greater than would be expected by chance (33\%, $\beta =$  `r overall_acc_estimate`, $p$ `r overall_acc_p`). Children were above chance both for animals that parents thought they knew ($M =$ `r known_correct`\%, $\beta =$ `r known_acc_estimate`, $p$ `r known_acc_p`), and for animals that parents thought their children did not know ($M =$ `r unknown_correct`\%, $\beta =$  `r unknown_acc_estimate`, $p$ `r unknown_acc_p`). Thus, parents successfully communicated the target referent to children, even when parents thought their children did not know the name for the animal at the start of the game. 
+On the whole, parents communicated effectively with their children, such that children selected the correct target on `r overall_correct`\% of trials, reliably greater than would be expected by chance (33\%, $\beta =$  `r overall_acc_estimate`, $p$ `r overall_acc_p.value`, $d$ = `r overall_acc_d` [`r overall_acc_d_low`,  `r overall_acc_d_high`]). Children were above chance both for animals that parents thought they knew ($M =$ `r known_correct`\%, $\beta =$ `r known_acc_estimate`, $p$ `r known_acc_p.value`,  $d$ = `r known_acc_d` [`r known_acc_d_low`,  `r known_acc_d_high`]), and for animals that parents thought their children did not know ($M =$ `r unknown_correct`\%, $\beta =$  `r unknown_acc_estimate`, $p$ `r unknown_acc_p.value`, $d$ = `r unknown_acc_d` [`r unknown_acc_d_low`,  `r unknown_acc_d_high`]). Thus, parents successfully communicated the target referent to children, even when parents thought their children did not know the name for the animal at the start of the game. 
 
-Was this accuracy driven by children's knowledge or parents' referential expressions? To answer this question, we fit a mixed-effects logistic regression predicting children's accuracy on each trial from children's total estimated vocabulary, parent-reported knowledge of the target animal, and the (log) length of parents' expressions. We found that children with bigger vocabularies were more accurate in general ($\beta =$  `r test_vocab_estimate`, $p =$ `r test_vocab_p`), and that children were less accurate for animals whose names parents thought they did not know ($\beta =$  `r test_unknown_estimate`, $p$ `r test_unknown_p`). Longer referential expressions were associated with lower accuracy for animals that parents thought their children knew ($\beta =$ `r test_length_estimate`, $p =$ `r test_length_p`), but greater accuracy for animals that parents thought their children did not know ($\beta =$ `r test_length_unknown_estimate`, $p =$ `r test_length_unknown_p`).
+Was this accuracy driven by children's knowledge or parents' referential expressions? To answer this question, we fit a mixed-effects logistic regression predicting children's accuracy on each trial from children's total estimated vocabulary, parent-reported knowledge of the target animal, and the (log) length of parents' expressions. We found that children with bigger vocabularies were more accurate in general ($\beta =$  `r test_vocab_estimate`, $p =$ `r test_vocab_p.value`,  $d$ = `r test_vocab_d` [`r test_vocab_d_low`,  `r test_vocab_d_high`]), and that children were less accurate for animals whose names parents thought they did not know ($\beta =$  `r test_unknown_estimate`, $p$ `r test_unknown_p.value`, $d$ = `r test_unknown_d` [`r test_unknown_d_low`,  `r test_unknown_d_high`]) Longer referential expressions were associated with lower accuracy for animals that parents thought their children knew ($\beta =$ `r test_length_estimate`, $p =$ `r test_length_p.value`, $d$ = `r test_length_d` [`r test_length_d_low`,  `r test_length_d_high`]), but greater accuracy for animals that parents thought their children did not know ($\beta =$ `r test_length_unknown_estimate`, $p =$ `r test_length_unknown_p.value`, $d$ = `r test_length_unknown_d` [`r test_length_unknown_d_low`,  `r test_length_unknown_d_high`]).
 
 Thus, longer referential expressions were associated with more successful communication for animals that parents thought their children did not know, but were unhelpful for animals that parents thought they did know. We next ask whether parents tuned the lengths of their utterances appropriately, producing longer expressions for animals they believe their children do not know.
 
@@ -510,7 +440,6 @@ ggplot(continuous_plot_data, aes(x = avg_known, y = length,
   geom_text(data = p1_annotations) +
   scale_color_ptol() 
 ```
-
 
 ```{r individual-plot-data}
 individual_data <- target_data %>%
@@ -605,7 +534,6 @@ ggarrange(p1, p2, nrow = 1, widths = c(1, 2), labels = c("a", "b"), padding = 2)
 ```
 
 
-
 ## Tuning
 
 ```{r trial-known-data}
@@ -634,133 +562,72 @@ primary_lmer <- trial_known_data %>%
        data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group, -df, -std.error) %>%
+  mutate(d = t_to_d(statistic, df)$d,
+         d_low = t_to_d(statistic, df)$CI_low,
+         d_high = t_to_d(statistic, df)$CI_high) %>%
+  select(-effect, -group, -std.error) %>%
   mutate(p.value = printp(p.value))
 
-second_appearance_estimate <- primary_lmer %>% 
-  filter(term == "appearancesecond") %>% 
-  pull(estimate)
-
-second_appearance_statistic <- primary_lmer %>% 
-  filter(term == "appearancesecond") %>% 
-  pull(statistic)
-
-second_appearance_p <- primary_lmer %>% 
-  filter(term == "appearancesecond") %>% 
-  pull(p.value)
-
-avg_known_estimate <- primary_lmer %>% 
-  filter(term == "avg_known") %>% 
-  pull(estimate)
-
-avg_known_statistic <- primary_lmer %>% 
-  filter(term == "avg_known") %>% 
-  pull(statistic)
-
-avg_known_p <- primary_lmer %>% 
-  filter(term == "avg_known") %>% 
-  pull(p.value)
-
-vocab_estimate <- primary_lmer %>% 
-  filter(term == "scale(vocab)") %>% 
-  pull(estimate)
-
-vocab_statistic <- primary_lmer %>% 
-  filter(term == "scale(vocab)") %>% 
-  pull(statistic)
-
-vocab_p <- primary_lmer %>% 
-  filter(term == "scale(vocab)") %>% 
-  pull(p.value)
-
-known_animal_estimate <- primary_lmer %>% 
-  filter(term == "understandsknown animal") %>% 
-  pull(estimate)
-
-known_animal_statistic <- primary_lmer %>% 
-  filter(term == "understandsknown animal") %>% 
-  pull(statistic)
-
-known_animal_p <- primary_lmer %>% 
-  filter(term == "understandsknown animal") %>% 
-  pull(p.value)
-
-second_appearance_known_estimate <- primary_lmer %>% 
-  filter(term == "appearancesecond:understandsknown animal") %>% 
-  pull(estimate)
-
-second_appearance_known_statistic <- primary_lmer %>% 
-  filter(term == "appearancesecond:understandsknown animal") %>% 
-  pull(statistic)
-
-second_appearance_known_p <- primary_lmer %>% 
-  filter(term == "appearancesecond:understandsknown animal") %>% 
-  pull(p.value)
+walk2(c("second_appearance", "avg_known", "vocab", "known_animal", 
+        "second_appearance_known"),
+      c("appearancesecond", "avg_known", "scale(vocab)", 
+        "understandsknown animal", "appearancesecond:understandsknown animal"), 
+      ~ make_text_vars(primary_lmer, .x, .y))
 ```
 
 If parents calibrate their referring expressions to their children's linguistic knowledge, they should provide more information to children for whom a simple bare noun (e.g. "leopard") would be insufficient to identify the target. Parents did this in a number of ways: with one or more adjectives (e.g. "the spotted, yellow leopard"), with similes (e.g. "the one that's like a cat"), and with allusions to familiar animal exemplars of the category (e.g. "pick Midnight"). In many of these cases, parents would be required to produce more words (see below for further qualitative analyses). Thus, we first analyzed the (log) length of parents' referring expressions as a proxy for informativeness.
 
-When do parents produce longer referring expressions? One possibility is that parents tune at the coarsest level, using more words when speaking to children with smaller vocabularies. This was not the case--the total number of words parents thought their children knew did not reliably affect the length of their referring expressions ($\beta =$ `r vocab_estimate`, $p =$ `r vocab_p`). A second possibility is that parents have a sense for how difficult each animal is in general, and tune coarsely to this. Our analyses confirmed this coarse tuning: Parents said reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $p =$ `r avg_known_p`; Figure \ref{fig:known-fig}A). Finally, parents could fine-tune their referential expressions to their children's individual knowledge, over and above the average difficulty of each animal. Our analyses supported this conclusion: Parents used reliably fewer words to refer to animals that they thought their individual child knew ($\beta =$ `r known_animal_estimate`, $p =$ `r known_animal_p`; Figure \ref{fig:known-fig}B). Thus parents fine-tuned the amount of information in their referential expressions, calibrating the amount of information they provided to their children's knowledge, even after accounting for the average difficulty of the target animal. 
+When do parents produce longer referring expressions? One possibility is that parents tune at the coarsest level, using more words when speaking to children with smaller vocabularies. This was not the case--the total number of words parents thought their children knew did not reliably affect the length of their referring expressions ($\beta =$ `r vocab_estimate`, $p =$ `r vocab_p.value`, $d$ = `r vocab_d` [`r vocab_d_low`,  `r vocab_d_high`]). A second possibility is that parents have a sense for how difficult each animal is in general, and tune coarsely to this. Our analyses confirmed this coarse tuning: Parents said reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $p =$ `r avg_known_p.value`, $d$ = `r avg_known_d` [`r avg_known_d_low`,  `r avg_known_d_high`]); Figure \ref{fig:known-fig}A). Finally, parents could fine-tune their referential expressions to their children's individual knowledge, over and above the average difficulty of each animal. Our analyses supported this conclusion: Parents used reliably fewer words to refer to animals that they thought their individual child knew ($\beta =$ `r known_animal_estimate`, $p =$ `r known_animal_p.value`, $d$ = `r known_animal_d` [`r known_animal_d_low`,  `r known_animal_d_high`]); Figure \ref{fig:known-fig}B). Thus parents fine-tuned the amount of information in their referential expressions, calibrating the amount of information they provided to their children's knowledge, even after accounting for the average difficulty of the target animal. 
 
-In addition, because each animal appeared as a target twice, we asked whether parents tuned their referential expressions over successive appearances. We found that parents used fewer words on the second appearance of each animal ($\beta =$ `r second_appearance_estimate`, $p =$ `r second_appearance_p`), but that the difference in utterance length between animals they thought their children knew versus didn't know was smaller on their second appearance ($\beta =$ `r second_appearance_known_estimate`, $p$ `r second_appearance_known_p`). Why might that be? One possibility is that parents obtain information from the first appearance of each animal: they may have thought their child knew "leopard," but discovered from their incorrect choice that they did not. If so, they might provide more information the second time around.
-
+In addition, because each animal appeared as a target twice, we asked whether parents tuned their referential expressions over successive appearances. We found that parents used fewer words on the second appearance of each animal ($\beta =$ `r second_appearance_estimate`, $p =$ `r second_appearance_p.value`, $d$ = `r second_appearance_d` [`r second_appearance_d_low`,  `r second_appearance_d_high`]), but that the difference in utterance length between animals they thought their children knew versus didn't know was smaller on their second appearance ($\beta =$ `r second_appearance_known_estimate`, $p$ `r second_appearance_known_p.value`, $d$ = `r second_appearance_known_d` [`r second_appearance_known_d_low`,  `r second_appearance_known_d_high`]). Why might that be? One possibility is that parents obtain information from the first appearance of each animal: they may have thought their child knew "leopard," but discovered from their incorrect choice that they did not. If so, they might provide more information the second time around.
 
 ```{r lag-lmer}
 lag_lmer <- setup_lag_data %>%
   ungroup() %>%
   mutate(understands = fct_relevel(understands, 
                                     "Doesn't Know", "Knows")) %>%
-  filter(!is.na(lag_correct)) %>%
+  mutate(lag_correct = fct_explicit_na(lag_correct, na_level = "first") %>% 
+           fct_relevel(., "first", "correct", "incorrect")) %>%
   lmer(log_length ~ lag_correct * understands + 
          ( understands | subj) + (1 | target), data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
+    mutate(d = t_to_d(statistic, df)$d,
+         d_low = t_to_d(statistic, df)$CI_low,
+         d_high = t_to_d(statistic, df)$CI_high) %>%
   select(-effect, -group, -df, -std.error) %>%
   mutate(p.value = printp(p.value))
 
-
-lag_incorrect_estimate <- lag_lmer %>% 
-  filter(term == "lag_correctincorrect") %>% 
-  pull(estimate)
-
-lag_incorrect_statistic <- lag_lmer  %>% 
-  filter(term == "lag_correctincorrect") %>% 
-  pull(statistic)
-
-lag_incorrect_p <- lag_lmer  %>% 
-  filter(term == "lag_correctincorrect") %>% 
-  pull(p.value)
-
-lag_known_estimate <- lag_lmer %>% 
-  filter(term == "understandsKnows") %>% 
-  pull(estimate)
-
-lag_known_statistic <- lag_lmer  %>% 
-  filter(term == "understandsKnows") %>% 
-  pull(statistic)
-
-lag_known_p <- lag_lmer  %>% 
-  filter(term == "understandsKnows") %>% 
-  pull(p.value)
-
-lag_incorrect_known_estimate <- lag_lmer %>% 
-  filter(term == "lag_correctincorrect:understandsKnows") %>% 
-  pull(estimate)
-
-lag_incorrect_known_statistic <- lag_lmer  %>% 
-  filter(term == "lag_correctincorrect:understandsKnows") %>% 
-  pull(statistic)
-
-lag_incorrect_known_p <- lag_lmer  %>% 
-  filter(term == "lag_correctincorrect:understandsKnows") %>% 
-  pull(p.value)
+walk2(c("lag_correct", "lag_incorrect", "lag_known", "lag_correct_known",
+        "lag_incorrect_known"),
+      c("lag_correctcorrect", "lag_correctincorrect", "understandsKnows", 
+        "lag_correctcorrect:understandsKnows", "lag_correctincorrect:understandsKnows"), 
+      ~ make_text_vars(lag_lmer, .x, .y))
 ```
 
-To test this prediction, we fit a model predicting the (log) length of parents' referring expressions on the second appearance of each animal from success on first appearance, whether they thought their child knew the animal prior to the experiment, and their interaction. Parents produced marginally shorter expressions when children were incorrect on the first appearance of each animal ($\beta =$ `r lag_incorrect_estimate`, $p =$ `r lag_incorrect_p`), and shorter referring expressions for animals that they believed their child knew ($\beta =$ `r lag_known_estimate`, $p =$ `r lag_known_p`). However, they produced longer referring expressions following an incorrect response for animals they thought their children knew ($\beta =$ `r lag_incorrect_known_estimate`, $p$ `r lag_incorrect_known_p`). Thus, when parents thought their children knew an animal, but then observed evidence to the contrary, they provided more information in their referring expressions for children to make the correct selection the second time. Importantly, this same pattern was not found in unknown animals--parents' referring expressions did not differ in length for known and unknown animals when children had incorrectly selected on the first appearance (Figure \ref{fig:known-fig}B). 
+To test this prediction, we fit a model predicting the (log) length of parents' referring expressions from appearance type (first, following correct, following incorrect), whether the parent thought their child knew the animal prior to the experiment, and their interaction between appearance type and prior belief. Relative to their utterances on an animal's first appearance, parents produces shorter referring expressions on an animal's second appearance following both correct responses ($\beta =$ `r lag_correct_estimate`, $p =$ `r lag_correct_p.value`, $d$ = `r lag_correct_d` [`r lag_correct_d_low`,  `r lag_correct_d_high`]) and  incorrect responses ($\beta =$ `r lag_incorrect_estimate`, $p =$ `r lag_incorrect_p.value`, $d$ = `r lag_incorrect_d` [`r lag_incorrect_d_low`,  `r lag_incorrect_d_high`]). As before, parents produced shorter utterances for animals they thought their child knew ($\beta =$ `r lag_known_estimate`, $p =$ `r lag_known_p.value`, $d$ = `r lag_known_d` [`r lag_known_d_low`,  `r lag_known_d_high`]). When children were correct on an animal's first appearance, parents referring expressions on its second appearance did not differ in length based on whether they thought their child knew the animal prior to the experiment ($\beta =$ `r lag_correct_known_estimate`, $p =$ `r lag_correct_known_p.value`, $d$ = `r lag_correct_known_d` [`r lag_correct_known_d_low`,  `r lag_correct_known_d_high`]). However, when children were incorrect on an animal's first appearance, and parents thought they knew the animal prior to the experiment, they produced reliably longer referring expressions on it's second appearance ($\beta =$ `r lag_incorrect_known_estimate`, $p =$ `r lag_incorrect_known_p.value`, $d$ = `r lag_incorrect_known_d` [`r lag_incorrect_known_d_low`,  `r lag_incorrect_known_d_high`]; Figure \ref{fig:known-fig}B). 
 
-Together, these two sets of analyses suggest that parents tune their referring expressions not just coarsely to how much language their children generally know, nor their knowledge about how hard animal words are on average, but finely to their beliefs about their individual children's knowledge of specific lexical items. Further, when they discover that they have incorrect beliefs about their children's knowledge, they update these beliefs in real-time and leverage them on subsequent references to the same lexical item.
+As we predicted, when parents thought their children knew an animal, but then observed evidence to the contrary, they provided more information in their referring expressions for children to make the correct selection the second time. However, we did not find the opposite pattern: When children were successful for animals that parents thought they did not know, parents did not update their beliefs. Why should parents update their beliefs in one direction but not the other? One likely explanation comes from parents' linguistic tuning itself. Parents' goal in this task is to produce a referential expression that allows their children to select the target animal whether or not they know its canonical label. Consequently, when children select correctly on these trials, parents cannot know whether their child actually knew the animal in question, or whether their referential expression provided information that allowed the child to select the target despite not knowing its canonical label.
+
+Together, these two sets of analyses suggest that parents tune their referring expressions not just coarsely to how much language their children generally know, nor their knowledge about how hard animal words are on average, but finely to their beliefs about their individual children's knowledge of specific lexical items. Further, when interaction allows them to discover that they have incorrect beliefs about their children's knowledge, they update these beliefs in real-time and leverage them on subsequent references to the same lexical item.
 
 ## Content of referring expressions
+
+```{r qual-vars}
+make_qual_vars <- function(df, term_name, measure, knowledge = NULL) {
+  filtered_df <- df %>%
+    filter(qual_measure == measure) %>%
+    mutate(used = used * 100)
+  
+  if(!is.null(knowledge)) {
+    filtered_df <- filtered_df %>%
+      filter(understands == knowledge)
+  }
+  
+  assign(glue("{term_name}_used"), filtered_df %>% pull(used), 
+         envir = globalenv())
+}
+```
 
 ```{r qual-coding}
 tidy_qual_data <- target_data %>%
@@ -785,23 +652,16 @@ qual_means <- tidy_qual_data %>%
   summarise(used = mean(used)) %>%
   summarise(used = mean(used))
 
-
 qual_knowledge_means <- tidy_qual_data %>%
   group_by(qual_measure, understands, subj, target, appearance) %>%
   summarise(used = mean(used)) %>%
   summarise(used = mean(used)) %>%
   summarise(used = mean(used)) %>%
-  tidyboot_mean(used)
+  tidyboot_mean(used) %>%
+  rename(used = empirical_stat)
 
-canonical_used <- qual_means %>%
-  filter(qual_measure == "num_canonical") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
-
-subordinate_used <- qual_means %>%
-  filter(qual_measure == "num_subordinate") %>%
-  mutate(used = used * 100) %>%
-  pull(used)
+walk2(c("canonical", "subordinate"), c("num_canonical", "num_subordinate"),
+      ~make_qual_vars(qual_means, .x, .y))
 
 qual_lmer <- tidy_qual_data %>%
   group_by(qual_measure) %>%
@@ -812,150 +672,51 @@ qual_lmer <- tidy_qual_data %>%
   select(-data) %>%
   unnest(cols = c(model)) %>%
   filter(effect == "fixed") %>%
+  mutate(p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE)) %>%
   select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value)) %>%
-  filter(term != "(Intercept)")
+  filter(term != "(Intercept)") %>%
+  select(-term) %>%
+  rename(term = qual_measure)
 
-canonical_known <- qual_knowledge_means %>%
-  filter(qual_measure == "num_canonical", understands == "Knows") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
+walk2(c("canonical_known", "canonical_unknown"), c("Knows", "Doesn't Know"),
+      ~make_qual_vars(qual_knowledge_means, .x, "num_canonical", .y))
 
-canonical_unknown <- qual_knowledge_means %>%
-  filter(qual_measure == "num_canonical", understands == "Doesn't Know") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-comparison_known <- qual_knowledge_means %>%
-  filter(qual_measure == "num_comparison", understands == "Knows") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-comparison_unknown <- qual_knowledge_means %>%
-  filter(qual_measure == "num_comparison", understands == "Doesn't Know") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-descriptors_known <- qual_knowledge_means %>%
-  filter(qual_measure == "num_descriptors", understands == "Knows") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-descriptors_unknown <- qual_knowledge_means %>%
-  filter(qual_measure == "num_descriptors", understands == "Doesn't Know") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-subordinate_known <- qual_knowledge_means %>%
-  filter(qual_measure == "num_subordinate", understands == "Knows") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-subordinate_unknown <- qual_knowledge_means %>%
-  filter(qual_measure == "num_subordinate", understands == "Doesn't Know") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-superordinate_known <- qual_knowledge_means %>%
-  filter(qual_measure == "num_superordinate", understands == "Knows") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-superordinate_unknown <- qual_knowledge_means %>%
-  filter(qual_measure == "num_superordinate", understands == "Doesn't Know") %>%
-  mutate(mean = mean * 100) %>%
-  pull(mean)
-
-canonical_estimate <- qual_lmer %>% 
-  filter(qual_measure == "num_canonical") %>% 
-  pull(estimate)
-
-canonical_statistic <- qual_lmer  %>% 
-  filter(qual_measure == "num_canonical") %>% 
-  pull(statistic)
-
-canonical_p <- qual_lmer  %>% 
-  filter(qual_measure == "num_canonical") %>% 
-  pull(p.value)
-
-comparison_estimate <- qual_lmer %>% 
-  filter(qual_measure == "num_comparison") %>% 
-  pull(estimate)
-
-comparison_statistic <- qual_lmer  %>% 
-  filter(qual_measure == "num_comparison") %>% 
-  pull(statistic)
-
-comparison_p <- qual_lmer  %>% 
-  filter(qual_measure == "num_comparison") %>% 
-  pull(p.value)
-
-descriptors_estimate <- qual_lmer %>% 
-  filter(qual_measure == "num_descriptors") %>% 
-  pull(estimate)
-
-descriptors_statistic <- qual_lmer  %>% 
-  filter(qual_measure == "num_descriptors") %>% 
-  pull(statistic)
-
-descriptors_p <- qual_lmer  %>% 
-  filter(qual_measure == "num_descriptors") %>% 
-  pull(p.value)
-
-superordinate_estimate <- qual_lmer %>% 
-  filter(qual_measure == "num_superordinate") %>% 
-  pull(estimate)
-
-superordinate_statistic <- qual_lmer  %>% 
-  filter(qual_measure == "num_superordinate") %>% 
-  pull(statistic)
-
-superordinate_p<- qual_lmer  %>% 
-  filter(qual_measure == "num_superordinate") %>% 
-  pull(p.value)
-
-subordinate_estimate <- qual_lmer %>% 
-  filter(qual_measure == "num_subordinate") %>% 
-  pull(estimate)
-
-subordinate_statistic <- qual_lmer  %>% 
-  filter(qual_measure == "num_subordinate") %>% 
-  pull(statistic)
-
-subordinate_p <- qual_lmer  %>% 
-  filter(qual_measure == "num_subordinate") %>% 
-  pull(p.value)
+walk2(c("canonical", "comparison", "descriptors", "superordinate", 
+        "subordinate"),
+      c("num_canonical", "num_comparison", "num_descriptors", 
+        "num_superordinate", "num_subordinate"),
+      ~ make_text_vars(qual_lmer, .x, .y))
 ```
 
-```{r qual-plot, fig.height = 3, fig.width = 4.5, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used canonical labels, descriptors, comparisons, subordinate category labels, and basic category labels. Each panel shows proportions for known and unknown animals."}
+```{r qual-plot, fig.height = 3, fig.width = 6, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used comparison, descriptors, superordinate category labels, and subordinate category labels. Each panel shows proportions for andimals that parents thought their children knew and animals parents thought their children did not know."}
 plot_qual_means <- qual_knowledge_means %>%
-  mutate(measure = case_when(
-    qual_measure == "num_canonical" ~ "Canonical label",
-    qual_measure == "num_descriptors" ~ "Descriptors",
-    qual_measure =="num_comparison" ~ "Comparison",
-    qual_measure =="num_subordinate" ~ "Subordinate",
-    qual_measure =="num_superordinate" ~ "Superordinate")) %>%
-  mutate(understands = factor(understands,levels = c("Doesn't Know", "Knows")))
+  mutate(qual_measure = factor(qual_measure, 
+                               levels = c("num_comparison", "num_descriptors",
+                                          "num_superordinate", 
+                                          "num_subordinate", "num_canonical"),
+                               labels = c("Comparison", "Descriptors", 
+                                          "Superordinate", "Subordinate", 
+                                          "Canonical")))
 
-ggplot(plot_qual_means, aes(x = measure, y = empirical_stat, 
+ggplot(plot_qual_means %>% filter(qual_measure != "Canonical"),
+       aes(x = understands, y = used, 
              ymin = ci_lower, ymax = ci_upper, 
              fill = understands)) + 
-  labs(x = "", y = "Proportion of trials") +
+  facet_grid(~ qual_measure) + 
+  labs(x = "", y = "Parents' production probability") +
   geom_col(position = position_dodge(.5), width = .5) + 
   geom_linerange(position = position_dodge(.5)) + 
+  scale_x_discrete(labels= c("Known\nanimal", "Unknown\nanimal")) +
   scale_fill_ptol() +
-  coord_flip() + 
-  annotate(geom = "text", x = 5.2, y = .25, label = "known", 
-           color = ptol_pal()(2)[2], size = 3) +
-  annotate(geom = "text", x = 4.9, y = .25, label = "unknown", 
-           color = ptol_pal()(2)[1], size = 3)
-  
-  
+  theme(strip.background = element_rect(color = "black"))
 ```
 
-Parents produced reliably longer referring expressions when trying to communicate about animals that they thought their children did not know. In the analyses presented so far, we used length as a theory-agnostic, quantitative measure of information. *How* did parents successfully refer to animals that their children did not know? As a post-hoc descriptive analysis, we coded five qualitative features of referring expressions: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a superordinate level category label (e.g., "bird" for peacock), and (5) Use of a subordinate level category label (e.g., "Limelight Larry" for peacock). Because the rates of usage of each of these kinds of reference varied widely (e.g. canonical labels were used on `r canonical_used`\% of trials, but subordinates were used on `r subordinate_used`\% of trials), we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal. The results are plotted in Figure \ref{fig:qual-plot}.
+Parents produced reliably longer referring expressions when trying to communicate about animals that they thought their children did not know. In the analyses presented so far, we used length as a theory-agnostic, quantitative measure of information. *How* did parents successfully refer to animals that their children did not know? As a post-hoc descriptive analysis, we coded five qualitative features of referring expressions: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a superordinate level category label (e.g., "bird" for peacock), and (5) Use of a subordinate level category label (e.g., "Limelight Larry" for peacock). Because the rates of usage of each of these kinds of reference varied widely (e.g. canonical labels were used on `r canonical_used`\% of trials, but subordinates were used on `r subordinate_used`\% of trials), we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal. Canonical labels were used on almost all trials, and did not differ in frequency between animals parents thought their children did not know ($M =$ `r canonical_unknown_used`\%) and animals they thought their children knew ($M =$ `r canonical_known_used`\%, $\beta =$ `r canonical_estimate`, $p =$ `r canonical_p.value`, $d$ = `r canonical_d` [`r canonical_d_low`, `r canonical_d_high`]). All other results are plotted in Figure \ref{fig:qual-plot}.
 
-Canonical labels were used on almost all trials, and did not differ in frequency between animals parents thought their children did not know ($M =$ `r canonical_unknown`\%) and animals they thought their children knew ($M =$ `r canonical_known`\%, $\beta =$ `r canonical_estimate`, $p =$ `r canonical_p`). Comparisons were used reliably more for animals parents believed their children did not know ($M =$ `r comparison_unknown`\%) than for animals they thought their children knew, ($M =$ `r comparison_known`\%, $\beta =$ `r comparison_estimate`, $p =$ `r comparison_p`), as were descriptors (known $M =$ `r descriptors_known`\%, unknown $M =$ `r descriptors_unknown`\%, $\beta =$ `r descriptors_estimate`, $p$ `r descriptors_p`) and superordinate category labels (known $M =$ `r superordinate_known`\%, unknown $M =$ `r superordinate_unknown`\%, $\beta =$ `r superordinate_estimate`, $p =$ `r superordinate_p`). Subordinates were used less for animals parents thought their children did not know ($M =$ `r subordinate_unknown`\%) than for animals they thought their children knew ($M =$ `r subordinate_known`\%, $\beta =$ `r subordinate_estimate`, $p =$ `r subordinate_p`). Thus, parents used a variety of strategies to refer to animals that they believed their children did not understand, but the use of descriptors was the most prominent. These descriptors are particularly apt to facilitate children's learning, connecting parents' fine-tuning for reference with their children's language acquisition.
+Comparisons were used reliably more for animals parents believed their children did not know than for animals they thought their children knew, ($\beta =$ `r comparison_estimate`, $p =$ `r comparison_p.value`, $d$ = `r comparison_d` [`r comparison_d_low`, `r comparison_d_high`]), as were descriptors ($\beta =$ `r descriptors_estimate`, $p$ `r descriptors_p.value`, $d$ = `r descriptors_d` [`r descriptors_d_low`, `r descriptors_d_high`]) and superordinate category labels ($\beta =$ `r superordinate_estimate`, $p =$ `r superordinate_p.value`, $d$ = `r superordinate_d` [`r superordinate_d_low`, `r superordinate_d_high`]). Subordinates were used less for animals parents thought their children did not know than for animals they thought their children knew ($\beta =$ `r subordinate_estimate`, $p =$ `r subordinate_p.value`, $d$ = `r subordinate_d` [`r subordinate_d_low`, `r subordinate_d_high`]). Thus, parents used a variety of strategies to refer to animals that they believed their children did not understand, but the use of descriptors was the most prominent. These descriptors are particularly apt to facilitate children's learning, connecting parents' fine-tuning for reference with their children's language acquisition.
 
 # Discussion
 
