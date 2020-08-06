@@ -20,7 +20,6 @@ library(here)
 library(tidyboot) #from https://github.com/langcog/tidyboot
 library(qdap)
 library(tidyverse)
-
 opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
                error = FALSE, cache = TRUE, tidy = FALSE)
 ```
