@@ -693,6 +693,7 @@ walk2(c("canonical", "comparison", "descriptors", "superordinate",
 
 ```{r qual-plot, fig.height = 3, fig.width = 6, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used comparison, descriptors, superordinate category labels, and subordinate category labels. Each panel shows proportions for andimals that parents thought their children knew and animals parents thought their children did not know."}
 plot_qual_means <- qual_knowledge_means %>%
+  ungroup()%>%
   mutate(qual_measure = factor(qual_measure, 
                                levels = c("num_comparison", "num_descriptors",
                                           "num_superordinate", 
