@@ -27,7 +27,7 @@ abstract: |
    The pace at which children learn language is one of the most impressive feats of early cognitive development. One possible explanation for this rapid pace is that the language caregivers produce is tuned to children's developing linguistic knowledge, maintaining just the right level of complexity to support rapid learning. We present the first experimental evidence of just how precise this tuning is, showing that parents tune not just to children's holistic language development, but their knowledge of individual words. We developed a new method in which we experimentally controlled what parents talked about, but not how they could talk or what they could say, increasing the chance that these  results will generalize outside the lab. This work points to the importance of studying the parent-child dyad as a unit instead of focusing on children as isolated learners, both in the domain of language and in social learning more broadly.
    
 authornote: |
-  All data and code for these analyses are available at https://osf.io/vkug8/.
+  All data and code for these analyses are available at https://osf.io/3f8hy/?view_only=9a196db0444c4867bc899cc70a7a1e9c. Videos of experiment sessions are available on Databrary.
 
 keywords          : "parent-child interaction; language development; communication"
 wordcount         : "749"
@@ -420,7 +420,7 @@ continuous_plot_data <- target_data %>%
                                    trial_target, as.character(NA)))
 ```
 
-```{r difficulty-fig, fig.width = 4.5, fig.height = 2.5, fig.env = "figure", fig.cap = "Parents produced longer referring expressions to communicate about animals that children were generally less likely to know."}
+```{r difficulty-fig, fig.width = 4.5, fig.height = 2.5, fig.env = "figure", fig.cap = "Parents produced longer referring expressions to communicate about animals that children were generally less likely to know. Animals in blue are those that were estimated to be earlier learned from prior norms, animals in red are those that were estimated to be later learned. Error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 p1_annotations <- tibble(avg_known = c(.25, .85),
                          length = c(12.5, 11),
                          avg_known_lower = as.numeric(c(NA, NA)),
@@ -489,7 +489,7 @@ group_lag_data <- indiv_lag_data %>%
   mutate(subj = "mean")
 ```
 
-```{r known-fig, fig.width = 5, fig.height = 2.5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions for words that they thought their child did not know on their first apperance. (B) When children selected correctly in response to these expressions, parents continued to produce longer expressions for animals they thought their children did not know (left). However, if parents thought their child knew an animal, and they chose incorrectly, parents produced longer expressions on its second appearance (right). Gray points and lines represent individual participants, colored points and  lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
+```{r known-fig, fig.width = 5, fig.height = 2.5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions for animals they thought their child did not know (first appearance). (B) When children chose the correct animal, parents continued to produce longer expressions for animals they thought their children did not know (left). However, if parents thought their child knew an animal, and they chose incorrectly, parents produced longer expressions on its second appearance (right). Gray points and lines represent individual participants, colored points and lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 
 individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
   mutate(type = factor(type, 
@@ -698,7 +698,7 @@ walk2(c("canonical", "comparison", "descriptors", "superordinate",
       ~ make_text_vars(qual_lmer, .x, .y))
 ```
 
-```{r qual-plot, fig.height = 2.5, fig.width = 6, fig.env = "figure", eval = T, fig.cap = "Proportion of trials where parents used comparison, descriptors, superordinate category labels, and subordinate category labels. Each panel shows proportions for andimals that parents thought their children knew and animals parents thought their children did not know."}
+```{r qual-plot, fig.height = 2.5, fig.width = 6, fig.env = "figure", eval = T, fig.cap = "Proportion of trials on which parents used comparison, descriptors, superordinate category labels, and subordinate category labels in their referring expressions. Colored bars show means across parents, error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 plot_qual_means <- qual_knowledge_means %>%
   ungroup()%>%
   mutate(qual_measure = factor(qual_measure, 
@@ -734,13 +734,11 @@ These data are consistent with prior evidence of coarse-tuning in child-directed
 
 While parents’ speech to children is unlikely to reflect an explicit goal to teach, it is nonetheless goal-oriented: parents want to communicate successfully [@bruner1983]. When talking about animals that they thought their children did not know, parents used referential expressions rich with descriptors and comparisons, as in previous observational studies [@masur1997; @mervis1982b]. These strategies scaffold communication--parents use what they think their children know (e.g. colors) in order to communicate about animals they think their children do not know. Because communication and learning are intertwined, these same strategies may work in the service of language acquisition as well [@yurovsky2018]. While parents produced rich descriptions to help their children select unfamiliar animals, they almost always produced the canonical label as well. These referential expressions are thus an ideal opportunity to learn the relationship between the referent, its label, and its important identifying features.
 
-Parents fine-tune language to their children’s knowledge in order to communicate successfully. In the service of this communicative goal, they may also provide children with input that accelerates learning. Focusing on the interactive and communicative nature of language captures a more realistic picture of language development: while children bring powerful learning mechanisms to language acquisition, these mechanisms are supported by an ecological niche designed for their success.
-
-
+Parents fine-tune language to their children’s knowledge in order to communicate successfully. In the service of this communicative goal, they may also provide children with input that accelerates learning. Focusing on the interactive and communicative nature of language captures a more complete picture of language development: while children bring powerful learning mechanisms to language acquisition, these mechanisms are supported by an ecological niche designed for their success.
 
 # Acknowledgements
 
-Research funded by a James S. McDonnell Foundation Scholar Award.
+This research was funded by a James S. McDonnell Foundation Scholar Award to the last author.
 
 \newpage
 
