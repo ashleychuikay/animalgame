@@ -31,7 +31,7 @@ authornote: |
 
 keywords          : "parent-child interaction; language development; communication"
 wordcount         : "749"
-references         : "21"
+references         : "44"
 
 bibliography      : ["animalgame.bib"]
 
@@ -76,7 +76,7 @@ theme_set(theme_few(base_size = 10) + theme(legend.position = "none"))
 knitr::opts_chunk$set(fig.pos = '!tb', echo = FALSE, cache = TRUE, 
                       warning = FALSE, message = FALSE, 
                       sanitize = TRUE, fig.path='figs/', fig.width = 3,
-                      fig.height = 3)
+                      fig.height = 3, fig.pos = "t!")
 set.seed(42)
 options(digits=3, dplyr.summarise.inform = FALSE)
 ```
@@ -489,6 +489,53 @@ group_lag_data <- indiv_lag_data %>%
   mutate(subj = "mean")
 ```
 
+## Tuning
+
+```{r trial-known-data}
+trial_known_data <- target_data %>%
+  mutate(phase = factor(phase, levels = c("pre", "post")),
+         understands = factor(understands, labels = c("unknown animal", 
+                                                      "known animal"))) %>%
+  group_by(phase, avg_known, understands, subj, appearance, trial, trial_target) %>%
+  summarise(length = sum(length)) %>%
+  left_join(select(subj_vocab, subj, vocab), by = "subj") %>%
+  mutate(log_length = log(length))
+
+mean_known_data <- trial_known_data %>%
+  group_by(phase, understands, subj, appearance, trial_target) %>%
+  summarise(length = mean(length)) %>%
+  summarise(length = mean(length)) %>%
+  summarise(length = mean(length)) %>%
+  tidyboot_mean(length)
+```
+
+```{r primary-lmer}
+primary_lmer <- trial_known_data %>%
+  lmer(log_length ~ appearance * understands + avg_known + scale(vocab) +
+         (understands | subj) + 
+         (appearance | trial_target),
+       data = .) %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  mutate(d = t_to_d(statistic, df)$d,
+         d_low = t_to_d(statistic, df)$CI_low,
+         d_high = t_to_d(statistic, df)$CI_high) %>%
+  select(-effect, -group, -std.error) %>%
+  mutate(p.value = printp(p.value))
+
+walk2(c("second_appearance", "avg_known", "vocab", "known_animal", 
+        "second_appearance_known"),
+      c("appearancesecond", "avg_known", "scale(vocab)", 
+        "understandsknown animal", "appearancesecond:understandsknown animal"), 
+      ~ make_text_vars(primary_lmer, .x, .y))
+```
+
+
+If parents calibrate their referring expressions to their children's linguistic knowledge, they should provide more information to children for whom a simple bare noun (e.g. "leopard") would be insufficient to identify the target. Parents did this in a number of ways: with one or more adjectives (e.g. "the spotted, yellow leopard"), with similes (e.g. "the one that's like a cat"), and with allusions to familiar animal exemplars of the category (e.g. "Limelight Larry"). In many of these cases, parents would be required to produce more words (see below for further qualitative analyses). Thus, we first analyzed the (log) length of parents' referring expressions as a proxy for informativeness.
+
+When do parents produce longer referring expressions? One possibility is that parents tune at the coarsest level, using more words when speaking to children with smaller vocabularies. This was not the case--the total number of words parents thought their children knew did not reliably affect the length of their referring expressions ($\beta =$ `r vocab_estimate`, $p =$ `r vocab_p.value`, $d$ = `r vocab_d` [`r vocab_d_low`,  `r vocab_d_high`]). A second possibility is that parents have a sense for how difficult each animal is in general, and tune coarsely to this. Our analyses confirmed this coarse-tuning: parents said reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $p =$ `r avg_known_p.value`, $d$ = `r avg_known_d` [`r avg_known_d_low`,  `r avg_known_d_high`]); Figure \ref{fig:known-fig}A). Finally, parents could fine-tune their referential expressions to their children's individual knowledge, over and above the average difficulty of each animal. Our analyses supported this conclusion: parents used reliably fewer words to refer to animals that they thought their individual child knew ($\beta =$ `r known_animal_estimate`, $p =$ `r known_animal_p.value`, $d$ = `r known_animal_d` [`r known_animal_d_low`,  `r known_animal_d_high`]); Figure \ref{fig:known-fig}B). Thus parents fine-tuned the amount of information in their referential expressions, calibrating the amount of information they provided to their children's knowledge, even after accounting for the average difficulty of the target animal. 
+
+
 ```{r known-fig, fig.width = 5, fig.height = 2.5, fig.env = "figure", fig.cap = "(A) Parents produced longer referring expressions for animals they thought their child did not know (first appearance). (B) When children chose the correct animal, parents continued to produce longer expressions for animals they thought their children did not know (left). However, if parents thought their child knew an animal, and they chose incorrectly, parents produced longer expressions on its second appearance (right). Gray points and lines represent individual participants, colored points and lines show group averaged proportions; error bars show 95\\% confidence intervals computed by non-parametric bootstrap."}
 
 individual_plot_data <- bind_rows(individual_data, indiv_lag_data) %>%
@@ -540,51 +587,6 @@ p2 <- ggplot(individual_plot_data %>% filter(type != "First appearance"),
 ggarrange(p1, p2, nrow = 1, widths = c(1, 2), labels = c("a", "b"), padding = 2)
 ```
 
-
-## Tuning
-
-```{r trial-known-data}
-trial_known_data <- target_data %>%
-  mutate(phase = factor(phase, levels = c("pre", "post")),
-         understands = factor(understands, labels = c("unknown animal", 
-                                                      "known animal"))) %>%
-  group_by(phase, avg_known, understands, subj, appearance, trial, trial_target) %>%
-  summarise(length = sum(length)) %>%
-  left_join(select(subj_vocab, subj, vocab), by = "subj") %>%
-  mutate(log_length = log(length))
-
-mean_known_data <- trial_known_data %>%
-  group_by(phase, understands, subj, appearance, trial_target) %>%
-  summarise(length = mean(length)) %>%
-  summarise(length = mean(length)) %>%
-  summarise(length = mean(length)) %>%
-  tidyboot_mean(length)
-```
-
-```{r primary-lmer}
-primary_lmer <- trial_known_data %>%
-  lmer(log_length ~ appearance * understands + avg_known + scale(vocab) +
-         (understands | subj) + 
-         (appearance | trial_target),
-       data = .) %>%
-  tidy() %>%
-  filter(effect == "fixed") %>%
-  mutate(d = t_to_d(statistic, df)$d,
-         d_low = t_to_d(statistic, df)$CI_low,
-         d_high = t_to_d(statistic, df)$CI_high) %>%
-  select(-effect, -group, -std.error) %>%
-  mutate(p.value = printp(p.value))
-
-walk2(c("second_appearance", "avg_known", "vocab", "known_animal", 
-        "second_appearance_known"),
-      c("appearancesecond", "avg_known", "scale(vocab)", 
-        "understandsknown animal", "appearancesecond:understandsknown animal"), 
-      ~ make_text_vars(primary_lmer, .x, .y))
-```
-
-If parents calibrate their referring expressions to their children's linguistic knowledge, they should provide more information to children for whom a simple bare noun (e.g. "leopard") would be insufficient to identify the target. Parents did this in a number of ways: with one or more adjectives (e.g. "the spotted, yellow leopard"), with similes (e.g. "the one that's like a cat"), and with allusions to familiar animal exemplars of the category (e.g. "Limelight Larry"). In many of these cases, parents would be required to produce more words (see below for further qualitative analyses). Thus, we first analyzed the (log) length of parents' referring expressions as a proxy for informativeness.
-
-When do parents produce longer referring expressions? One possibility is that parents tune at the coarsest level, using more words when speaking to children with smaller vocabularies. This was not the case--the total number of words parents thought their children knew did not reliably affect the length of their referring expressions ($\beta =$ `r vocab_estimate`, $p =$ `r vocab_p.value`, $d$ = `r vocab_d` [`r vocab_d_low`,  `r vocab_d_high`]). A second possibility is that parents have a sense for how difficult each animal is in general, and tune coarsely to this. Our analyses confirmed this coarse-tuning: parents said reliably fewer words for animals that more children were reported to know ($\beta =$ `r avg_known_estimate`, $p =$ `r avg_known_p.value`, $d$ = `r avg_known_d` [`r avg_known_d_low`,  `r avg_known_d_high`]); Figure \ref{fig:known-fig}A). Finally, parents could fine-tune their referential expressions to their children's individual knowledge, over and above the average difficulty of each animal. Our analyses supported this conclusion: parents used reliably fewer words to refer to animals that they thought their individual child knew ($\beta =$ `r known_animal_estimate`, $p =$ `r known_animal_p.value`, $d$ = `r known_animal_d` [`r known_animal_d_low`,  `r known_animal_d_high`]); Figure \ref{fig:known-fig}B). Thus parents fine-tuned the amount of information in their referential expressions, calibrating the amount of information they provided to their children's knowledge, even after accounting for the average difficulty of the target animal. 
 
 In addition, because each animal appeared as a target twice, we asked whether parents tuned their referential expressions over successive appearances. We found that parents used fewer words on the second appearance of each animal ($\beta =$ `r second_appearance_estimate`, $p =$ `r second_appearance_p.value`, $d$ = `r second_appearance_d` [`r second_appearance_d_low`,  `r second_appearance_d_high`]), but that the difference in utterance length between animals they thought their children knew versus didn't know was smaller on their second appearance ($\beta =$ `r second_appearance_known_estimate`, $p$ `r second_appearance_known_p.value`, $d$ = `r second_appearance_known_d` [`r second_appearance_known_d_low`,  `r second_appearance_known_d_high`]). Why might that be? One possibility is that parents obtain information from the first appearance of each animal: they may have thought their child knew "leopard," but discovered from their incorrect choice that they did not. If so, they might provide more information the second time around.
 
@@ -724,11 +726,7 @@ ggplot(plot_qual_means %>% filter(qual_measure != "Canonical"),
 
 Parents produced reliably longer referring expressions when trying to communicate about animals that they thought their children did not know. In the analyses presented so far, we used length as a theory-agnostic, quantitative measure of information. *How* did parents successfully refer to animals that their children did not know? As a post-hoc descriptive analysis, we coded five qualitative features of referring expressions: (1) Use of the animal's canonical label (e.g., "leopard"), (2) Use of a descriptor (e.g., "spotted"), (3) Use of a comparison (e.g., "like a cat"), (4) Use of a superordinate level category label (e.g., "bird" for peacock), and (5) Use of a subordinate level category label (e.g., "Limelight Larry" for peacock). Because the rates of usage of each of these kinds of reference varied widely (e.g. canonical labels were used on `r canonical_used`\% of trials, but subordinates were used on `r subordinate_used`\% of trials), we fit a logistic mixed effects model separately for each reference kind, estimating whether it would be used on each trial from whether the parent thought their child knew the animal. 
 
-<<<<<<< HEAD
-Canonical labels were used on almost all trials, and did not differ in frequency between animals parents thought their children did not know ($M =$ `r canonical_unknown_used`\%) and animals they thought their children knew ($M =$ `r canonical_known_used`\%, $\beta =$ `r canonical_estimate`, $p =$ `r canonical_p.value`, $d$ = `r canonical_d` [`r canonical_d_low`, `r canonical_d_high`]). Parents thus produced canonical labels even when they thought their children did know these labels. One plausible explanation for this is that the target animal on each trial was identified in writing for the parent, activating the canonical label and thus lowering the cost of retrieving and producing it [@wingfield1965]. Another possibility is that this reflects parents' general tendency to produce basic-level category labels when talking to children [@callanan1985; @blewitt1983]. Finally, it could have been produced for implicitly or explicitly pedagogical reasons even though it was not referentially necessary. We expand on this possibility in the Discussion below.
-=======
-Canonical labels were used on almost all trials, and did not differ in frequency between animals parents thought their children did not know ($M =$ `r canonical_unknown_used`\%) and animals they thought their children knew ($M =$ `r canonical_known_used`\%, $\beta =$ `r canonical_estimate`, $p =$ `r canonical_p.value`, $d$ = `r canonical_d` [`r canonical_d_low`, `r canonical_d_high`]). Parents thus produced canonical labels even when they thought their children did know these labels. One plausible explanation for this is that the target animal on each trial was identified in writing for the parent, activating the canonical label and thus lowering the cost of retrieving and producing it [@wingfield1968]. Another possibility is that parents were hedging--they might have thought that their child was unlikely to know the canonical label, but that they nonetheless could. In that case it would be referentially helpful. Finally, it could have been produced for implicitly or explicitly pedagogical reasons even though it was not referentially necessary. We expand on this possibility in the Discussion below.
->>>>>>> b93367375acfc5aaed7842e8feca45f143367bef
+Canonical labels were used on almost all trials, and did not differ in frequency between animals parents thought their children did not know ($M =$ `r canonical_unknown_used`\%) and animals they thought their children knew ($M =$ `r canonical_known_used`\%, $\beta =$ `r canonical_estimate`, $p =$ `r canonical_p.value`, $d$ = `r canonical_d` [`r canonical_d_low`, `r canonical_d_high`]). Parents thus produced canonical labels even when they thought their children did know these labels. One plausible explanation for this is that the target animal on each trial was identified in writing for the parent, activating the canonical label and thus lowering the cost of retrieving and producing it [@wingfield1968]. Another possibility is that this reflects parents' general tendency to produce basic-level category labels when talking to children [@callanan1985; @blewitt1983]. Finally, it could have been produced for implicitly or explicitly pedagogical reasons even though it was not referentially necessary. We expand on this possibility in the Discussion below.
 
 Comparisons were used reliably more for animals parents believed their children did not know than for animals they thought their children knew, ($\beta =$ `r comparison_estimate`, $p =$ `r comparison_p.value`, $d$ = `r comparison_d` [`r comparison_d_low`, `r comparison_d_high`]), as were descriptors ($\beta =$ `r descriptors_estimate`, $p$ `r descriptors_p.value`, $d$ = `r descriptors_d` [`r descriptors_d_low`, `r descriptors_d_high`]) and superordinate category labels ($\beta =$ `r superordinate_estimate`, $p =$ `r superordinate_p.value`, $d$ = `r superordinate_d` [`r superordinate_d_low`, `r superordinate_d_high`]). Subordinates were used less for animals parents thought their children did not know than for animals they thought their children knew ($\beta =$ `r subordinate_estimate`, $p =$ `r subordinate_p.value`, $d$ = `r subordinate_d` [`r subordinate_d_low`, `r subordinate_d_high`]). Thus, parents used a variety of strategies to refer to animals that they believed their children did not understand, but the use of descriptors was the most prominent (Figure \ref{fig:qual-plot}). These descriptors are particularly apt to facilitate children's learning, connecting parents' fine-tuning for reference with their children's language acquisition.
 
