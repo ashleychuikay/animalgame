@@ -32,6 +32,8 @@ library(lme4)
 library(lmerTest)
 library(broom)
 library(broom.mixed)
+library(effectsize)
+library(glue)
 opts_chunk$set(message = FALSE, warning = FALSE, error = FALSE, cache = TRUE, 
                tidy = FALSE, echo = FALSE)
 
@@ -239,8 +241,13 @@ difficulty_lmer <- subj_vocab %>%
   filter(effect == "fixed") %>%
   select(-effect, -group) %>%
   mutate(term = c("intercept", "type late"),
-         p.value = printp(p.value)) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+         p.value = printp(p.value),
+         d = odds_to_d(estimate, log = TRUE),
+         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
+         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+  select(-std.error, -d, -d_low, -d_high) %>% 
+  rename(`$z$-value` = statistic, `$p$-value` = p.value, `$d$ [95% CI]` = d_written)
 
 apa_table(difficulty_lmer,
           caption = "Late age of acquisition (AoA) animals were less likely to be known. Model was specified as \\texttt{understands $\\sim$ type + (1 | subj) + (1 | animal)}",
@@ -359,7 +366,9 @@ apa_table(primary_lmer,
           escape = FALSE, placement = "h")
 ```
 
-One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this hypothesis, we analyzed the second appearance of each animal, predicting (log) length of referring expressions from accuracy on the first appearance, the parents' belief about the child's knowledge of that animal, and the interaction. We found that parents who thought their child knew an animal, but discovered that they did not, used a longer referring expressions in its second appearance (Table \ref{tab:lag-lmer}).
+One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this prediction, we fit a model predicting the (log) length of parents' referring expressions from appearance type (first, following correct, following incorrect), whether the parent thought their child knew the animal prior to the experiment, and their interaction between appearance type and prior belief. We found that parents produced shorter referring expressions on an animal's second appearance following both correct responses and  incorrect responses. When children were correct on an animal's first appearance, parents' referring expressions on its second appearance did not differ in length based on whether they thought their child knew the animal prior to the experiment. However, when children were incorrect on an animal's first appearance, and parents thought they knew the animal prior to the experiment, they produced reliably longer referring expressions on its second appearance.
+
+(Table \ref{tab:lag-lmer}).
 
 ```{r lag-data}
 setup_lag_data <- test_prediction_data %>%
@@ -370,54 +379,30 @@ setup_lag_data <- test_prediction_data %>%
   mutate(lag_correct = lag(correct)) 
 ```
 
-trinary lag correct
-```{r}
-lag_lmer <- setup_lag_data %>%
-  ungroup() %>%
-  mutate(understands = fct_relevel(understands, 
-                                    "Doesn't Know", "Knows")) %>%
-  mutate(lag_correct_trinary = case_when(
-    appearance == "first" ~ "first",
-    lag_correct == "incorrect" ~ "incorrect",
-    T ~ "correct"),
-    lag_correct_trinary = factor(lag_correct_trinary, 
-                                 levels = c("first", "incorrect", 
-                                            "correct")))%>%
-  lmer(log_length ~ lag_correct_trinary * understands + avg_known + 
-         scale(vocab) + ( understands | subj) + (1 | target), data = .) %>%
-  tidy() %>%
-  filter(effect == "fixed") %>%
-  select(-effect, -group) %>%
-  mutate(p.value = printp(p.value))
-  
-  
-  
-  ,
-         term = c("intercept", "first inaccurate", "known animal", 
-                  "first inaccurate $\\cdot$ known animal")) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value)
-```
-
-
 ```{r lag-lmer, results = "asis"}
 lag_lmer <- setup_lag_data %>%
   ungroup() %>%
   mutate(understands = fct_relevel(understands, 
                                     "Doesn't Know", "Knows")) %>%
-  filter(!is.na(lag_correct)) %>%
+  mutate(lag_correct = fct_explicit_na(lag_correct, na_level = "first") %>% 
+           fct_relevel(., "first", "correct", "incorrect")) %>%
   lmer(log_length ~ lag_correct * understands + 
          ( understands | subj) + (1 | target), data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group) %>%
+  mutate(d = t_to_d(statistic, df)$d,
+         d_low = t_to_d(statistic, df)$CI_low,
+         d_high = t_to_d(statistic, df)$CI_high,
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+  select(-effect, -group, -df, -std.error, -d, -d_low, -d_high) %>%
   mutate(p.value = printp(p.value),
-         term = c("intercept", "first inaccurate", "known animal", 
-                  "first inaccurate $\\cdot$ known animal")) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+         term = c("intercept", "first correct", "first incorrect", "known animal", 
+                  "first correct $\\cdot$ known animal", 
+                  "first incorrect $\\cdot$ known animal")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value, `$d$ \\[95% CI\\]` = d_written)
 
 apa_table(lag_lmer,
-           caption = "Predicting length on an animal's second appearance. \\texttt{log(length) $\\sim$ first accuracy $\\cdot$ known + (known | subj) + (1 | animal)}",
-          escape = FALSE, placement = "h")
+           caption = "Predicting length of referring expression on an animal's second appearance from whether children were correct or incorrect on its first appearance and parents' prior beliefs. Appearance state coded with 'first appearance' as the reference category and 'correct on first appearance' and 'incorrect on first appearance' as two dummy codes. \\texttt{log(length) $\\sim$ appearance state $\\cdot$ known + (known | subj) + (1 | animal)}", escape = FALSE, placement = "h")
 ```
 
 \section{Content of referring expressions}
