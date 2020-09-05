@@ -242,14 +242,14 @@ difficulty_lmer <- subj_vocab %>%
   select(-effect, -group) %>%
   mutate(term = c("intercept", "type late"),
          p.value = printp(p.value),
-         d = odds_to_d(estimate, log = TRUE),
-         d_high = odds_to_d(estimate + 1.96 * std.error, log = TRUE),
-         d_low = odds_to_d(estimate - 1.96 * std.error, log = TRUE),
+         d = round(odds_to_d(estimate, log = TRUE), 2),
+         d_high = round(odds_to_d(estimate + 1.96 * std.error, log = TRUE), 2),
+         d_low = round(odds_to_d(estimate - 1.96 * std.error, log = TRUE), 2),
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
   select(-std.error, -d, -d_low, -d_high) %>% 
-  rename(`$z$-value` = statistic, `$p$-value` = p.value, `$d$ [95% CI]` = d_written)
+  rename(`$z$-value` = statistic, `$p$-value` = p.value, `$d$ [95\\% CI]` = d_written)
 
-apa_table(difficulty_lmer,
+apa_table(difficulty_lmer, align = "r",
           caption = "Late age of acquisition (AoA) animals were less likely to be known. Model was specified as \\texttt{understands $\\sim$ type + (1 | subj) + (1 | animal)}",
           escape = FALSE, placement = "h")
 ```
@@ -272,17 +272,23 @@ test_prediction_data <- target_data %>%
 ```
 
 ```{r overall-acc-model, results = "asis", fig.pos = "H"}
-overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + (1 | target),
+overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) + 
+                             (1 | target),
       data = test_prediction_data %>% mutate(base = log(1/3)), 
       family = "binomial") %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-group, -effect) %>%
-  mutate(p.value = printp(p.value)) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
-  mutate(term = "intercept")
+  mutate(term = "intercept", 
+         p.value = printp(p.value),
+         d = round(odds_to_d(estimate, log = TRUE), 2),
+         d_high = round(odds_to_d(estimate + 1.96 * std.error, log = TRUE), 2),
+         d_low = round(odds_to_d(estimate - 1.96 * std.error, log = TRUE), 2),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value,
+         `$d$ [95\\% CI]` = d_written) %>%
+  select(-group, -effect, -d, -d_low, -d_high)
 
-apa_table(overall_acc_model,
+apa_table(overall_acc_model, align = "r",
           caption = "Overall accuracy on each trial. Model specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
           escape = FALSE, placement = "h")
 ```
@@ -300,12 +306,17 @@ type_acc_model <- test_prediction_data %>%
   unnest(cols = c(model)) %>%
   ungroup() %>%
   filter(effect == "fixed") %>%
-  select(-group, -effect, -understands) %>%
-  mutate(p.value = printp(p.value)) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
-  mutate(term = c("known intercept", "unknown intercept"))
+  mutate(term = c("known intercept", "unknown intercept"),
+         d = round(odds_to_d(estimate, log = TRUE), 2),
+         d_high = round(odds_to_d(estimate + 1.96 * std.error, log = TRUE), 2),
+         d_low = round(odds_to_d(estimate - 1.96 * std.error, log = TRUE), 2),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+    rename(`$z$-value` = statistic, `$p$-value` = p.value,
+         `$d$ [95\\% CI]` = d_written) %>%
+  select(-group, -effect, -understands, -d, -d_low, -d_high) 
+  
 
-apa_table(type_acc_model,
+apa_table(type_acc_model, align = "r",
           caption = "Accuracy for known and unknown animals. Models specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)} separately for known and unknown animals",
           escape = FALSE, placement = "h")
 ```
@@ -322,12 +333,18 @@ test_lmer <- test_prediction_data %>%
       data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-group, -effect) %>%
-  mutate(p.value = printp(p.value)) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value) %>%
-  mutate(term = c("intercept", "(log) length", "unknown animal", "scaled(vocab size)", "(log) length $\\cdot$ unknown animal"))
+  mutate(term = c("intercept", "(log) length", "unknown animal", 
+                  "scaled(vocab size)", "(log) length $\\cdot$ unknown animal"),
+         p.value = printp(p.value),
+         d = round(odds_to_d(estimate, log = TRUE), 2),
+         d_high = round(odds_to_d(estimate + 1.96 * std.error, log = TRUE), 2),
+         d_low = round(odds_to_d(estimate - 1.96 * std.error, log = TRUE), 2),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+    rename(`$z$-value` = statistic, `$p$-value` = p.value,
+         `$d$ [95\\% CI]` = d_written) %>%
+  select(-effect, -group, -d, -d_high, - d_low) 
 
-apa_table(test_lmer,
+apa_table(test_lmer, align = "r",
            caption = "Predicting accuracy on each trial from referring expressions. Model specified as \\texttt{correct $\\sim$ log(length) $\\cdot$ unknown + scaled(vocab) + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
           escape = FALSE, placement = "h")
 ```
@@ -355,13 +372,19 @@ primary_lmer <- trial_known_data %>%
        data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group) %>%
-  mutate(p.value = printp(p.value),
-         term = c("intercept", "second appearance", "known animal", 
-                  "prop. known", "scaled(vocab size)", "second $\\cdot$ known")) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value)
+  mutate(term = c("intercept", "second appearance", "known animal", 
+                  "prop. known", "scaled(vocab size)", 
+                  "second $\\cdot$ known"),
+         p.value = printp(p.value),
+         d = round(t_to_d(statistic, df)$d, 2),
+         d_low = round(t_to_d(statistic, df)$CI_low, 2),
+         d_high = round(t_to_d(statistic, df)$CI_high, 2),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+  select(-effect, -group, -df, -std.error, -d, -d_low, -d_high) %>%
+  rename(`$z$-value` = statistic, `$p$-value` = p.value, 
+         `$d$ [95\\% CI]` = d_written)
 
-apa_table(primary_lmer,
+apa_table(primary_lmer, align = "r",
            caption = "Predicting length of referring expressions. Model specified as \\texttt{log(length) $\\sim$ appearance $\\cdot$ known + prop. know + scaled(vocab) +  (known | subj) + (appearance | animal)}",
           escape = FALSE, placement = "h")
 ```
@@ -390,19 +413,20 @@ lag_lmer <- setup_lag_data %>%
          ( understands | subj) + (1 | target), data = .) %>%
   tidy() %>%
   filter(effect == "fixed") %>%
-  mutate(d = t_to_d(statistic, df)$d,
-         d_low = t_to_d(statistic, df)$CI_low,
-         d_high = t_to_d(statistic, df)$CI_high,
+  mutate(term = c("intercept", "first correct", "first incorrect", 
+                  "known animal", "first correct $\\cdot$ known animal", 
+                  "first incorrect $\\cdot$ known animal"),
+         p.value = printp(p.value),
+         d = round(t_to_d(statistic, df)$d, 2),
+         d_low = round(t_to_d(statistic, df)$CI_low, 2),
+         d_high = round(t_to_d(statistic, df)$CI_high, 2),
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
-  select(-effect, -group, -df, -std.error, -d, -d_low, -d_high) %>%
-  mutate(p.value = printp(p.value),
-         term = c("intercept", "first correct", "first incorrect", "known animal", 
-                  "first correct $\\cdot$ known animal", 
-                  "first incorrect $\\cdot$ known animal")) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value, `$d$ \\[95% CI\\]` = d_written)
+  rename(`$z$-value` = statistic, `$p$-value` = p.value,
+         `$d$ [95\\% CI]` = d_written) %>%
+  select(-effect, -group, -d, -d_high, - d_low) 
 
-apa_table(lag_lmer,
-           caption = "Predicting length of referring expression on an animal's second appearance from whether children were correct or incorrect on its first appearance and parents' prior beliefs. Appearance state coded with 'first appearance' as the reference category and 'correct on first appearance' and 'incorrect on first appearance' as two dummy codes. \\texttt{log(length) $\\sim$ appearance state $\\cdot$ known + (known | subj) + (1 | animal)}", escape = FALSE, placement = "h")
+apa_table(lag_lmer, align = "r",
+           caption = "Predicting length of referring expression on an animal's second appearance from whether children were correct or incorrect on its first appearance and parents' prior beliefs. Appearance state coded with `first appearance' as the reference category and `correct on first appearance' and `incorrect on first appearance' as two dummy codes. \\texttt{log(length) $\\sim$ appearance state $\\cdot$ known + (known | subj) + (1 | animal)}", escape = FALSE, placement = "h")
 ```
 
 \section{Content of referring expressions}
@@ -412,7 +436,7 @@ In our primary analyses, we focused on the length of parents' referring expressi
 ```{r qual-coding}
 tidy_qual_data <- target_data %>%
   select(-num_anaphoric, -num_animal_sounds) %>%
-  group_by(understands, appearance, target, target, subj) %>%
+  group_by(understands, appearance, trial_target, target, subj) %>%
   summarise_at(vars(length, num_descriptors:num_superordinate), sum) %>%
   pivot_longer(cols = num_descriptors:num_superordinate, 
                names_to = "qual_measure", 
@@ -436,10 +460,8 @@ qual_lmer <- tidy_qual_data %>%
   select(-data) %>%
   unnest(cols = c(model)) %>%
   filter(effect == "fixed") %>%
-  select(-effect, -group) %>%
   ungroup() %>%
-  mutate(p.value = printp(p.value),
-         qual_measure = case_when(qual_measure == 
+  mutate(qual_measure = case_when(qual_measure == 
                                     "num_descriptors" ~ "descriptor",
                                   qual_measure == 
                                     "num_canonical" ~ "canonical name",
@@ -450,14 +472,19 @@ qual_lmer <- tidy_qual_data %>%
                                   qual_measure == 
                                     "num_superordinate" ~ "suoperordinate"),
          term = case_when(term == "(Intercept)" ~ "intercept",
-                          T ~ "unknown animal")) %>%
-  rename(`$z$-value` = statistic, `$p$-value` = p.value, 
-         measure = qual_measure)
-
-apa_table(qual_lmer,
+                          T ~ "unknown animal"),
+         p.value = printp(p.value),
+         d = round(odds_to_d(estimate, log = TRUE), 2),
+         d_high = round(odds_to_d(estimate + 1.96 * std.error, log = TRUE), 2),
+         d_low = round(odds_to_d(estimate - 1.96 * std.error, log = TRUE), 2),
+         d_written = glue("{d} [{d_low}, {d_high}]")) %>%
+    rename(`$z$-value` = statistic, `$p$-value` = p.value,
+         `$d$ [95\\% CI]` = d_written, measure = qual_measure) %>%
+  select(-effect, -group, -d, -d_high, - d_low)
+  
+apa_table(qual_lmer, align = "r",
            caption = "Qualitative analysis of referential expressions. Models were specified as \\texttt{usage $\\sim$ unknown animal + (1 | subj) + (1 | animal)}",
           escape = FALSE, placement = "h")
-
 ```
 
 \newpage
