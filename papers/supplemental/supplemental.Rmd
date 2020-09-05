@@ -389,9 +389,7 @@ apa_table(primary_lmer, align = "r",
           escape = FALSE, placement = "h")
 ```
 
-One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this prediction, we fit a model predicting the (log) length of parents' referring expressions from appearance type (first, following correct, following incorrect), whether the parent thought their child knew the animal prior to the experiment, and their interaction between appearance type and prior belief. We found that parents produced shorter referring expressions on an animal's second appearance following both correct responses and  incorrect responses. When children were correct on an animal's first appearance, parents' referring expressions on its second appearance did not differ in length based on whether they thought their child knew the animal prior to the experiment. However, when children were incorrect on an animal's first appearance, and parents thought they knew the animal prior to the experiment, they produced reliably longer referring expressions on its second appearance.
-
-(Table \ref{tab:lag-lmer}).
+One possible explanation for the smaller effect of parents' a priori beliefs about the child's knowledge on the second appearance of each animal is that they gathered information from its first appearance. To test this prediction, we fit a model predicting the (log) length of parents' referring expressions from appearance type (first, following correct, following incorrect), whether the parent thought their child knew the animal prior to the experiment, and their interaction between appearance type and prior belief. We found that parents produced shorter referring expressions on an animal's second appearance following both correct responses and  incorrect responses. When children were correct on an animal's first appearance, parents' referring expressions on its second appearance did not differ in length based on whether they thought their child knew the animal prior to the experiment. However, when children were incorrect on an animal's first appearance, and parents thought they knew the animal prior to the experiment, they produced reliably longer referring expressions on its second appearance (Table \ref{tab:lag-lmer}).
 
 ```{r lag-data}
 setup_lag_data <- test_prediction_data %>%
@@ -493,8 +491,7 @@ apa_table(qual_lmer, align = "r",
 
 \begingroup
 \setlength{\parindent}{-0.5in}
-
+\setlength{\leftskip}{0.5in}
 \noindent
-
 <div id = "refs"></div>
 \endgroup
