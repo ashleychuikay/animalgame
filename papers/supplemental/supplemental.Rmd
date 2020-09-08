@@ -286,7 +286,7 @@ overall_acc_model <- glmer(correct ~ 1 + offset(base) + (1 | subj) +
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value,
          `$d$ [95\\% CI]` = d_written) %>%
-  select(-group, -effect, -d, -d_low, -d_high)
+  select(-group, -effect, -std.error, -d, -d_low, -d_high)
 
 apa_table(overall_acc_model, align = "r",
           caption = "Overall accuracy on each trial. Model specified as \\texttt{correct $\\sim$ 1 + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
@@ -313,7 +313,7 @@ type_acc_model <- test_prediction_data %>%
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
     rename(`$z$-value` = statistic, `$p$-value` = p.value,
          `$d$ [95\\% CI]` = d_written) %>%
-  select(-group, -effect, -understands, -d, -d_low, -d_high) 
+  select(-group, -effect, -std.error, -understands, -d, -d_low, -d_high) 
   
 
 apa_table(type_acc_model, align = "r",
@@ -342,7 +342,7 @@ test_lmer <- test_prediction_data %>%
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
     rename(`$z$-value` = statistic, `$p$-value` = p.value,
          `$d$ [95\\% CI]` = d_written) %>%
-  select(-effect, -group, -d, -d_high, - d_low) 
+  select(-effect, -group, -d, -std.error, -d_high, - d_low) 
 
 apa_table(test_lmer, align = "r",
            caption = "Predicting accuracy on each trial from referring expressions. Model specified as \\texttt{correct $\\sim$ log(length) $\\cdot$ unknown + scaled(vocab) + offset(log(1/3)) + (1 | subj) + (1 | animal)}",
@@ -421,7 +421,7 @@ lag_lmer <- setup_lag_data %>%
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
   rename(`$z$-value` = statistic, `$p$-value` = p.value,
          `$d$ [95\\% CI]` = d_written) %>%
-  select(-effect, -group, -d, -d_high, - d_low) 
+  select(-effect, -group, -std.error, -df, -d, -d_high, - d_low) 
 
 apa_table(lag_lmer, align = "r",
            caption = "Predicting length of referring expression on an animal's second appearance from whether children were correct or incorrect on its first appearance and parents' prior beliefs. Appearance state coded with `first appearance' as the reference category and `correct on first appearance' and `incorrect on first appearance' as two dummy codes. \\texttt{log(length) $\\sim$ appearance state $\\cdot$ known + (known | subj) + (1 | animal)}", escape = FALSE, placement = "h")
@@ -478,7 +478,7 @@ qual_lmer <- tidy_qual_data %>%
          d_written = glue("{d} [{d_low}, {d_high}]")) %>%
     rename(`$z$-value` = statistic, `$p$-value` = p.value,
          `$d$ [95\\% CI]` = d_written, measure = qual_measure) %>%
-  select(-effect, -group, -d, -d_high, - d_low)
+  select(-effect, -group, -std.error, -d, -d_high, - d_low)
   
 apa_table(qual_lmer, align = "r",
            caption = "Qualitative analysis of referential expressions. Models were specified as \\texttt{usage $\\sim$ unknown animal + (1 | subj) + (1 | animal)}",
