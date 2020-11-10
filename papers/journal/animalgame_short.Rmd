@@ -3,21 +3,21 @@ title             : "Parents fine-tune their speech to children's vocabulary kno
 shorttitle        : "Parents fine-tune speech"
 
 author: 
-  - name          : "XXXXX"
+  - name          : "Ashley Leung"
     affiliation   : "1"
     corresponding : yes    # Define only one corresponding author
-    address       : "XXXXX"
-    email         : "XXXXX"
-  - name          : "XXXXX"
+    address       : "5848 S University Ave, Chicago, IL 60637"
+    email         : "ashleyleung@uchicago.edu"
+  - name          : "Alexandra Tunkel"
     affiliation   : "1"
-  - name          : "XXXXX"
+  - name          : "Daniel Yurovsky"
     affiliation   : "1,2"
 
 affiliation:
   - id            : "1"
-    institution   : "XXXXX"
+    institution   : "The University of Chicago"
   - id            : "2"
-    institution   : "XXXXX"
+    institution   : "Carnegie Mellon University"
 
 abstract: |
    Young children learn language at an incredible rate. While children come prepared with powerful statistical learning mechanisms, the statistics they encounter are also prepared for them: children learn from caregivers motivated to communicate with them. How precisely do parents tune their speech to their children's individual language knowledge? To answer this question, we asked parent-child pairs (n=41) to play a reference game in which the parent's goal was to guide their child to select a target animal from a set of three. Parents fine-tuned their referring expressions to their children's knowledge at the lexical level, producing more informative references for animals they thought their children did not know. Further, parents learned about their children's knowledge over the course of the game, and tuned their referring expressions accordingly. Child-directed speech may thus support children's learning not because it is uniformly simplified, but because it is tuned to individual children's language development.
@@ -27,7 +27,7 @@ abstract: |
    The pace at which children learn language is one of the most impressive feats of early cognitive development. One possible explanation for this rapid pace is that the language caregivers produce is tuned to children's developing linguistic knowledge, maintaining just the right level of complexity to support rapid learning. We present the first experimental evidence of just how precise this tuning is, showing that parents tune not just to children's holistic language development, but to their knowledge of individual words. We developed a new method in which we experimentally controlled what parents talked about, but not how they could talk or what they could say, increasing the chance that these  results will generalize outside the lab. This work points to the importance of studying the parent-child dyad as a unit instead of focusing on children as isolated learners, both in the domain of language and in social learning more broadly.
    
 authornote: |
-  All data and code for these analyses are available at https://osf.io/3f8hy/?view_only=9a196db0444c4867bc899cc70a7a1e9c. Videos of experiment sessions are available on Databrary.
+  All data and code for these analyses are available at https://osf.io/3f8hy. Videos of experiment sessions are available on Databrary: https://nyu.databrary.org/volume/1128.
 
 keywords          : "parent-child interaction; language development; communication"
 wordcount         : "1385"
@@ -716,10 +716,10 @@ ggplot(plot_qual_means %>% filter(qual_measure != "Canonical"),
              ymin = ci_lower, ymax = ci_upper, 
              fill = understands)) + 
   facet_grid(~ qual_measure) + 
-  labs(x = "", y = "Parents' production probability") +
+  labs(x ="Parent's belief about target animal", y = "Parents' production probability") +
   geom_col(position = position_dodge(.5), width = .5) + 
   geom_linerange(position = position_dodge(.5)) + 
-  scale_x_discrete(labels= c("Known\nanimal", "Unknown\nanimal")) +
+  scale_x_discrete(labels= c("Known", "Unknown")) +
   scale_fill_ptol() +
   theme(strip.background = element_rect(color = "black"))
 ```
@@ -742,7 +742,7 @@ Parents fine-tune language to their children’s knowledge in order to communica
 
 # Acknowledgements
 
-This research was funded by a James S. McDonnell Foundation Scholar Award to the last author.
+This research was funded by a James S. McDonnell Foundation Scholar Award to DY.
 
 \newpage
 
